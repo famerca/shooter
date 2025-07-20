@@ -19,6 +19,18 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(glfw3 REQUIRED)
 
+# macOS specific: Find OpenGL framework
+if(APPLE)
+    find_library(OPENGL_LIBRARY OpenGL)
+    find_library(COCOA_LIBRARY Cocoa)
+    find_library(IOKIT_LIBRARY IOKit)
+    find_library(COREVIDEO_LIBRARY CoreVideo)
+    
+    # Set GLEW paths for macOS
+    set(GLEW_INCLUDE_DIRS "/opt/homebrew/include")
+    set(GLEW_LIBRARIES "/opt/homebrew/lib/libGLEW.dylib")
+endif()
+
 # Source files (including main.cpp)
 file(GLOB SRC "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
@@ -30,7 +42,11 @@ add_library(OGShooterLib ${SRC})
 target_include_directories(OGShooterLib PUBLIC "${PROJECT_SOURCE_DIR}/include")
 
 # 👉 Enlazar las dependencias a la librería, porque ahí se usan
-target_link_libraries(OGShooterLib PUBLIC GL GLEW glfw)
+if(APPLE)
+    target_link_libraries(OGShooterLib PUBLIC ${OPENGL_LIBRARY} ${COCOA_LIBRARY} ${IOKIT_LIBRARY} ${COREVIDEO_LIBRARY} ${GLEW_LIBRARIES} glfw)
+else()
+    target_link_libraries(OGShooterLib PUBLIC GL GLEW glfw)
+endif()
 
 # Ejecutable usando main.cpp
 add_executable(OGShooter "${PROJECT_SOURCE_DIR}/src/main.cpp")
