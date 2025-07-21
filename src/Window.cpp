@@ -101,6 +101,7 @@ void Window::HandleKeys(GLFWwindow* window, int key, int code, int action, int m
     {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
+
     if (key >= 0 && key < 1024)
     {
         if (action == GLFW_PRESS)
