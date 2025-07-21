@@ -20,7 +20,12 @@ int main()
         return EXIT_FAILURE;
     }
 
-    // Define vertices for the triangle
+    // Variables para el desplazamiento del triángulo
+    float xOffset = 0.0f;
+    float yOffset = 0.0f;
+    const float moveSpeed = 0.02f;
+
+    // Define vertices for the triangle (se actualizarán en cada frame)
     GLfloat vertices[] = {
         -1.f, -1.f, 0.f,
         1.f, -1.f, 0.f,
@@ -40,6 +45,21 @@ int main()
     {
         // Get and handle user input events
         mainWindow.PollEvents();
+
+        // Leer teclas
+        bool* keys = mainWindow.GetKeys();
+        if (keys[GLFW_KEY_LEFT])  xOffset -= moveSpeed;
+        if (keys[GLFW_KEY_RIGHT]) xOffset += moveSpeed;
+        if (keys[GLFW_KEY_UP])    yOffset += moveSpeed;
+        if (keys[GLFW_KEY_DOWN])  yOffset -= moveSpeed;
+
+        // Actualizar los vértices con el desplazamiento
+        GLfloat movedVertices[] = {
+            -1.f + xOffset, -1.f + yOffset, 0.f,
+             1.f + xOffset, -1.f + yOffset, 0.f,
+             0.f + xOffset,  1.f + yOffset, 0.f
+        };
+        triangleMesh.CreateMesh(movedVertices, 9);
 
         // Clear the window
         glClearColor(0.f, 0.f, 0.f, 1.f);

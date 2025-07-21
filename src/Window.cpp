@@ -6,6 +6,9 @@
 Window::Window(GLint windowWidth, GLint windowHeight, const char* windowTitle)
     : width(windowWidth), height(windowHeight), title(windowTitle), mainWindow(nullptr), bufferWidth(0), bufferHeight(0)
 {
+    // Inicializar todas las teclas a false
+    for (int i = 0; i < 1024; i++)
+        keys[i] = false;
 }
 
 int Window::Init()
@@ -87,27 +90,26 @@ void Window::PollEvents()
 void Window::CreateCallbacks()
 {
     // Set the user pointer for the window so we can access Window instance in static callback
-    // glfwSetWindowUserPointer(mainWindow, this); // Uncomment if you need to access 'this' in callbacks
-
-    // glfwSetKeyCallback(mainWindow, HandleKeys); // Uncomment and implement if you need keyboard input
+    glfwSetWindowUserPointer(mainWindow, this);
+    glfwSetKeyCallback(mainWindow, HandleKeys);
 }
 
 void Window::HandleKeys(GLFWwindow* window, int key, int code, int action, int mode)
 {
-    // Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    // if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    // {
-    //     glfwSetWindowShouldClose(window, GL_TRUE);
-    // }
-    // if (key >= 0 && key < 1024)
-    // {
-    //     if (action == GLFW_PRESS)
-    //     {
-    //         theWindow->keys[key] = true;
-    //     }
-    //     else if (action == GLFW_RELEASE)
-    //     {
-    //         theWindow->keys[key] = false;
-    //     }
-    // }
+    Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+    if (key >= 0 && key < 1024)
+    {
+        if (action == GLFW_PRESS)
+        {
+            theWindow->keys[key] = true;
+        }
+        else if (action == GLFW_RELEASE)
+        {
+            theWindow->keys[key] = false;
+        }
+    }
 }
