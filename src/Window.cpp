@@ -1,21 +1,26 @@
-#include "Window.h"
+#include <Window.hpp>
 
-// Variables estáticas para la gestión de teclas (si quieres añadir más adelante)
-// bool* keys;
-
-Window::Window(GLint windowWidth, GLint windowHeight, const char* windowTitle)
-    : width(windowWidth), height(windowHeight), title(windowTitle), mainWindow(nullptr), bufferWidth(0), bufferHeight(0)
+Window::~Window()
 {
+    glfwDestroyWindow(window);
+    glfwTerminate();
 }
 
-int Window::Init()
+
+std::shared_ptr<Window> Window::create(GLint width, GLint height, std::string_view title) noexcept
 {
-    // Initialize GLFW
+    LOG_INIT_CERR();
+
+    auto window = std::make_shared<Window>();
+
+    window->width = width;
+    window->height = height;
+
     if (!glfwInit())
     {
-        std::cerr << "GLFW initialization failed!\n";
+        log(LOG_ERR) << "GLFW initialization failed!\n";
         glfwTerminate();
-        return 1; // Return non-zero for error
+        return nullptr;
     }
 
     // Setup GLFW window properties
@@ -27,87 +32,51 @@ int Window::Init()
     // Allow forward compatibility
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    mainWindow = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    window->window = glfwCreateWindow(width, height, title.data(), nullptr, nullptr);
 
-    if (!mainWindow)
+    if (!window->window)
     {
-        std::cerr << "GLFW window creation failed!\n";
-        glfwDestroyWindow(mainWindow);
+        log(LOG_ERR) << "GLFW window creation failed!\n";
         glfwTerminate();
-        return 1;
+        return nullptr;
     }
-
-    // Get buffer size information
-    glfwGetFramebufferSize(mainWindow, &bufferWidth, &bufferHeight);
-
+    
     // Set context for GLEW
-    glfwMakeContextCurrent(mainWindow);
-
-    // Handle key and mouse input here (optional, for later use)
-    CreateCallbacks();
+    glfwMakeContextCurrent(window->window);
 
     // Allow modern extension features
     glewExperimental = GL_TRUE;
 
     if (glewInit() != GLEW_OK)
     {
-        std::cerr << "Glew intialization failed!\n";
-        glfwDestroyWindow(mainWindow);
+        log(LOG_ERR) << "Glew intialization failed!\n";
+        glfwDestroyWindow(window->window);
         glfwTerminate();
-        return 1;
+        return nullptr;
     }
 
-    // Setup viewport size
-    glViewport(0, 0, bufferWidth, bufferHeight);
+    // Get buffer size
+    glfwGetFramebufferSize(window->window, &window->buffer_width, &window->buffer_height);
 
-    return 0; // Success
+    glEnable(GL_DEPTH_TEST);
+
+    // Setup viewport
+    glViewport(0, 0, window->buffer_width, window->buffer_height);
+
+    return window;
 }
 
-Window::~Window()
+GLfloat Window::get_aspect_ratio() const noexcept
 {
-    glfwDestroyWindow(mainWindow);
-    glfwTerminate();
+    return GLfloat(get_buffer_width()) / GLfloat(get_buffer_height());
 }
 
-bool Window::ShouldClose()
+bool Window::should_be_closed() const noexcept
 {
-    return glfwWindowShouldClose(mainWindow);
+    return glfwWindowShouldClose(window);
 }
 
-void Window::SwapBuffers()
+void Window::swap_buffers() noexcept
 {
-    glfwSwapBuffers(mainWindow);
-}
-
-void Window::PollEvents()
-{
-    glfwPollEvents();
-}
-
-void Window::CreateCallbacks()
-{
-    // Set the user pointer for the window so we can access Window instance in static callback
-    // glfwSetWindowUserPointer(mainWindow, this); // Uncomment if you need to access 'this' in callbacks
-
-    // glfwSetKeyCallback(mainWindow, HandleKeys); // Uncomment and implement if you need keyboard input
-}
-
-void Window::HandleKeys(GLFWwindow* window, int key, int code, int action, int mode)
-{
-    // Window* theWindow = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    // if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    // {
-    //     glfwSetWindowShouldClose(window, GL_TRUE);
-    // }
-    // if (key >= 0 && key < 1024)
-    // {
-    //     if (action == GLFW_PRESS)
-    //     {
-    //         theWindow->keys[key] = true;
-    //     }
-    //     else if (action == GLFW_RELEASE)
-    //     {
-    //         theWindow->keys[key] = false;
-    //     }
-    // }
+    glfwSwapBuffers(window);
 }

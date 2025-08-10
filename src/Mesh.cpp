@@ -1,52 +1,75 @@
-#include "Mesh.h"
-#include <iostream>
+#include <Mesh.hpp>
 
-Mesh::Mesh() : VAO(0), VBO(0), vertexCount(0)
+std::shared_ptr<Mesh> Mesh::create(const std::vector<Vertex>& vertices, std::vector<unsigned int>& indices) noexcept
 {
-}
+    auto mesh = std::make_shared<Mesh>();
 
-void Mesh::CreateMesh(GLfloat* vertices, unsigned int numOfVertices)
-{
-    vertexCount = numOfVertices;
+    mesh->index_count = indices.size();
 
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    glGenVertexArrays(1, &mesh->VAO_id);
+    glBindVertexArray(mesh->VAO_id);
 
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * numOfVertices, vertices, GL_STATIC_DRAW);
+    glGenBuffers(1, &mesh->IBO_id);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->IBO_id);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr); // Layout (location = 0)
+    //vértices
+    glGenBuffers(1, &mesh->VBO_id);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO_id);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+
+    // Configura los atributos de los vértices (posiciones, normales, texturas)
+    // Posiciones
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // Unbind VBO
-    glBindVertexArray(0);             // Unbind VAO
-}
+    // Normales
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+    glEnableVertexAttribArray(1);
 
-void Mesh::RenderMesh()
-{
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, vertexCount / 3); // For triangles, count is vertices / 3 (e.g., 9 vertices / 3 = 3 points for 1 triangle)
-    glBindVertexArray(0); // Unbind VAO
-}
+    // Texturas
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
+    glEnableVertexAttribArray(2);
 
-void Mesh::ClearMesh()
-{
-    if (VBO != 0)
-    {
-        glDeleteBuffers(1, &VBO);
-        VBO = 0;
-    }
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    if (VAO != 0)
-    {
-        glDeleteVertexArrays(1, &VAO);
-        VAO = 0;
-    }
-    vertexCount = 0;
+    glBindVertexArray(0);
+
+    return mesh;
 }
 
 Mesh::~Mesh()
 {
-    ClearMesh();
+    clear();
+}
+
+void Mesh::render() const noexcept
+{
+    glBindVertexArray(VAO_id);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO_id);
+    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, NULL);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void Mesh::clear() noexcept
+{
+    if (IBO_id != 0)
+    {
+        glDeleteBuffers(1, &IBO_id);
+        IBO_id = 0;
+    }
+
+    if (VBO_id != 0)
+    {
+        glDeleteBuffers(1, &VBO_id);
+        VBO_id = 0;
+    }
+
+    if (VAO_id != 0)
+    {
+        glDeleteBuffers(1, &VAO_id);
+        VAO_id = 0;
+    }
 }

@@ -1,118 +1,136 @@
-#include "Shader.h"
+#include <fstream>
 
-Shader::Shader() : shaderID(0)
-{
-}
+#include <Shader.hpp>
 
 Shader::~Shader()
 {
-    ClearShader();
+    clear();
 }
 
-std::string Shader::ReadShaderFile(const char* filePath)
+std::shared_ptr<Shader> Shader::create_from_strings(std::string_view vertex_shader_code, std::string_view fragment_shader_code) noexcept
 {
-    std::string content;
-    std::ifstream fileStream(filePath, std::ios::in);
+    auto shader = std::make_shared<Shader>();
+    shader->create_program(vertex_shader_code, fragment_shader_code);
+    return shader;
+}
 
-    if (!fileStream.is_open())
+std::shared_ptr<Shader> Shader::create_from_files(std::filesystem::path vertex_shader_path, std::filesystem::path fragment_shader_path) noexcept
+{
+    std::string vertex_shader_code = read_file(vertex_shader_path);
+    std::string fragment_shader_code = read_file(fragment_shader_path);
+    return create_from_strings(vertex_shader_code, fragment_shader_code);
+}
+
+void Shader::use() const noexcept
+{
+    glUseProgram(program_id);
+}
+
+void Shader::create_program(std::string_view vertex_shader_code, std::string_view fragment_shader_code) noexcept
+{
+    LOG_INIT_CERR();
+
+    program_id = glCreateProgram(); 
+
+    if (!program_id)
     {
-        std::cerr << "Failed to read " << filePath << "! File doesn't exist.\n";
+        log(LOG_ERR) << "Error creating shaders program\n";
+        return;
+    }
+
+    create_shader(vertex_shader_code, GL_VERTEX_SHADER);
+    create_shader(fragment_shader_code, GL_FRAGMENT_SHADER);
+
+    glLinkProgram(program_id);
+
+    GLint result;
+    glGetProgramiv(program_id, GL_LINK_STATUS, &result);
+
+    if (!result)
+    {
+        GLchar log_text[1024] = { 0 };
+        glGetProgramInfoLog(program_id, sizeof(log_text), nullptr, log_text);
+        log(LOG_ERR) << "Error linking the program: " << log_text << " \n";
+        return;
+    }
+
+    glValidateProgram(program_id);
+    glGetProgramiv(program_id, GL_VALIDATE_STATUS, &result);
+
+    if (!result)
+    {
+        GLchar log_text[1024] = { 0 };
+        glGetProgramInfoLog(program_id, sizeof(log_text), nullptr, log_text);
+        log(LOG_ERR) << "Error validating the program: " << log_text << " \n";
+    }
+
+    uniform_model_id = glGetUniformLocation(program_id, "model");
+    uniform_projection_id = glGetUniformLocation(program_id, "projection");
+    //otra variable
+}
+
+void Shader::create_shader(std::string_view shader_code, GLenum shader_type) noexcept
+{
+    LOG_INIT_CERR();
+
+    GLuint shader = glCreateShader(shader_type);
+
+    const GLchar* code[1];
+    code[0] = shader_code.data();
+
+    GLint code_length[1];
+    code_length[0] = shader_code.size();
+
+    glShaderSource(shader, 1, code, code_length);
+    glCompileShader(shader);
+
+    GLint result;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+
+    if (!result)
+    {
+        GLchar log_text[1024] = { 0 };
+        glGetShaderInfoLog(shader, sizeof(log), nullptr, log_text);
+        log(LOG_ERR) << "Error compiling the shader " << shader_type << ": " << log_text << "\n";
+        return;
+    }
+
+    glAttachShader(program_id, shader);
+}
+
+void Shader::clear() noexcept
+{
+    if (program_id != 0)
+    {
+        glDeleteProgram(program_id);
+        program_id = 0;
+    }
+
+    uniform_projection_id = 0;
+    uniform_model_id = 0;
+}
+
+std::string Shader::read_file(const std::filesystem::path& shader_path) noexcept
+{
+    LOG_INIT_CERR();
+
+    std::string contents{""};
+
+    std::ifstream in_stream{shader_path};
+
+    if (!in_stream)
+    {
+        log(LOG_ERR) << "File " << shader_path << " not found\n";
         return "";
     }
 
-    std::stringstream ss;
-    ss << fileStream.rdbuf();
-    content = ss.str();
-    fileStream.close();
-    return content;
-}
-
-void Shader::CreateFromFiles(const char* vertexShaderPath, const char* fragmentShaderPath)
-{
-    std::string vertexString = ReadShaderFile(vertexShaderPath);
-    std::string fragmentString = ReadShaderFile(fragmentShaderPath);
-
-    if (vertexString.empty() || fragmentString.empty())
+    std::string line;
+    while (std::getline(in_stream, line))
     {
-        std::cerr << "One or more shader files could not be read. Aborting shader creation.\n";
-        return;
+        contents.append(line + "\n");
     }
 
-    CompileShader(vertexString.c_str(), fragmentString.c_str());
-}
+    in_stream.close();
 
-void Shader::CompileShader(const char* vertexCode, const char* fragmentCode)
-{
-    shaderID = glCreateProgram();
-
-    if (!shaderID)
-    {
-        std::cerr << "Error creating shader program!\n";
-        return;
-    }
-
-    AddShader(shaderID, vertexCode, GL_VERTEX_SHADER);
-    AddShader(shaderID, fragmentCode, GL_FRAGMENT_SHADER);
-
-    GLint result = 0;
-    GLchar eLog[1024] = { 0 };
-
-    glLinkProgram(shaderID);
-    glGetProgramiv(shaderID, GL_LINK_STATUS, &result);
-    if (!result)
-    {
-        glGetProgramInfoLog(shaderID, sizeof(eLog), NULL, eLog);
-        std::cerr << "Error linking program: " << eLog << "\n";
-        return;
-    }
-
-    glValidateProgram(shaderID);
-    glGetProgramiv(shaderID, GL_VALIDATE_STATUS, &result);
-    if (!result)
-    {
-        glGetProgramInfoLog(shaderID, sizeof(eLog), NULL, eLog);
-        std::cerr << "Error validating program: " << eLog << "\n";
-        return;
-    }
-}
-
-void Shader::AddShader(GLuint program, const char* shaderCode, GLenum shaderType)
-{
-    GLuint currentShader = glCreateShader(shaderType);
-
-    const GLchar* theCode[1];
-    theCode[0] = shaderCode;
-
-    GLint codeLength[1];
-    codeLength[0] = (GLint)strlen(shaderCode); // Use strlen as shaderCode is C-string
-
-    glShaderSource(currentShader, 1, theCode, codeLength);
-    glCompileShader(currentShader);
-
-    GLint result = 0;
-    GLchar eLog[1024] = { 0 };
-
-    glGetShaderiv(currentShader, GL_COMPILE_STATUS, &result);
-    if (!result)
-    {
-        glGetShaderInfoLog(currentShader, sizeof(eLog), NULL, eLog);
-        std::cerr << "Error compiling the " << (shaderType == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader: " << eLog << "\n";
-        return;
-    }
-
-    glAttachShader(program, currentShader);
-}
-
-void Shader::UseShader()
-{
-    glUseProgram(shaderID);
-}
-
-void Shader::ClearShader()
-{
-    if (shaderID != 0)
-    {
-        glDeleteProgram(shaderID);
-        shaderID = 0;
-    }
+    return contents;
 }
