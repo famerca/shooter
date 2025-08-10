@@ -164,6 +164,7 @@ int main()
         //specify_vertices();
         Model dado{"dado.fbx"};
         Model suzanne{"suzanne.fbx"};
+        Model sphere{"sphere.fbx"};
         create_shaders_program();
 
         float current_angle{0.f};
@@ -204,7 +205,7 @@ int main()
             //Draw meshes 
 
             glUniformMatrix4fv(Data::shader_list[0]->get_uniform_model_id(), 1, GL_FALSE, glm::value_ptr(modelTriangle));
-            suzanne.render();
+            sphere.render();
             
             glUniformMatrix4fv(Data::shader_list[0]->get_uniform_model_id(), 1, GL_FALSE, glm::value_ptr(modelCube));
             dado.render();
