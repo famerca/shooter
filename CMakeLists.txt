@@ -18,7 +18,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(glfw3 REQUIRED)
-find_package(assimp REQUIRED)
 
 # macOS specific: Find OpenGL framework
 if(APPLE)
@@ -30,6 +29,10 @@ if(APPLE)
     # Set GLEW paths for macOS
     set(GLEW_INCLUDE_DIRS "/opt/homebrew/include")
     set(GLEW_LIBRARIES "/opt/homebrew/lib/libGLEW.dylib")
+    
+    # Set assimp paths for macOS
+    find_library(ASSIMP_LIBRARY assimp PATHS "/opt/homebrew/lib" NO_DEFAULT_PATH)
+    find_path(ASSIMP_INCLUDE_DIR assimp/ai_assert.h PATHS "/opt/homebrew/include" NO_DEFAULT_PATH)
 endif()
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party)
@@ -45,7 +48,8 @@ target_include_directories(GLSHOOTERLIB PUBLIC "${PROJECT_SOURCE_DIR}/include")
 
 
 if(APPLE)
-    target_link_libraries(GLSHOOTERLIB PUBLIC ${OPENGL_LIBRARY} ${COCOA_LIBRARY} ${IOKIT_LIBRARY} ${COREVIDEO_LIBRARY} ${GLEW_LIBRARIES} glfw)
+    target_link_libraries(GLSHOOTERLIB PUBLIC ${OPENGL_LIBRARY} ${COCOA_LIBRARY} ${IOKIT_LIBRARY} ${COREVIDEO_LIBRARY} ${GLEW_LIBRARIES} glfw ${ASSIMP_LIBRARY})
+    target_include_directories(GLSHOOTERLIB PUBLIC ${ASSIMP_INCLUDE_DIR})
 else()
     target_link_libraries(GLSHOOTERLIB PUBLIC GL GLEW glfw )
     target_link_libraries(GLSHOOTERLIB PRIVATE assimp)
