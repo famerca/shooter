@@ -54,6 +54,7 @@ public:
     
     void load_textures(const aiScene* scene, const std::filesystem::path& model_path) noexcept;
     void create_default_texture() noexcept;
+    
     std::shared_ptr<Texture> create_texture_from_embedded_data(const aiTexture* embedded_texture) noexcept;
     std::shared_ptr<Texture> create_texture_from_uncompressed_data(const aiTexture* embedded_texture) noexcept;
 

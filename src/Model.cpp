@@ -349,31 +349,9 @@ void Model::create_default_texture() noexcept
     // Crear una textura de 1x1 píxeles con color basado en el nombre del modelo
     unsigned char data[4];
     
-    // Determinar color basado en el nombre del modelo (si está disponible)
-    if (mesh && mesh->get_name().find("dado") != std::string::npos)
-    {
-        // Color rojo para el dado
-        data[0] = 255; data[1] = 0; data[2] = 0; data[3] = 255; // RGBA rojo
-        std::cout << "  Creando textura roja para dado" << std::endl;
-    }
-    else if (mesh && mesh->get_name().find("suzanne") != std::string::npos)
-    {
-        // Color azul para suzanne
-        data[0] = 0; data[1] = 0; data[2] = 255; data[3] = 255; // RGBA azul
-        std::cout << "  Creando textura azul para suzanne" << std::endl;
-    }
-    else if (mesh && mesh->get_name().find("sphere") != std::string::npos)
-    {
-        // Color verde para sphere
-        data[0] = 0; data[1] = 255; data[2] = 0; data[3] = 255; // RGBA verde
-        std::cout << "  Creando textura verde para sphere" << std::endl;
-    }
-    else
-    {
-        // Color gris por defecto
-        data[0] = 128; data[1] = 128; data[2] = 128; data[3] = 255; // RGBA gris
-        std::cout << "  Creando textura gris por defecto" << std::endl;
-    }
+    // Color gris por defecto
+    data[0] = 128; data[1] = 128; data[2] = 128; data[3] = 255; // RGBA gris
+    std::cout << "  Creando textura gris por defecto" << std::endl;
     
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     

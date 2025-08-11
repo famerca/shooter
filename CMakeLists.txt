@@ -39,8 +39,11 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party)
 execute_process(
     COMMAND git clone "https://github.com/bschiffthaler/BSlogger.git" BSlogger
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party)
+execute_process(
+    COMMAND git clone "https://github.com/nothings/stb.git" stb
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/third_party/BSlogger/src)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/third_party/BSlogger/src ${CMAKE_CURRENT_BINARY_DIR}/third_party/stb)
 
 file(GLOB SRC "${PROJECT_SOURCE_DIR}/src/*.cpp")
 add_library(GLSHOOTERLIB ${SRC})

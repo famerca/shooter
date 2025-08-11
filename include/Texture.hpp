@@ -3,8 +3,8 @@
 #include <string>
 #include <memory>
 #include <filesystem>
-
 #include <GL/glew.h>
+#include <stb_image.h>
 
 #ifndef TEXTURE_HPP
 #define TEXTURE_HPP
