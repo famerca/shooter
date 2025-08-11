@@ -31,9 +31,8 @@ std::shared_ptr<Mesh> Mesh::create(const std::vector<Vertex>& vertices, std::vec
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords));
     glEnableVertexAttribArray(2);
 
+    // Es seguro desbindear el VBO, pero mantener el EBO ligado al VAO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
     glBindVertexArray(0);
 
     return mesh;
@@ -47,9 +46,7 @@ Mesh::~Mesh()
 void Mesh::render() const noexcept
 {
     glBindVertexArray(VAO_id);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO_id);
-    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, NULL);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 }
 
@@ -69,7 +66,7 @@ void Mesh::clear() noexcept
 
     if (VAO_id != 0)
     {
-        glDeleteBuffers(1, &VAO_id);
+        glDeleteVertexArrays(1, &VAO_id);
         VAO_id = 0;
     }
 }

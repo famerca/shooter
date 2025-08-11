@@ -34,6 +34,8 @@ public:
     GLuint get_uniform_projection_id() const noexcept { return uniform_projection_id; }
 
     GLuint get_uniform_model_id() const noexcept { return uniform_model_id; }
+    
+    GLuint get_uniform_diffuse_texture_id() const noexcept { return uniform_diffuse_texture_id; }
 
     void use() const noexcept;
 
@@ -49,6 +51,7 @@ private:
     GLuint program_id{0};
     GLuint uniform_projection_id{0};
     GLuint uniform_model_id{0};
+    GLuint uniform_diffuse_texture_id{0};
 };
 
 #endif // SHADER_HPP

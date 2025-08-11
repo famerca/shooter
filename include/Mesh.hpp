@@ -34,6 +34,9 @@ public:
 
     void render() const noexcept;
     
+    const std::string& get_name() const noexcept { return name; }
+    void set_name(const std::string& n) noexcept { name = n; }
+    
 private:
     void clear() noexcept;
 
@@ -41,6 +44,7 @@ private:
     GLuint VBO_id{0};
     GLuint IBO_id{0};
     GLsizei index_count{0};
+    std::string name;
 };
 
 #endif // MESH_HPP

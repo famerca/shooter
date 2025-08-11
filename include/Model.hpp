@@ -11,6 +11,7 @@
 
 #include "Mesh.hpp"
 #include "Context.hpp"
+#include "Texture.hpp"
 
 #ifndef MODEL_HPP
 #define MODEL_HPP
@@ -50,12 +51,15 @@ public:
     void scale(float x, float y, float z) noexcept;
     
     void setContext(std::shared_ptr<Context> context) noexcept;
-
     
+    void load_textures(const aiScene* scene, const std::filesystem::path& model_path) noexcept;
+    void create_default_texture() noexcept;
+    std::shared_ptr<Texture> create_texture_from_embedded_data(const aiTexture* embedded_texture) noexcept;
+    std::shared_ptr<Texture> create_texture_from_uncompressed_data(const aiTexture* embedded_texture) noexcept;
 
 private:
     void clear() noexcept;
-    void process_mesh(const aiMesh *mesh);
+    void process_mesh(const aiMesh *mesh, const std::string& model_name);
     void transforms() noexcept;
 
     glm::mat4 model_matrix;
@@ -66,6 +70,7 @@ private:
 
     std::shared_ptr<Mesh> mesh;
     std::shared_ptr<Context> context;
+    std::vector<std::shared_ptr<Texture>> textures;
 };
 
 #endif // MODEL_HPP
