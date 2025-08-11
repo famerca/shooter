@@ -54,8 +54,16 @@ void Shader::create_program(std::string_view vertex_shader_code, std::string_vie
         return;
     }
 
+    // Validación con VAO temporal para evitar "No vertex array object bound"
+    GLuint tmpVAO = 0;
+    glGenVertexArrays(1, &tmpVAO);
+    glBindVertexArray(tmpVAO);
+
     glValidateProgram(program_id);
     glGetProgramiv(program_id, GL_VALIDATE_STATUS, &result);
+
+    glBindVertexArray(0);
+    glDeleteVertexArrays(1, &tmpVAO);
 
     if (!result)
     {
@@ -66,7 +74,7 @@ void Shader::create_program(std::string_view vertex_shader_code, std::string_vie
 
     uniform_model_id = glGetUniformLocation(program_id, "model");
     uniform_projection_id = glGetUniformLocation(program_id, "projection");
-    //otra variable
+    uniform_diffuse_texture_id = glGetUniformLocation(program_id, "diffuseTexture");
 }
 
 void Shader::create_shader(std::string_view shader_code, GLenum shader_type) noexcept
@@ -108,6 +116,7 @@ void Shader::clear() noexcept
 
     uniform_projection_id = 0;
     uniform_model_id = 0;
+    uniform_diffuse_texture_id = 0;
 }
 
 std::string Shader::read_file(const std::filesystem::path& shader_path) noexcept
