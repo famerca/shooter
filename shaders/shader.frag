@@ -10,6 +10,15 @@ uniform sampler2D diffuseTexture;
 uniform mat4 model;
 uniform mat4 projection;
 
+struct DirectionalLight
+{
+    vec3 color;
+    vec3 direction;
+    float diffuse_intensity;
+};
+
+uniform DirectionalLight directional_light;
+
 void main()
 {
     // Usar la textura si está disponible, sino usar un color por defecto
@@ -18,6 +27,11 @@ void main()
     {
         texColor = vec4(0.8, 0.8, 0.8, 1.0); // Color gris por defecto
     }
+
+    float diffuse_factor = max(dot(normalize(Normal), normalize(directional_light.direction)), 0.f);
+    vec4 diffuse_color = vec4(directional_light.color, 1.f) * directional_light.diffuse_intensity * diffuse_factor;
+
     
-    color = texColor;
+    
+    color = texColor * diffuse_color;
 }

@@ -13,6 +13,7 @@
 #include <Shader.hpp>
 #include <Window.hpp>
 #include <Model.hpp>
+#include <DirectionalLight.hpp>
 
 int main()
 {
@@ -34,11 +35,15 @@ int main()
         Model suzanne{"suzanne.fbx"};
         Model sphere{"sphere.fbx"};
 
+        DirectionalLight light(1.f, 1.f, 1.f, 1.f, 0.f, 1.f, 0.5f);
+
         float current_angle{0.f};
 
         std::shared_ptr<Context> context = Context::create(main_window->get_aspect_ratio());
 
         context->addShader("shader.vert", "shader.frag");
+
+        light.bindShader(context->get_shader_list(0)->get_uniform_directional_light());
 
         dado.setContext(context);
         suzanne.setContext(context);
@@ -69,9 +74,12 @@ int main()
             suzanne.rotate(Model::X, current_angle);
             dado.rotate(Model::X, current_angle);
 
+            
             //Draw 
             suzanne.render();
+            light.render();
             dado.render();
+            
 
 
             glUseProgram(0);

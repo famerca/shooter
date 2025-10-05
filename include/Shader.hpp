@@ -12,6 +12,14 @@
 #ifndef SHADER_HPP
 #define SHADER_HPP
 
+
+struct DirectionalLightUniforms
+{
+    GLuint color_id;
+    GLuint diffuse_intensity_id;
+    GLuint direction_id;
+};
+
 class Shader
 {
 public:
@@ -39,6 +47,10 @@ public:
 
     void use() const noexcept;
 
+    DirectionalLightUniforms get_uniform_directional_light() const noexcept { return uniform_directional_light; }
+
+   
+
 private:
     void clear() noexcept;
 
@@ -52,6 +64,8 @@ private:
     GLuint uniform_projection_id{0};
     GLuint uniform_model_id{0};
     GLuint uniform_diffuse_texture_id{0};
+
+    DirectionalLightUniforms uniform_directional_light;
 };
 
 #endif // SHADER_HPP
