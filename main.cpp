@@ -45,11 +45,11 @@ int main()
 
         light.bindShader(context->get_shader_list(0)->get_uniform_directional_light());
 
-        dado.setContext(context);
+        sphere.setContext(context);
         suzanne.setContext(context);
         
-        dado.translate(-1.f, 0.f, -2.5f);
-        dado.scale(0.4f, 0.4f, 0.4f);
+        sphere.translate(-1.f, 0.f, -2.5f);
+        sphere.scale(0.4f, 0.4f, 0.4f);
         suzanne.translate(1.f, 0.f, -2.5f);
         suzanne.scale(0.4f, 0.4f, 0.4f);
 
@@ -72,13 +72,13 @@ int main()
 
 
             suzanne.rotate(Model::X, current_angle);
-            dado.rotate(Model::X, current_angle);
+            sphere.rotate(Model::X, current_angle);
 
             
             //Draw 
             suzanne.render();
             light.render();
-            dado.render();
+            sphere.render();
             
 
 
