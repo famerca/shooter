@@ -66,6 +66,14 @@
         "ios": "cpp",
         "locale": "cpp",
         "print": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "condition_variable": "cpp",
+        "list": "cpp",
+        "numeric": "cpp",
+        "fstream": "cpp",
+        "semaphore": "cpp",
+        "stdfloat": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp"
     }
 }
