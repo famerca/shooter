@@ -18,6 +18,8 @@
 
 class Model
 {
+friend class ModelComponent;
+
 public:
     enum AXIS
     {
@@ -41,36 +43,21 @@ public:
     Model &operator=(Model &&model) = delete;
 
     void render() noexcept;
-
-    void rotate(glm::vec3 ax, float angle) noexcept;
-
-    void rotate(Model::AXIS ax, float angle) noexcept;
-
-    void translate(float x, float y, float z) noexcept;
-
-    void scale(float x, float y, float z) noexcept;
-    
-    void setContext(std::shared_ptr<Context> context) noexcept;
     
     void load_textures(const aiScene* scene, const std::filesystem::path& model_path) noexcept;
     void create_default_texture() noexcept;
     
     std::shared_ptr<Texture> create_texture_from_embedded_data(const aiTexture* embedded_texture) noexcept;
     std::shared_ptr<Texture> create_texture_from_uncompressed_data(const aiTexture* embedded_texture) noexcept;
-
+    
+    std::shared_ptr<Mesh> getMesh() const noexcept { return mesh; }
+    std::vector<std::shared_ptr<Texture>> getTextures() const noexcept { return textures; }
+    
 private:
     void clear() noexcept;
     void process_mesh(const aiMesh *mesh, const std::string& model_name);
-    void transforms() noexcept;
-
-    glm::mat4 model_matrix;
-    glm::vec3 m_translate;
-    glm::vec3 m_rotate_axis;
-    float m_rotate_angle;
-    glm::vec3 m_scale;
 
     std::shared_ptr<Mesh> mesh;
-    std::shared_ptr<Context> context;
     std::vector<std::shared_ptr<Texture>> textures;
 };
 

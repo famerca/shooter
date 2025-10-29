@@ -90,87 +90,35 @@ void Model::process_mesh(const aiMesh *mesh, const std::string& model_name)
 
 void Model::render() noexcept
 {
-    this->transforms();
+    // this->transforms();
 
-    auto shader = context->get_shader_list(0);
+    // auto shader = context->get_shader_list(0);
 
-    shader->use();
+    // shader->use();
 
-    glUniformMatrix4fv(shader->get_uniform_projection_id(), 1, GL_FALSE, glm::value_ptr(context->get_projection()));
-    glUniformMatrix4fv(shader->get_uniform_model_id(), 1, GL_FALSE, glm::value_ptr(model_matrix));
+    // glUniformMatrix4fv(shader->get_uniform_projection_id(), 1, GL_FALSE, glm::value_ptr(context->get_projection()));
+    // glUniformMatrix4fv(shader->get_uniform_model_id(), 1, GL_FALSE, glm::value_ptr(model_matrix));
     
     // Configurar textura
-    glUniform1i(shader->get_uniform_diffuse_texture_id(), 0); // Usar textura en slot 0
+    //glUniform1i(shader->get_uniform_diffuse_texture_id(), 0); // Usar textura en slot 0
     
     // Activar texturas si existen
-    if (!textures.empty())
-    {
-        textures[0]->bind(0); // Usar la primera textura en el slot 0
-    }
+    //if (!textures.empty())
+    //{
+    //    textures[0]->bind(0); // Usar la primera textura en el slot 0
+    //}
     
-    mesh->render();
+    //mesh->render();
     
     // Desactivar texturas
-    if (!textures.empty())
-    {
-        textures[0]->unbind();
-    }
+    //if (!textures.empty())
+    //{
+    //    textures[0]->unbind();
+    //}
 }
 
 void Model::clear() noexcept
 {
-}
-
-void Model::transforms() noexcept
-{
-    model_matrix = glm::mat4(1.f);
-
-    model_matrix = glm::translate(model_matrix, m_translate);
-    model_matrix = glm::rotate(model_matrix, m_rotate_angle, m_rotate_axis);
-    model_matrix = glm::scale(model_matrix, m_scale);
-}
-
-void Model::rotate(glm::vec3 ax, float angle) noexcept
-{
-    m_rotate_angle = Utils::to_radian(angle);
-    m_rotate_axis = ax;
-}
-
-void Model::rotate(Model::AXIS ax, float angle) noexcept
-{
-    if(ax == Model::X)
-    {
-        m_rotate_angle = Utils::to_radian(angle);
-        m_rotate_axis = glm::vec3(1.f, 0.f, 0.f);
-    }
-
-    else if(ax == Model::Y)
-    {
-        m_rotate_angle = Utils::to_radian(angle);
-        m_rotate_axis = glm::vec3(0.f, 1.f, 0.f);
-    }
-
-    else if(ax == Model::Z)
-    {
-        m_rotate_angle = Utils::to_radian(angle);
-        m_rotate_axis = glm::vec3(0.f, 0.f, 1.f);
-    }
-    
-}
-
-void Model::translate(float x = 0.f, float y = 0.f, float z = 0.f) noexcept
-{
-    m_translate = glm::vec3(x, y, z);
-  
-}
-
-void Model::scale(float x = 0.f, float y = 0.f, float z = 0.f) noexcept
-{
-    m_scale = glm::vec3(x, y, z);
-}
-void Model::setContext(std::shared_ptr<Context> context) noexcept
-{
-    this->context = context;
 }
 
 void Model::load_textures(const aiScene* scene, const std::filesystem::path& model_path) noexcept

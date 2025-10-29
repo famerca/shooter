@@ -10,3 +10,7 @@ Component::~Component()
     owner = nullptr;
 }
 
+GameObject* Component::getOwner()
+{
+    return owner;
+}
