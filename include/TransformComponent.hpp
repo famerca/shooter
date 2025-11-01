@@ -57,7 +57,7 @@ public:
 
     void createMovement(glm::vec3 velocity, glm::vec3 acceleration);
 
-    void update(GLfloat);
+    void update(GLfloat) {};
 
     void updateModel();
 
