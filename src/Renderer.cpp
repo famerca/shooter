@@ -17,10 +17,12 @@ void Renderer::init()
 {
     shaders[0]->use();
     currentShader = shaders[0];
+    running = true;
 }
 
 void Renderer::render(std::shared_ptr<Scene> scene)
 {
+    scene->update(1.f);
     while (running && !scene->getWindow()->should_be_closed())
     {
         // Clear the window

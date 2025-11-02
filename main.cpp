@@ -36,7 +36,7 @@ int main()
 
         
         auto light = std::make_shared<DirectionalLight>(1.f, 1.f, 1.f, 1.f, 0.f, 1.f, 0.5f);
-        auto scene = std::make_shared<Scene>(main_window, light);
+        auto scene = Scene::create(main_window, light);
 
         auto cameraObject = scene->createGameObject();
         auto camera = scene->createCamera(cameraObject);

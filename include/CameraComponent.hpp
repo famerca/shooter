@@ -8,7 +8,7 @@
 
 class Scene;
 
-class CameraComponent : public Component
+class CameraComponent : public Component, public std::enable_shared_from_this<CameraComponent>
 {
 
 private:
@@ -21,21 +21,13 @@ private:
     glm::mat4 view;
     glm::mat4 projection;
     std::shared_ptr<Scene> scene;
-
+    
 public:
     CameraComponent(Owner, std::shared_ptr<Scene> scene);
-    CameraComponent(CameraComponent *p) : Component(p->owner, Component::Type::Camera)
-    {
-        position = p->position;
-        aspectRation = p->aspectRation;
-        fov = p->fov;
-        nearPlane = p->nearPlane;
-        farPlane = p->farPlane;
-        isOrthographic = p->isOrthographic;
-        view = p->view;
-        projection = p->projection;
-        scene = p->scene;
-    }
+    static std::shared_ptr<CameraComponent> create(Owner owner, std::shared_ptr<Scene> scene);
+    
+    std::shared_ptr<CameraComponent> self();
+
     ~CameraComponent();
 
     void update(GLfloat) {};

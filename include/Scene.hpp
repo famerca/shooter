@@ -12,7 +12,7 @@
 #define SCENE_HPP
 
 
-class Scene
+class Scene: public std::enable_shared_from_this<Scene>
 {
 friend class Renderer;
 
@@ -21,19 +21,17 @@ private:
     std::shared_ptr<CameraComponent> activeCamera;
     std::shared_ptr<DirectionalLight> DirLight;
     std::shared_ptr<Window> window;
-    std::shared_ptr<Scene> shared;
     
 public:
     Scene(std::shared_ptr<Window> window);
     Scene(std::shared_ptr<Window> window, std::shared_ptr<DirectionalLight> DirLight);
     Scene(std::shared_ptr<Window> window, glm::vec3 direction, glm::vec3 color, GLfloat intensity);
-    Scene(Scene *p){
-        this->window = p->window;
-        this->DirLight = p->DirLight;
-        this->activeCamera = p->activeCamera;
-        this->Objects = p->Objects;
-        this->shared = p->shared;
-    }
+    static std::shared_ptr<Scene> create(std::shared_ptr<Window> window);
+    static std::shared_ptr<Scene> create(std::shared_ptr<Window> window, std::shared_ptr<DirectionalLight> DirLight);
+    static std::shared_ptr<Scene> create(std::shared_ptr<Window> window, glm::vec3 direction, glm::vec3 color, GLfloat intensity);
+    
+    std::shared_ptr<Scene> self();
+
     ~Scene();
 
     std::shared_ptr<GameObject> operator[](unsigned index) noexcept;

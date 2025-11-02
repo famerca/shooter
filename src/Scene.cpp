@@ -21,6 +21,27 @@ Scene::Scene(std::shared_ptr<Window> window, glm::vec3 direction, glm::vec3 colo
     activeCamera = nullptr;
 }
 
+
+std::shared_ptr<Scene> Scene::create(std::shared_ptr<Window> window)
+{
+    return std::make_shared<Scene>(window);
+}
+
+std::shared_ptr<Scene> Scene::create(std::shared_ptr<Window> window, std::shared_ptr<DirectionalLight> DirLight)
+{
+    return std::make_shared<Scene>(window, DirLight);
+}
+
+std::shared_ptr<Scene> Scene::create(std::shared_ptr<Window> window, glm::vec3 direction, glm::vec3 color, GLfloat intensity)
+{
+    return std::make_shared<Scene>(window, direction, color, intensity);
+}
+
+std::shared_ptr<Scene> Scene::self()
+{
+    return shared_from_this();
+}
+
 Scene::~Scene()
 {
 }
@@ -54,7 +75,7 @@ std::shared_ptr<CameraComponent> Scene::createCamera(unsigned index)
     {
         throw std::runtime_error("Index out of range");
     }
-    auto camera = std::make_shared<CameraComponent>(Objects[index], this->shared);
+    auto camera = CameraComponent::create(Objects[index], this->self());
     Objects[index]->addComponent(std::static_pointer_cast<Component>(camera));
     return camera;
 }

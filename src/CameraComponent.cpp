@@ -11,6 +11,16 @@ CameraComponent::CameraComponent(Owner owner, std::shared_ptr<Scene> scene): Com
     isOrthographic = false;
 }
 
+std::shared_ptr<CameraComponent> CameraComponent::create(Owner owner, std::shared_ptr<Scene> scene)
+{
+    return std::make_shared<CameraComponent>(owner, scene);
+}
+
+std::shared_ptr<CameraComponent> CameraComponent::self()
+{
+    return shared_from_this();
+}
+
 CameraComponent::~CameraComponent()
 {
 }
@@ -76,5 +86,5 @@ glm::mat4 CameraComponent::getProjectionMatrix()
 
 void CameraComponent::activate()
 {
-    scene->setCamera(std::make_shared<CameraComponent>(this));
+    scene->setCamera(self());
 }

@@ -3,11 +3,12 @@
 TransformComponent::TransformComponent(Owner _owner): Component(_owner, Component::Type::Transform)
 {
    angle = 0.f;
-   changed = false;
    position = glm::vec3(0.f, 0.f, 0.f);
    _scale = glm::vec3(1.f, 1.f, 1.f);
+   axis = glm::vec3(0.f, 1.f, 0.f);
    movement = nullptr;
    this->updateModel();
+   changed = false;
 }
 
 TransformComponent::~TransformComponent()
@@ -20,7 +21,7 @@ void TransformComponent::updateModel()
     model = glm::mat4(1.f);
 
     model = glm::translate(model, position);
-    model = glm::rotate(model, angle, axis);
+    model = glm::rotate(model, glm::radians(angle), axis);
     model = glm::scale(model, _scale);
 
     changed  = false;
