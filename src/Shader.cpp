@@ -108,9 +108,6 @@ void Shader::create_shader(std::string_view shader_code, GLenum shader_type) noe
 
     glAttachShader(program_id, shader);
 
-    
-
-
 }
 
 void Shader::clear() noexcept

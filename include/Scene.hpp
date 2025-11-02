@@ -22,7 +22,7 @@ private:
     
 public:
     Scene(std::shared_ptr<Window> window);
-    Scene(std::shared_ptr<Window> window, shared_ptr<DirectionalLight> DirLight);
+    Scene(std::shared_ptr<Window> window, std::shared_ptr<DirectionalLight> DirLight);
     Scene(std::shared_ptr<Window> window, glm::vec3 direction, glm::vec3 color, GLfloat intensity);
     ~Scene();
     std::shared_ptr<ModelComponent> createModel(std::shared_ptr<GameObject> owner);
@@ -33,6 +33,8 @@ public:
     void setCamera(std::shared_ptr<CameraComponent> camera);
 
     void update(GLfloat dt);
+
+    std::shared_ptr<Window> getWindow();
 
     
 };

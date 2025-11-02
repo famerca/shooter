@@ -8,17 +8,17 @@
 class Renderer
 {
 public:
-    Render();
+    Renderer();
 
-    Render(const Render& render) = delete;
+    Renderer(const Renderer& render) = delete;
 
-    Render(Render&& render) = delete;
+    Renderer(Renderer&& render) = delete;
 
-    ~Render();
+    ~Renderer();
 
-    Render& operator = (const Render& render) = delete;
+    Renderer& operator = (const Renderer& render) = delete;
 
-    Render& operator = (Render&& render) = delete;
+    Renderer& operator = (Renderer&& render) = delete;
 
     void init();
 
@@ -33,6 +33,9 @@ private:
     void clear() noexcept;
     std::vector<std::shared_ptr<Shader>> shaders;
     bool running;
+    std::shared_ptr<Shader> currentShader;
+    void render(std::shared_ptr<DirectionalLight> DirLight);
+    void render(std::shared_ptr<CameraComponent> camera);
     
 };  
 

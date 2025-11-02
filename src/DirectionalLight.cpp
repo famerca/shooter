@@ -5,39 +5,31 @@ DirectionalLight::DirectionalLight(GLfloat red, GLfloat green, GLfloat blue, GLf
     : Light(red, green, blue, intensity)
 {
     direction = glm::vec3(x_dir, y_dir, z_dir);
+    changed = true;
 }
 
 DirectionalLight::DirectionalLight(glm::vec3 direction, glm::vec3 color, GLfloat intensity)
     : Light(color, intensity)
 {
     this->direction = direction;
+    changed = true;
 }
 
-void DirectionalLight::setColor(glm::vec3 color)
-{
-    this->color = color;
-}
-
-void DirectionalLight::setIntensity(GLfloat intensity)
-{
-    this->intensity = intensity;
-}
 
 void DirectionalLight::setDirection(glm::vec3 direction)
 {
     this->direction = direction;
+    changed = true;
 }
 
-void DirectionalLight::render() const noexcept
+bool DirectionalLight::isChanged() const noexcept
 {
-    Light::render();
-    glUniform3f(direction_id, direction.x, direction.y, direction.z);
-  
+    return changed;
 }
 
-void DirectionalLight::bindShader(DirectionalLightUniforms uniforms) noexcept
+std::tuple<GLfloat, glm::vec3, glm::vec3> DirectionalLight::renderData() noexcept
 {
-    Light::setColorID(uniforms.color_id);
-    Light::setIntensityID(uniforms.diffuse_intensity_id);
-    this->direction_id = uniforms.direction_id;
+    changed = false;
+    return std::make_tuple(intensity, color, direction);
 }
+

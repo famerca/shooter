@@ -37,3 +37,8 @@ void Scene::update(GLfloat dt)
         object->update(dt);
     }
 }
+
+std::shared_ptr<Window> Scene::getWindow()
+{
+    return window;
+}

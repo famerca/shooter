@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/build/third_party/BSlogger/src"
+                "${workspaceFolder}/build/third_party/BSlogger/src",
+                "${workspaceFolder}/build/third_party/stb"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

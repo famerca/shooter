@@ -15,17 +15,21 @@ public:
 
     DirectionalLight(glm::vec3 direction, glm::vec3 color, GLfloat intensity);
 
-    setColor(glm::vec3);
-    setIntensity(GLfloat);
-    setDirection(glm::vec3);
+    void setDirection(glm::vec3);
+ 
+    bool isChanged() const noexcept;
 
-    void render() const noexcept override;
-    void bindShader(DirectionalLightUniforms) noexcept;
+    /**
+     * @brief Render data <Intensity, Color, Direction>
+     * @return std::tuple<GLfloat, glm::vec3, glm::vec3>
+     */
 
-protected:
+    std::tuple<GLfloat, glm::vec3, glm::vec3> renderData() noexcept;
+
+private:
 
     glm::vec3 direction{0.f, -1.f, 0.f};
-    GLuint direction_id{0};
+    bool changed;
 };
 
 #endif // DIRECTIONAL_LIGHT_HPP

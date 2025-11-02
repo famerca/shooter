@@ -16,9 +16,20 @@ Light::~Light()
 {
 }
 
-void Light::render() const noexcept
+void Light::setColor(glm::vec3 color)
 {
-    glUniform3f(color_id, color.r, color.g, color.b);
-    glUniform1f(intensity_id, intensity);
+    this->color = color;
 }
+
+void Light::setColor(GLfloat red, GLfloat green, GLfloat blue)
+{
+    this->color = glm::vec3(red, green, blue);
+}
+
+void Light::setIntensity(GLfloat intensity)
+{
+    this->intensity = intensity;
+}
+
+
 
