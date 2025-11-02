@@ -20,7 +20,7 @@ public:
     void setAceleration(glm::vec3);
     void inpulse(glm::vec3);
 
-    void update(GLfloat);
+    void update(GLfloat) {};
 };
 
 

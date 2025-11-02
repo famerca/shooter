@@ -1,4 +1,5 @@
 #include <GL/glew.h>
+#include <memory>
 
 #ifndef COMPONENT_HPP
 #define COMPONENT_HPP
