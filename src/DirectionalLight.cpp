@@ -7,6 +7,27 @@ DirectionalLight::DirectionalLight(GLfloat red, GLfloat green, GLfloat blue, GLf
     direction = glm::vec3(x_dir, y_dir, z_dir);
 }
 
+DirectionalLight::DirectionalLight(glm::vec3 direction, glm::vec3 color, GLfloat intensity)
+    : Light(color, intensity)
+{
+    this->direction = direction;
+}
+
+void DirectionalLight::setColor(glm::vec3 color)
+{
+    this->color = color;
+}
+
+void DirectionalLight::setIntensity(GLfloat intensity)
+{
+    this->intensity = intensity;
+}
+
+void DirectionalLight::setDirection(glm::vec3 direction)
+{
+    this->direction = direction;
+}
+
 void DirectionalLight::render() const noexcept
 {
     Light::render();

@@ -6,6 +6,12 @@ Light::Light(GLfloat red, GLfloat green, GLfloat blue, GLfloat intensity)
     intensity = intensity;
 }
 
+Light::Light(glm::vec3 color, GLfloat intensity)
+{
+    this->color = color;
+    this->intensity = intensity;
+}
+
 Light::~Light()
 {
 }

@@ -1,6 +1,6 @@
 #include "GameObject.hpp"
 
-GameObject::GameObject(Component *t): components(), visible(true)
+GameObject::GameObject(std::shared_ptr<TransformComponent> t): components(), visible(true)
 {
     transform = t;
 }
@@ -19,7 +19,21 @@ void GameObject::setVisible(bool v)
     visible = v;
 }
 
-Component * GameObject::getTransform()
+std::shared_ptr<TransformComponent> GameObject::getTransform()
 {
     return transform;
+}
+
+void GameObject::update(GLfloat dt)
+{
+    transform->update(dt);
+    for (std::shared_ptr<Component> component : components)
+    {
+        component->update(dt);
+    }
+}
+
+void GameObject::addComponent(std::shared_ptr<Component> component)
+{
+    components.push_back(component);
 }

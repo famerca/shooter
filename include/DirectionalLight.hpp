@@ -13,6 +13,12 @@ public:
     DirectionalLight(GLfloat red, GLfloat green, GLfloat blue, GLfloat intensity,
                      GLfloat x_dir, GLfloat y_dir, GLfloat z_dir) noexcept;
 
+    DirectionalLight(glm::vec3 direction, glm::vec3 color, GLfloat intensity);
+
+    setColor(glm::vec3);
+    setIntensity(GLfloat);
+    setDirection(glm::vec3);
+
     void render() const noexcept override;
     void bindShader(DirectionalLightUniforms) noexcept;
 

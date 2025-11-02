@@ -14,6 +14,7 @@ protected:
     GLint intensity_id{0};
 public:
      Light(GLfloat red, GLfloat green, GLfloat blue, GLfloat intensity);
+     Light(glm::vec3 color, GLfloat intensity);
     ~Light();
     void setIntensityID(GLint idGLuint) noexcept { intensity_id = idGLuint; }
     void setColorID(GLint idGLuint) noexcept { color_id = idGLuint; }
