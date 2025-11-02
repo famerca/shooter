@@ -25,10 +25,8 @@ void Renderer::render(std::shared_ptr<Scene> scene)
     scene->update(1.f);
     while (running && !scene->getWindow()->should_be_closed())
     {
-        // Clear the window
-        glClearColor(0.f, 0.f, 0.f, 1.f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        //clear the window
+        scene->window->clear();
         //render Direction Light
         this->renderDirLight(scene->DirLight);
         //render active camera

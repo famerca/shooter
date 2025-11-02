@@ -38,6 +38,9 @@ public:
 
     void swap_buffers() noexcept;
 
+
+    void clear() noexcept;
+
 private:
     GLFWwindow* window{nullptr};
     GLint width{0};
