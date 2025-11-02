@@ -42,7 +42,7 @@ public:
 
     Model &operator=(Model &&model) = delete;
 
-    void render() noexcept;
+    void render(GLuint texture_id) noexcept;
     
     void load_textures(const aiScene* scene, const std::filesystem::path& model_path) noexcept;
     void create_default_texture() noexcept;

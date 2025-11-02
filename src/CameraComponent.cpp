@@ -1,6 +1,7 @@
 #include "CameraComponent.hpp"
+#include "Scene.hpp"
 
-CameraComponent::CameraComponent(GameObject *owner): Component(owner)
+CameraComponent::CameraComponent(Owner owner, std::shared_ptr<Scene> scene): Component(owner, Component::Type::Camera), scene(scene)
 {
     position = glm::vec3(0.f, 0.f, 0.f);
     aspectRation = 1.f;
@@ -30,31 +31,37 @@ void CameraComponent::init(glm::vec3 pos, float aspect, float fov, float near, f
 void CameraComponent::setPosition(glm::vec3 pos)
 {
     position = pos;
+    changed = true;
 }
 
 void CameraComponent::setAspectRation(float aspect)
 {
     aspectRation = aspect;
+    changed = true;
 }
 
 void CameraComponent::setFov(float fov)
 {
     this->fov = fov;
+    changed = true;
 }
 
 void CameraComponent::setNearPlane(float near)
 {
     nearPlane = near;
+    changed = true;
 }
 
 void CameraComponent::setFarPlane(float far)
 {
     farPlane = far;
+    changed = true;
 }
 
 void CameraComponent::setOrthographic(bool orthographic)
 {
     isOrthographic = orthographic;
+    changed = true;
 }
 
 glm::mat4 CameraComponent::getViewMatrix()

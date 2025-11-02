@@ -19,18 +19,36 @@ void Renderer::init()
     currentShader = shaders[0];
 }
 
-void Renderer::start(std::shared_ptr<Scene> scene)
+void Renderer::render(std::shared_ptr<Scene> scene)
 {
     while (running && !scene->getWindow()->should_be_closed())
     {
-        this->render(scene->getDirLight());
+        // Clear the window
+        glClearColor(0.f, 0.f, 0.f, 1.f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        //render Direction Light
+        this->renderDirLight(scene->DirLight);
+        //render active camera
+        this->renderCamera(scene->activeCamera);
+
+        //render objects
+        for (std::shared_ptr<GameObject> object : scene->Objects)
+        {
+            this->renderObject(object);
+        }
+
+        scene->window->swap_buffers();
     }
+
+    glUseProgram(0);
 }
 
-void Renderer::render(std::shared_ptr<DirectionalLight> dirLight)
+void Renderer::renderDirLight(std::shared_ptr<DirectionalLight> dirLight)
 {
     if(dirLight != nullptr && dirLight->isChanged())
     {
+        
         auto renderData = dirLight->renderData();
         DirectionalLightUniforms uniforms = currentShader->get_uniform_directional_light();
         
@@ -42,13 +60,34 @@ void Renderer::render(std::shared_ptr<DirectionalLight> dirLight)
 
 }
 
-void Renderer::render(std::shared_ptr<CameraComponent> camera)
+void Renderer::renderCamera(std::shared_ptr<CameraComponent> camera)
 {
     if(camera != nullptr && camera->isChanged())
     {
-        auto renderData = camera->renderData();
-        glUniformMatrix4fv(currentShader->get_uniform_projection_id(), 1, GL_FALSE, glm::value_ptr(renderData));
+        auto matrix = camera->getProjectionMatrix();
+        glUniformMatrix4fv(currentShader->get_uniform_projection_id(), 1, GL_FALSE, glm::value_ptr(matrix));
     }
+}
+
+void Renderer::renderObject(std::shared_ptr<GameObject> object)
+{
+    if(object != nullptr && object->isVisible())
+    {
+        glm::mat4 model = object->getTransform()->getModelMatrix();
+        glUniformMatrix4fv(currentShader->get_uniform_model_id(), 1, GL_FALSE, glm::value_ptr(model));
+        for (std::shared_ptr<Component> component : object->getComponents())
+        {
+            if(component->getType() == Component::Type::Model)
+            {
+                renderModel(std::static_pointer_cast<ModelComponent>(component));
+            }
+        }
+    }
+}
+
+void Renderer::renderModel(std::shared_ptr<ModelComponent> model)
+{
+    model->getModel()->render(currentShader->get_uniform_diffuse_texture_id());
 }
 
 void Renderer::stop()
@@ -56,7 +95,7 @@ void Renderer::stop()
     running = false;
 }       
 
-void Renderer::clear()
+void Renderer::clear() noexcept
 {
     
 }  

@@ -7,7 +7,7 @@ Scene::Scene(std::shared_ptr<Window> window)
     DirLight = nullptr;
 }
 
-Scene::Scene(std::shared_ptr<Window> window, shared_ptr<DirectionalLight> DirLight)
+Scene::Scene(std::shared_ptr<Window> window, std::shared_ptr<DirectionalLight> DirLight)
 {
     this->window = window;
     this->DirLight = DirLight;
@@ -29,6 +29,53 @@ void Scene::setCamera(std::shared_ptr<CameraComponent> camera)
 {
     activeCamera = camera;
 }
+
+unsigned Scene::createGameObject()
+{
+    auto object = std::make_shared<GameObject>();
+    Objects.push_back(object);
+    return Objects.size() - 1;
+}
+
+std::shared_ptr<ModelComponent> Scene::createModel(unsigned index)
+{
+    if(index >= Objects.size())
+    {
+        throw std::runtime_error("Index out of range");
+    }
+    auto model = std::make_shared<ModelComponent>(Objects[index]);
+    Objects[index]->addComponent(std::static_pointer_cast<Component>(model));
+    return model;
+}
+
+std::shared_ptr<CameraComponent> Scene::createCamera(unsigned index)
+{
+    if(index >= Objects.size())
+    {
+        throw std::runtime_error("Index out of range");
+    }
+    auto camera = std::make_shared<CameraComponent>(Objects[index], this->shared);
+    Objects[index]->addComponent(std::static_pointer_cast<Component>(camera));
+    return camera;
+}
+
+std::shared_ptr<GameObject> Scene::at(unsigned index) noexcept
+{
+    // Comprobación de límites: el índice debe ser menor que el tamaño del vector.
+    if (index < Objects.size()) 
+    {
+        // Si es válido, devuelve el shared_ptr del GameObject.
+        return Objects[index];
+    }
+    
+    // Si está fuera de rango, devuelve nullptr, como solicitaste.
+    return nullptr;
+}
+std::shared_ptr<GameObject> Scene::operator[](unsigned index) noexcept
+{
+    return at(index);
+}
+
 
 void Scene::update(GLfloat dt)
 {

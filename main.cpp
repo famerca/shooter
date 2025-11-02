@@ -9,11 +9,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <Mesh.hpp>
-#include <Shader.hpp>
+
 #include <Window.hpp>
-#include <Model.hpp>
-#include <DirectionalLight.hpp>
+#include "Scene.hpp"
+#include "GameObject.hpp"
+#include "ModelComponent.hpp"
+#include "TransformComponent.hpp"
+#include "DirectionalLight.hpp"
+#include "Renderer.hpp"
+
 
 int main()
 {
@@ -30,62 +34,30 @@ int main()
             return EXIT_FAILURE;
         }
 
-        //specify_vertices();
-        Model dado{"dado.fbx"};
-        Model suzanne{"suzanne.fbx"};
-        Model sphere{"sphere.fbx"};
-
-        DirectionalLight light(1.f, 1.f, 1.f, 1.f, 0.f, 1.f, 0.5f);
-
-        float current_angle{0.f};
-
-        std::shared_ptr<Context> context = Context::create(main_window->get_aspect_ratio());
-
-        context->addShader("shader.vert", "shader.frag");
-
-        light.bindShader(context->get_shader_list(0)->get_uniform_directional_light());
-
-        sphere.setContext(context);
-        suzanne.setContext(context);
         
-        sphere.translate(-1.f, 0.f, -2.5f);
-        sphere.scale(0.4f, 0.4f, 0.4f);
-        suzanne.translate(1.f, 0.f, -2.5f);
-        suzanne.scale(0.4f, 0.4f, 0.4f);
+        auto light = std::make_shared<DirectionalLight>(1.f, 1.f, 1.f, 1.f, 0.f, 1.f, 0.5f);
+        auto scene = std::make_shared<Scene>(main_window, light);
 
-        
-        while (!main_window->should_be_closed())
-        {
-            // Get and handle user input events
-            glfwPollEvents();
+        auto cameraObject = scene->createGameObject();
+        auto camera = scene->createCamera(cameraObject);
 
-            current_angle += 0.5f;
+        camera->init(glm::vec3(0.f, 0.f, 0.f), main_window->get_aspect_ratio(), 45.f, 0.1f, 100.f, true);
+        camera->activate();
 
-            if (current_angle >= 360.f)
-            {
-                current_angle = 0.f;
-            }
+        auto suzanne = scene->createGameObject();
+        scene->createModel(suzanne)->loadModel("suzanne.fbx");
 
-            // Clear the window
-            glClearColor(0.f, 0.f, 0.f, 1.f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        auto sphere = scene->createGameObject();
+        scene->createModel(sphere)->loadModel("sphere.fbx");
 
+        scene->at(sphere)->getTransform()->translate(1.f, 0.f, -2.5f);
+        scene->at(sphere)->getTransform()->scale(0.4f, 0.4f, 0.4f);
+        scene->at(suzanne)->getTransform()->translate(-1.f, 0.f, -2.5f);
+        scene->at(suzanne)->getTransform()->scale(0.4f, 0.4f, 0.4f);
 
-            suzanne.rotate(Model::X, current_angle);
-            sphere.rotate(Model::X, current_angle);
-
-            
-            //Draw 
-            suzanne.render();
-            light.render();
-            sphere.render();
-            
-
-
-            glUseProgram(0);
-
-            main_window->swap_buffers();
-        }
+        auto renderer = std::make_shared<Renderer>();
+        renderer->init();
+        renderer->render(scene);
 
     }catch(const std::exception& e)
     {

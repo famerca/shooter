@@ -14,13 +14,25 @@ private:
     std::vector<std::shared_ptr<Component>> components;
     bool visible;
 public:
-    GameObject(std::shared_ptr<TransformComponent>);
+    GameObject();
+    GameObject(GameObject *p)
+    {
+        transform = p->transform;
+        components = p->components;
+        visible = p->visible;
+    }
     ~GameObject();
 
     bool isVisible();
     void setVisible(bool);
 
     void addComponent(std::shared_ptr<Component>);
+
+    //temp
+    std::vector<std::shared_ptr<Component>> getComponents() const
+    {
+        return components;
+    }
 
     std::shared_ptr<TransformComponent> getTransform();
     void update(GLfloat);

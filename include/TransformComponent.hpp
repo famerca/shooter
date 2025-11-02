@@ -1,28 +1,12 @@
-#include "Component.hpp"
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class Movement
-{
-private:
-    TransformComponent *parent;
-public:
-    Movement(TransformComponent *p)
-    {
-        parent = p;
-    }
-    ~Movement();
+#include "Component.hpp"
+#include "Movement.hpp"
 
-    void move(glm::vec3 move_vector) ;
-    void setVelocity(glm::vec3);
-    void setAceleration(glm::vec3);
-    void inpulse(glm::vec3);
-
-    void update(GLfloat) {};
-};
-
+#ifndef TRANSFORM_COMPONENT_HPP
+#define TRANSFORM_COMPONENT_HPP
 
 class TransformComponent : Component
 {
@@ -36,14 +20,12 @@ private:
     glm::mat4 model;
     glm::vec3 axis;
 
-    bool changed;
-
     Movement * movement;
 
     /* data */
 public:
     glm::vec3 position;
-    TransformComponent(GameObject *);
+    TransformComponent(Owner);
     ~TransformComponent();
 
     void translate(float x , float y, float z);
@@ -57,7 +39,7 @@ public:
 
     void createMovement(glm::vec3 velocity, glm::vec3 acceleration);
 
-    void update(GLfloat) {};
+    void update(GLfloat);
 
     void updateModel();
 
@@ -65,3 +47,5 @@ public:
 
     
 };
+
+#endif // TRANSFORM_COMPONENT_HPP

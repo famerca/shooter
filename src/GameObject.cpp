@@ -1,8 +1,8 @@
 #include "GameObject.hpp"
 
-GameObject::GameObject(std::shared_ptr<TransformComponent> t): components(), visible(true)
+GameObject::GameObject(): components(), visible(true)
 {
-    transform = t;
+    transform = std::make_shared<TransformComponent>(std::make_shared<GameObject>(this));
 }
 
 GameObject::~GameObject()

@@ -6,10 +6,7 @@
 #ifndef CAMERA_COMPONENT_HPP
 #define CAMERA_COMPONENT_HPP
 
-class Scene {
-    public:
-    void setCamera(std::shared_ptr<CameraComponent> camera);
-};
+class Scene;
 
 class CameraComponent : public Component
 {
@@ -26,12 +23,24 @@ private:
     std::shared_ptr<Scene> scene;
 
 public:
-    CameraComponent(GameObject *, std::shared_ptr<Scene> scene);
+    CameraComponent(Owner, std::shared_ptr<Scene> scene);
+    CameraComponent(CameraComponent *p) : Component(p->owner, Component::Type::Camera)
+    {
+        position = p->position;
+        aspectRation = p->aspectRation;
+        fov = p->fov;
+        nearPlane = p->nearPlane;
+        farPlane = p->farPlane;
+        isOrthographic = p->isOrthographic;
+        view = p->view;
+        projection = p->projection;
+        scene = p->scene;
+    }
     ~CameraComponent();
 
     void update(GLfloat) {};
 
-    void init(glm::vec3, float, float, float, float, bool);
+    void init(glm::vec3 pos, float aspect, float fov, float near, float far, bool orthographic);
 
     void setPosition(glm::vec3);
     void setAspectRation(float);

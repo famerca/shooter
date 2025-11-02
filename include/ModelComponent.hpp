@@ -5,13 +5,13 @@
 #define MODEL_COMPONENT_HPP
 
 
-class ModelComponent : Component
+class ModelComponent : public Component
 {
 private:
-    Model *model;
+    std::shared_ptr<Model> model;
     std::string sp_shader;
 public:
-    ModelComponent(GameObject *);
+    ModelComponent(Owner);
     ~ModelComponent();
 
     void update(GLfloat);
@@ -19,8 +19,9 @@ public:
     bool loadModel(std::string);
     
     void start();
-    GameObject* getOwner(){
-        return owner;
+    std::shared_ptr<Model> getModel()
+    {
+        return model;
     }
 };
 

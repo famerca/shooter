@@ -1,8 +1,9 @@
 #include "Component.hpp"
 
-Component::Component(GameObject *_owner)
+Component::Component(Owner _owner, Type _type): type(_type)
 {
     owner = _owner;
+    changed = true;
 }
 
 Component::~Component()
@@ -10,7 +11,17 @@ Component::~Component()
     owner = nullptr;
 }
 
-GameObject* Component::getOwner()
+Owner Component::getOwner()
 {
     return owner;
+}
+
+bool Component::isChanged()
+{
+    return changed;
+}
+
+Component::Type Component::getType() const noexcept
+{
+    return type;
 }

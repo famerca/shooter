@@ -1,9 +1,11 @@
 #include "TransformComponent.hpp"
 
-TransformComponent::TransformComponent(GameObject * _owner): Component(_owner), position(0.f), _scale(1.f), axis(1.f)
+TransformComponent::TransformComponent(Owner _owner): Component(_owner, Component::Type::Transform)
 {
    angle = 0.f;
    changed = false;
+   position = glm::vec3(0.f, 0.f, 0.f);
+   _scale = glm::vec3(1.f, 1.f, 1.f);
    movement = nullptr;
    this->updateModel();
 }
@@ -22,6 +24,14 @@ void TransformComponent::updateModel()
     model = glm::scale(model, _scale);
 
     changed  = false;
+}
+
+void TransformComponent::update(GLfloat dt)
+{
+    if(changed)
+    {
+        updateModel();
+    }
 }
 
 glm::mat4 TransformComponent::getModelMatrix()

@@ -74,6 +74,10 @@
         "semaphore": "cpp",
         "stdfloat": "cpp",
         "stop_token": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "__hash_table": "cpp",
+        "__node_handle": "cpp",
+        "execution": "cpp",
+        "__availability": "cpp"
     }
 }

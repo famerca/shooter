@@ -1,10 +1,9 @@
 #include "ModelComponent.hpp"
 
-ModelComponent::ModelComponent(GameObject *_owner)
+ModelComponent::ModelComponent( std::shared_ptr<GameObject> _owner) : Component(_owner, Component::Type::Model)
 {
-    owner = _owner;
     model = nullptr;
-    sp_shader = '';
+    sp_shader = "";
 }
 
 ModelComponent::~ModelComponent()
@@ -14,7 +13,7 @@ ModelComponent::~ModelComponent()
 
 void ModelComponent::update(GLfloat)
 {
-    model->render();
+    //model->render();
 }
 
 bool ModelComponent::loadModel(std::string model_name)
@@ -22,7 +21,7 @@ bool ModelComponent::loadModel(std::string model_name)
     try
     {
         /* code */
-        model = new Model(model_name);
+        model = std::make_shared<Model>(model_name);
         return true;
         
     }

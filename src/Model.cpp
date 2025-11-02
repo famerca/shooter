@@ -88,33 +88,25 @@ void Model::process_mesh(const aiMesh *mesh, const std::string& model_name)
     this->mesh->set_name(model_name);
 }
 
-void Model::render() noexcept
+void Model::render(GLuint texture_id) noexcept
 {
-    // this->transforms();
 
-    // auto shader = context->get_shader_list(0);
-
-    // shader->use();
-
-    // glUniformMatrix4fv(shader->get_uniform_projection_id(), 1, GL_FALSE, glm::value_ptr(context->get_projection()));
-    // glUniformMatrix4fv(shader->get_uniform_model_id(), 1, GL_FALSE, glm::value_ptr(model_matrix));
-    
     // Configurar textura
-    //glUniform1i(shader->get_uniform_diffuse_texture_id(), 0); // Usar textura en slot 0
+    glUniform1i(texture_id, 0); // Usar textura en slot 0
     
     // Activar texturas si existen
-    //if (!textures.empty())
-    //{
-    //    textures[0]->bind(0); // Usar la primera textura en el slot 0
-    //}
+    if (!textures.empty())
+    {
+        textures[0]->bind(0); // Usar la primera textura en el slot 0
+    }
     
-    //mesh->render();
+    mesh->render();
     
     // Desactivar texturas
-    //if (!textures.empty())
-    //{
-    //    textures[0]->unbind();
-    //}
+    if (!textures.empty())
+    {
+        textures[0]->unbind();
+    }
 }
 
 void Model::clear() noexcept
