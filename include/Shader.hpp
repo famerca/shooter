@@ -46,6 +46,8 @@ public:
 
     void use() const noexcept;
 
+    GLuint get_program_id() const noexcept { return program_id; }
+
     DirectionalLightUniforms get_uniform_directional_light() const noexcept { return uniform_directional_light; }
 
    

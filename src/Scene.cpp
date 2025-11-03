@@ -5,6 +5,7 @@ Scene::Scene(std::shared_ptr<Window> window)
     this->window = window;
     activeCamera = nullptr;
     DirLight = nullptr;
+    skybox = nullptr;
 }
 
 Scene::Scene(std::shared_ptr<Window> window, std::shared_ptr<DirectionalLight> DirLight)
@@ -12,6 +13,7 @@ Scene::Scene(std::shared_ptr<Window> window, std::shared_ptr<DirectionalLight> D
     this->window = window;
     this->DirLight = DirLight;
     activeCamera = nullptr;
+    skybox = nullptr;
 }
 
 Scene::Scene(std::shared_ptr<Window> window, glm::vec3 direction, glm::vec3 color, GLfloat intensity)
@@ -19,6 +21,7 @@ Scene::Scene(std::shared_ptr<Window> window, glm::vec3 direction, glm::vec3 colo
     this->window = window;
     DirLight = std::make_shared<DirectionalLight>(direction, color, intensity);
     activeCamera = nullptr;
+    skybox = nullptr;
 }
 
 
@@ -109,4 +112,14 @@ void Scene::update(const GLfloat &dt)
 std::shared_ptr<Window> Scene::getWindow()
 {
     return window;
+}
+
+void Scene::setSkybox(std::shared_ptr<Skybox> skybox)
+{
+    this->skybox = skybox;
+}
+
+std::shared_ptr<Skybox> Scene::getSkybox() const noexcept
+{
+    return skybox;
 }

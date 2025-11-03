@@ -1,5 +1,6 @@
 #include "Shader.hpp"
 #include "Scene.hpp"
+#include "Skybox.hpp"
 
 #ifndef RENDER_HPP
 #define RENDER_HPP
@@ -34,12 +35,16 @@ public:
 
 private:
     std::vector<std::shared_ptr<Shader>> shaders;
+    std::shared_ptr<Shader> skybox_shader;
     bool running;
     std::shared_ptr<Shader> currentShader;
+    GLuint dummy_cubemap{0};
     void renderDirLight(std::shared_ptr<DirectionalLight> dirLight);
     void renderCamera(std::shared_ptr<CameraComponent> camera);
     void renderObject(std::shared_ptr<GameObject> object);
     void renderModel(std::shared_ptr<ModelComponent> model);
+    void renderSkybox(std::shared_ptr<Skybox> skybox, std::shared_ptr<CameraComponent> camera);
+    void createDummyCubemap();
 
     void calcDeltaTime();
 

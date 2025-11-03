@@ -4,6 +4,7 @@
 #include "CameraComponent.hpp"
 #include "Window.hpp"
 #include "GameObject.hpp"
+#include "Skybox.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -21,6 +22,7 @@ private:
     std::shared_ptr<CameraComponent> activeCamera;
     std::shared_ptr<DirectionalLight> DirLight;
     std::shared_ptr<Window> window;
+    std::shared_ptr<Skybox> skybox;
     
 public:
     Scene(std::shared_ptr<Window> window);
@@ -48,6 +50,8 @@ public:
 
     std::shared_ptr<Window> getWindow();
 
+    void setSkybox(std::shared_ptr<Skybox> skybox);
+    std::shared_ptr<Skybox> getSkybox() const noexcept;
     
 };
 

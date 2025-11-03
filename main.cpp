@@ -17,6 +17,7 @@
 #include "DirectionalLight.hpp"
 #include "Renderer.hpp"
 #include "Input.hpp"
+#include "Skybox.hpp"
 
 int main()
 {
@@ -41,7 +42,7 @@ int main()
         auto cameraObject = scene->createGameObject();
         auto camera = scene->createCamera(cameraObject);
 
-        camera->init(glm::vec3(0.f, 0.f, 0.f), main_window->get_aspect_ratio(), 45.f, 0.1f, 100.f, true);
+        camera->init(glm::vec3(0.f, 0.f, 0.f), main_window->get_aspect_ratio(), 45.f, 0.1f, 100.f, false);
         camera->activate();
 
         auto suzanne = scene->createGameObject();
@@ -54,6 +55,9 @@ int main()
         scene->at(sphere)->getTransform()->scale(0.4f, 0.4f, 0.4f);
         scene->at(suzanne)->getTransform()->translate(-1.f, 0.f, -2.5f);
         scene->at(suzanne)->getTransform()->scale(0.4f, 0.4f, 0.4f);
+
+        auto skybox = Skybox::create();
+        scene->setSkybox(skybox);
 
         auto renderer = std::make_shared<Renderer>();
         renderer->init();
