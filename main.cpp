@@ -18,6 +18,7 @@
 #include "Renderer.hpp"
 #include "Input.hpp"
 #include "Skybox.hpp"
+#include "skyboxLoader.hpp"
 
 int main()
 {
@@ -56,7 +57,17 @@ int main()
         scene->at(suzanne)->getTransform()->translate(-1.f, 0.f, -2.5f);
         scene->at(suzanne)->getTransform()->scale(0.4f, 0.4f, 0.4f);
 
+        SkyboxLoader skybox_loader;
+
+        skybox_loader.set_face("px",skybox_loader.local_path / "assets/px.png");
+        skybox_loader.set_face("nx",skybox_loader.local_path / "assets/nx.png");
+        skybox_loader.set_face("py",skybox_loader.local_path / "assets/py.png");
+        skybox_loader.set_face("ny",skybox_loader.local_path / "assets/ny.png");
+        skybox_loader.set_face("pz",skybox_loader.local_path / "assets/pz.png");
+        skybox_loader.set_face("nz",skybox_loader.local_path / "assets/nz.png");
+
         auto skybox = Skybox::create();
+        skybox->load_cubemap(skybox_loader.get_faces());
         scene->setSkybox(skybox);
 
         auto renderer = std::make_shared<Renderer>();
