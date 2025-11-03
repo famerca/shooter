@@ -19,12 +19,12 @@ private:
     glm::vec3 _scale;
     glm::mat4 model;
     glm::vec3 axis;
+    glm::vec3 position;
 
     Movement * movement;
 
     /* data */
 public:
-    glm::vec3 position;
     TransformComponent(Owner);
     ~TransformComponent();
 
@@ -36,12 +36,13 @@ public:
     void scale(float x, float y, float z);
     void scale(glm::vec3);
 
-
     void createMovement(glm::vec3 velocity, glm::vec3 acceleration);
 
     void update(const GLfloat &dt);
 
     void updateModel();
+
+    glm::vec3 getPosition();
 
     glm::mat4 getModelMatrix();
 

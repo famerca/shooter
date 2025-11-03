@@ -25,3 +25,13 @@ Component::Type Component::getType() const noexcept
 {
     return type;
 }
+
+void Component::change()
+{
+    changed = true;
+}
+
+bool Component::isRenderd()
+{
+    return renderd;
+}

@@ -7,8 +7,6 @@ in vec3 FragPos;
 out vec4 color;
 
 uniform sampler2D diffuseTexture;
-uniform mat4 model;
-uniform mat4 projection;
 
 struct DirectionalLight
 {

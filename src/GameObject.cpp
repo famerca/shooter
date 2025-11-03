@@ -1,8 +1,22 @@
 #include "GameObject.hpp"
 
-GameObject::GameObject(): components(), visible(true)
+GameObject::GameObject(): components(), visible(true), transform{nullptr}
 {
-    transform = std::make_shared<TransformComponent>(std::make_shared<GameObject>(this));
+}
+
+std::shared_ptr<GameObject> GameObject::create()
+{
+    auto go = std::make_shared<GameObject>();
+
+    go->transform = std::make_shared<TransformComponent>(go);
+
+    return go;
+
+}
+
+std::shared_ptr<GameObject> GameObject::self()
+{
+    return shared_from_this();
 }
 
 GameObject::~GameObject()
@@ -36,4 +50,12 @@ void GameObject::update(const GLfloat &dt)
 void GameObject::addComponent(std::shared_ptr<Component> component)
 {
     components.push_back(component);
+}
+
+void GameObject::change()
+{
+    for (std::shared_ptr<Component> component : components)
+    {
+        component->change();
+    }
 }

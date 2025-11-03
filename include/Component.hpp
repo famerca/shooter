@@ -28,11 +28,15 @@ public:
     Type getType() const noexcept;
     bool isChanged();
 
+    void change();
+    bool isRenderd();
+
 
 protected:
     /* data */
     Owner owner;
     bool changed;
+    bool renderd;
 
 private:
     const Type type;

@@ -38,7 +38,7 @@ MousePair Input::get_mouse_position() const noexcept
 
 MousePair Input::get_mouse_delta() const noexcept
 {
-    return {x_change, y_change};
+    return {x_change, -y_change};
 }
 
 void Input::handle_keyboard_input(GLFWwindow* window, int key, int code, int action, int mode) noexcept

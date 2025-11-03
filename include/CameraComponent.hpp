@@ -13,6 +13,8 @@ class CameraComponent : public Component, public std::enable_shared_from_this<Ca
 
 private:
     glm::vec3 position;
+    glm::vec3 front;
+    glm::vec3 up;
     float aspectRation;
     float fov;
     float nearPlane;
@@ -21,6 +23,15 @@ private:
     glm::mat4 view;
     glm::mat4 projection;
     std::shared_ptr<Scene> scene;
+
+    float x_rotation{0.f};
+    float y_rotation{0.f};
+    bool rotation_changed{false};
+
+    GLfloat pitch;
+    GLfloat yaw;
+
+    void updateRotation(const GLfloat &dt);
     
 public:
     CameraComponent(Owner, std::shared_ptr<Scene> scene);
@@ -30,7 +41,7 @@ public:
 
     ~CameraComponent();
 
-    void update(const GLfloat &) {};
+    void update(const GLfloat &);
 
     void init(glm::vec3 pos, float aspect, float fov, float near, float far, bool orthographic);
 
@@ -40,6 +51,13 @@ public:
     void setNearPlane(float);
     void setFarPlane(float);
     void setOrthographic(bool);
+    void setFront(glm::vec3);
+    void setFront(GLfloat pitch, GLfloat yaw);
+    void setUp(glm::vec3);
+
+    void setRotation(GLfloat x, GLfloat y);
+    void calcFront();
+    
 
     glm::mat4 getViewMatrix();
     glm::mat4 getProjectionMatrix();

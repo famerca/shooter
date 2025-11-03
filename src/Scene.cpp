@@ -21,6 +21,10 @@ Scene::Scene(std::shared_ptr<Window> window, glm::vec3 direction, glm::vec3 colo
     activeCamera = nullptr;
 }
 
+std::shared_ptr<CameraComponent> Scene::getCamera()
+{
+    return activeCamera;
+}
 
 std::shared_ptr<Scene> Scene::create(std::shared_ptr<Window> window)
 {
@@ -53,7 +57,7 @@ void Scene::setCamera(std::shared_ptr<CameraComponent> camera)
 
 unsigned Scene::createGameObject()
 {
-    auto object = std::make_shared<GameObject>();
+    auto object = GameObject::create();
     Objects.push_back(object);
     return Objects.size() - 1;
 }

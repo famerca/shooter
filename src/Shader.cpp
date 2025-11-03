@@ -74,6 +74,7 @@ void Shader::create_program(std::string_view vertex_shader_code, std::string_vie
 
     uniform_model_id = glGetUniformLocation(program_id, "model");
     uniform_projection_id = glGetUniformLocation(program_id, "projection");
+    uniform_view_id = glGetUniformLocation(program_id, "view");
     uniform_diffuse_texture_id = glGetUniformLocation(program_id, "diffuseTexture");
     uniform_directional_light.color_id = glGetUniformLocation(program_id, "directional_light.color");
     uniform_directional_light.diffuse_intensity_id = glGetUniformLocation(program_id, "directional_light.diffuse_intensity");

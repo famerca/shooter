@@ -1,4 +1,5 @@
 #include "TransformComponent.hpp"
+#include "GameObject.hpp"
 
 TransformComponent::TransformComponent(Owner _owner): Component(_owner, Component::Type::Transform)
 {
@@ -9,6 +10,11 @@ TransformComponent::TransformComponent(Owner _owner): Component(_owner, Componen
    movement = nullptr;
    this->updateModel();
    changed = false;
+}
+
+glm::vec3 TransformComponent::getPosition()
+{
+    return position;
 }
 
 TransformComponent::~TransformComponent()
@@ -61,6 +67,7 @@ void TransformComponent::translate(glm::vec3 translation)
 {
     position = translation;
     changed = true;
+    owner->change();
 }
 
 void TransformComponent::rotate(float angle, glm::vec3 axis)
@@ -68,12 +75,14 @@ void TransformComponent::rotate(float angle, glm::vec3 axis)
     this->angle = angle;
     this->axis = axis;
     changed = true;
+    owner->change();
 }
 
 void TransformComponent::scale(float x, float y, float z)
 {
     _scale = glm::vec3(x, y, z);
     changed = true;
+    owner->change();
 }
 
 void TransformComponent::scale(glm::vec3 scale)
@@ -82,8 +91,4 @@ void TransformComponent::scale(glm::vec3 scale)
     changed = true;
 }
 
-void Movement::move(glm::vec3 move_vector)
-{
-    parent->position = parent->position + move_vector;
-}
 

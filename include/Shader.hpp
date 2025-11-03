@@ -44,6 +44,8 @@ public:
     
     GLuint get_uniform_diffuse_texture_id() const noexcept { return uniform_diffuse_texture_id; }
 
+    GLuint get_uniform_view_id() const noexcept { return uniform_view_id; }
+
     void use() const noexcept;
 
     DirectionalLightUniforms get_uniform_directional_light() const noexcept { return uniform_directional_light; }
@@ -61,6 +63,7 @@ private:
 
     GLuint program_id{0};
     GLuint uniform_projection_id{0};
+    GLuint uniform_view_id{0};
     GLuint uniform_model_id{0};
     GLuint uniform_diffuse_texture_id{0};
 

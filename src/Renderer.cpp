@@ -31,7 +31,7 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         calcDeltaTime();
 
         scene->update(delta_time);
-        
+
         if(scene->window->getInput() != nullptr)
         {
             scene->window->getInput()->poll(delta_time);
@@ -71,10 +71,13 @@ void Renderer::renderDirLight(std::shared_ptr<DirectionalLight> dirLight)
 
 void Renderer::renderCamera(std::shared_ptr<CameraComponent> camera)
 {
-    if(camera != nullptr && camera->isChanged())
+    if(camera != nullptr && !camera->isRenderd())
     {
         auto matrix = camera->getProjectionMatrix();
+        auto view = camera->getViewMatrix();
         glUniformMatrix4fv(currentShader->get_uniform_projection_id(), 1, GL_FALSE, glm::value_ptr(matrix));
+        glUniformMatrix4fv(currentShader->get_uniform_view_id(), 1, GL_FALSE, glm::value_ptr(view));
+
     }
 }
 

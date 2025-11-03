@@ -5,7 +5,7 @@
 #ifndef GAMEOBJECT_HPP
 #define GAMEOBJECT_HPP
 
-class GameObject
+class GameObject: public std::enable_shared_from_this<GameObject>
 {
 private:
     /* data */
@@ -13,15 +13,13 @@ private:
 
     std::vector<std::shared_ptr<Component>> components;
     bool visible;
+
 public:
+
+    static std::shared_ptr<GameObject> create();
     GameObject();
-    GameObject(GameObject *p)
-    {
-        transform = p->transform;
-        components = p->components;
-        visible = p->visible;
-    }
     ~GameObject();
+    std::shared_ptr<GameObject> self();
 
     bool isVisible();
     void setVisible(bool);
@@ -36,6 +34,8 @@ public:
 
     std::shared_ptr<TransformComponent> getTransform();
     void update(const GLfloat &);
+
+    void change();
 };
 
 #endif // GAMEOBJECT_HPP
