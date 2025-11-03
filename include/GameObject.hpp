@@ -35,7 +35,7 @@ public:
     }
 
     std::shared_ptr<TransformComponent> getTransform();
-    void update(GLfloat);
+    void update(const GLfloat &);
 };
 
 #endif // GAMEOBJECT_HPP

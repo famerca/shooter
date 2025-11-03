@@ -28,6 +28,10 @@ public:
 
     void clear() noexcept;
 
+    GLfloat getDeltaTime() const noexcept;
+
+   
+
 private:
     std::vector<std::shared_ptr<Shader>> shaders;
     bool running;
@@ -37,8 +41,11 @@ private:
     void renderObject(std::shared_ptr<GameObject> object);
     void renderModel(std::shared_ptr<ModelComponent> model);
 
+    void calcDeltaTime();
 
-    
+    GLdouble last_frame_time{0.0}; // Tiempo al final del frame anterior (usamos GLdouble por la precisión de glfwGetTime)
+    GLfloat delta_time{0.f};       // Almacenamos el delta time en float para su uso en OpenGL/física
+
 };  
 
 #endif // RENDER_HPP

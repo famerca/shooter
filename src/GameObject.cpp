@@ -24,7 +24,7 @@ std::shared_ptr<TransformComponent> GameObject::getTransform()
     return transform;
 }
 
-void GameObject::update(GLfloat dt)
+void GameObject::update(const GLfloat &dt)
 {
     transform->update(dt);
     for (std::shared_ptr<Component> component : components)

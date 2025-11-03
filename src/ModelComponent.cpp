@@ -11,7 +11,7 @@ ModelComponent::~ModelComponent()
     owner = nullptr;
 }
 
-void ModelComponent::update(GLfloat)
+void ModelComponent::update(const GLfloat &dt)
 {
     //model->render();
 }

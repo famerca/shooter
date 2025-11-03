@@ -27,7 +27,7 @@ void TransformComponent::updateModel()
     changed  = false;
 }
 
-void TransformComponent::update(GLfloat dt)
+void TransformComponent::update(const GLfloat &dt)
 {
     if(changed)
     {

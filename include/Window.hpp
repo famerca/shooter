@@ -11,6 +11,8 @@
 #ifndef WINDOW_HPP  
 #define WINDOW_HPP
 
+class Input;
+
 class Window
 {
 public:
@@ -38,8 +40,12 @@ public:
 
     void swap_buffers() noexcept;
 
-
     void clear() noexcept;
+
+    void setInput(std::shared_ptr<Input> input) noexcept;
+
+    std::shared_ptr<Input> getInput() noexcept;
+
 
 private:
     GLFWwindow* window{nullptr};
@@ -47,6 +53,7 @@ private:
     GLint height{0};
     GLint buffer_width{0};
     GLint buffer_height{0};
+    std::shared_ptr<Input> input{nullptr};
 };
 
 #endif // WINDOW_HPP

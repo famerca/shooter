@@ -9,7 +9,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 #include <Window.hpp>
 #include "Scene.hpp"
 #include "GameObject.hpp"
@@ -17,7 +16,7 @@
 #include "TransformComponent.hpp"
 #include "DirectionalLight.hpp"
 #include "Renderer.hpp"
-
+#include "Input.hpp"
 
 int main()
 {
@@ -33,8 +32,9 @@ int main()
         {
             return EXIT_FAILURE;
         }
+        auto input = Input::create();
+        main_window->setInput(input);
 
-        
         auto light = std::make_shared<DirectionalLight>(1.f, 1.f, 1.f, 1.f, 0.f, 1.f, 0.5f);
         auto scene = Scene::create(main_window, light);
 

@@ -1,4 +1,5 @@
 #include "Renderer.hpp"
+#include "Input.hpp"
 
 Renderer::Renderer()
 {
@@ -18,15 +19,23 @@ void Renderer::init()
     shaders[0]->use();
     currentShader = shaders[0];
     running = true;
+    last_frame_time = glfwGetTime();
 }
 
 void Renderer::render(std::shared_ptr<Scene> scene)
 {
-    scene->update(1.f);
     while (running && !scene->getWindow()->should_be_closed())
     {
         //clear the window
         scene->window->clear();
+        calcDeltaTime();
+
+        scene->update(delta_time);
+        
+        if(scene->window->getInput() != nullptr)
+        {
+            scene->window->getInput()->poll(delta_time);
+        }
         //render Direction Light
         this->renderDirLight(scene->DirLight);
         //render active camera
@@ -99,3 +108,15 @@ void Renderer::clear() noexcept
 {
     
 }  
+
+GLfloat Renderer::getDeltaTime() const noexcept
+{
+    return delta_time;
+}
+
+void Renderer::calcDeltaTime()
+{
+    GLdouble current_time = glfwGetTime();
+    delta_time = static_cast<GLfloat>(current_time - last_frame_time);
+    last_frame_time = current_time;
+}

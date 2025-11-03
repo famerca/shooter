@@ -22,7 +22,7 @@ public:
     Component(Owner, Type);
     virtual ~Component();
 
-    virtual void update(GLfloat) {};
+    virtual void update(const GLfloat &) {};
     virtual void start() {};
     Owner getOwner();
     Type getType() const noexcept;

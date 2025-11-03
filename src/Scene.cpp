@@ -98,7 +98,7 @@ std::shared_ptr<GameObject> Scene::operator[](unsigned index) noexcept
 }
 
 
-void Scene::update(GLfloat dt)
+void Scene::update(const GLfloat &dt)
 {
     for (std::shared_ptr<GameObject> object : Objects)
     {

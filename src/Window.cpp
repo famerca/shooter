@@ -1,4 +1,5 @@
 #include <Window.hpp>
+#include <Input.hpp> 
 
 Window::~Window()
 {
@@ -63,6 +64,8 @@ std::shared_ptr<Window> Window::create(GLint width, GLint height, std::string_vi
     // Setup viewport
     glViewport(0, 0, window->buffer_width, window->buffer_height);
 
+    glfwSetWindowUserPointer(window->window, window.get());
+
     return window;
 }
 
@@ -87,4 +90,15 @@ void Window::clear() noexcept
     glfwPollEvents();
     glClearColor(0.f, 0.f, 0.f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void Window::setInput(std::shared_ptr<Input> input) noexcept
+{
+    this->input = input;
+    input->init(this->window);
+}
+
+std::shared_ptr<Input> Window::getInput() noexcept
+{
+    return input;
 }

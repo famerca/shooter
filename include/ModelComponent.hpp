@@ -14,7 +14,7 @@ public:
     ModelComponent(Owner);
     ~ModelComponent();
 
-    void update(GLfloat);
+    void update(const GLfloat &dt);
 
     bool loadModel(std::string);
     

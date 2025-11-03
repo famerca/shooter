@@ -30,7 +30,7 @@ public:
 
     ~CameraComponent();
 
-    void update(GLfloat) {};
+    void update(const GLfloat &) {};
 
     void init(glm::vec3 pos, float aspect, float fov, float near, float far, bool orthographic);
 

@@ -44,7 +44,7 @@ public:
     void setCamera(std::shared_ptr<CameraComponent> camera);
 
 
-    void update(GLfloat dt);
+    void update(const GLfloat &dt);
 
     std::shared_ptr<Window> getWindow();
 
