@@ -1,6 +1,6 @@
 #include "Shader.hpp"
 #include "Scene.hpp"
-#include "SkyBox.hpp"
+#include "skyBox.hpp"
 
 #ifndef RENDER_HPP
 #define RENDER_HPP

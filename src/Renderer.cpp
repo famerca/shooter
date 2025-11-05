@@ -5,6 +5,17 @@ Renderer::Renderer()
 {
     fs::path vertex_shader_path =  fs::path{__FILE__}.parent_path().parent_path() / "shaders" / "shader.vert";
     fs::path fragment_shader_path =  fs::path{__FILE__}.parent_path().parent_path() / "shaders" / "shader.frag";
+    this->sky_box = std::make_shared<SkyBox>(
+        fs::path{__FILE__}.parent_path(),
+        std::vector<fs::path>{{
+            "cupertin-lake_rt.tga",
+            "cupertin-lake_lf.tga",
+            "cupertin-lake_up.tga",
+            "cupertin-lake_dn.tga",
+            "cupertin-lake_bk.tga",
+            "cupertin-lake_ft.tga",
+        }}
+    );
 
     shaders.push_back(Shader::create_from_files(vertex_shader_path, fragment_shader_path));
     currentShader = nullptr;
@@ -124,9 +135,9 @@ void Renderer::calcDeltaTime()
     last_frame_time = current_time;
 }
 
-void Renderer::render_pass(const glm::mat4& projection, const glm::mat4& view) noexcept
+void Renderer::render_pass(const glm::mat4& projection, const glm::mat4& view) 
 {
-    glViewport(0, 0, Data::WIDTH, Data::HEIGHT);
+    //glViewport(0, 0, Data::WIDTH, Data::HEIGHT);
 
     // Clear the window
     glClearColor(0.f, 0.f, 0.f, 1.f);
