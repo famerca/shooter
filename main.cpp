@@ -56,8 +56,8 @@ int main()
         scene->at(suzanne)->getTransform()->translate(-1.f, 0.f, -2.5f);
         scene->at(suzanne)->getTransform()->scale(0.4f, 0.4f, 0.4f);
 
-        //auto skybox = Skybox::create();
-        //scene->setSkybox(skybox);
+        auto skybox = Skybox::create();
+        scene->setSkybox(skybox);
 
         auto renderer = std::make_shared<Renderer>();
         renderer->init();

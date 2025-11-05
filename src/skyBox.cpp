@@ -63,7 +63,6 @@ SkyBox::SkyBox(const std::filesystem::path& root_path, const std::vector<std::fi
         3, 6, 7
     }};
 
-    /*
     std::vector<float> vertices{{
         -1.f, 1.f, -1.f,	0.f, 0.f,		0.f, 0.f, 0.f,
         -1.f, -1.f, -1.f,	0.f, 0.f,		0.f, 0.f, 0.f,
@@ -75,20 +74,6 @@ SkyBox::SkyBox(const std::filesystem::path& root_path, const std::vector<std::fi
         -1.f, -1.f, 1.f,	0.f, 0.f,		0.f, 0.f, 0.f,
         1.f, -1.f, 1.f,		0.f, 0.f,		0.f, 0.f, 0.f
     }};
-    */
-
-    const std::vector<Vertex> vertices = {
-       //{posición, normal, texCoords}
-        
-        Vertex{ glm::vec3(-1.f, 1.f, -1.f), glm::vec3(0.f, 0.f, 0.f), glm::vec2(0.f, 0.f) },
-        Vertex{ glm::vec3(-1.f, -1.f, -1.f), glm::vec3(0.f, 0.f, 0.f), glm::vec2(0.f, 0.f) },
-        Vertex{ glm::vec3(1.f, 1.f, -1.f), glm::vec3(0.f, 0.f, 0.f), glm::vec2(0.f, 0.f) },
-        Vertex{ glm::vec3(1.f, -1.f, -1.f), glm::vec3(0.f, 0.f, 0.f), glm::vec2(0.f, 0.f) },
-        Vertex{ glm::vec3(-1.f, 1.f, 1.f), glm::vec3(0.f, 0.f, 0.f), glm::vec2(0.f, 0.f) },
-        Vertex{ glm::vec3(1.f, 1.f, 1.f), glm::vec3(0.f, 0.f, 0.f), glm::vec2(0.f, 0.f) },
-        Vertex{ glm::vec3(-1.f, -1.f, 1.f), glm::vec3(0.f, 0.f, 0.f), glm::vec2(0.f, 0.f) },
-        Vertex{ glm::vec3(1.f, -1.f, 1.f), glm::vec3(0.f, 0.f, 0.f), glm::vec2(0.f, 0.f) }
-    };
 
     mesh = Mesh::create(vertices, indices);
 }
