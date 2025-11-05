@@ -6,7 +6,7 @@ Renderer::Renderer()
     fs::path vertex_shader_path =  fs::path{__FILE__}.parent_path().parent_path() / "shaders" / "shader.vert";
     fs::path fragment_shader_path =  fs::path{__FILE__}.parent_path().parent_path() / "shaders" / "shader.frag";
     this->sky_box = std::make_shared<SkyBox>(
-        fs::path{__FILE__}.parent_path(),
+        fs::path{__FILE__}.parent_path() / "../",
         std::vector<fs::path>{{
             "cupertin-lake_rt.tga",
             "cupertin-lake_lf.tga",
@@ -35,12 +35,16 @@ void Renderer::init()
 
 void Renderer::render(std::shared_ptr<Scene> scene)
 {
+    auto matrix = scene->activeCamera->getProjectionMatrix();
+    auto view = scene->activeCamera->getViewMatrix();
+    render_pass(matrix,view);
+    
     while (running && !scene->getWindow()->should_be_closed())
     {
         //clear the window
         scene->window->clear();
         calcDeltaTime();
-
+        
         scene->update(delta_time);
 
         if(scene->window->getInput() != nullptr)
