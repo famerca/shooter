@@ -6,18 +6,6 @@ Renderer::Renderer()
 {
     fs::path vertex_shader_path =  fs::path{__FILE__}.parent_path().parent_path() / "shaders" / "shader.vert";
     fs::path fragment_shader_path =  fs::path{__FILE__}.parent_path().parent_path() / "shaders" / "shader.frag";
-    this->sky_box = std::make_shared<SkyBox>(
-        fs::path{__FILE__}.parent_path() / "../",
-        std::vector<fs::path>{{
-            "cupertin-lake_rt.tga",
-            "cupertin-lake_lf.tga",
-            "cupertin-lake_up.tga",
-            "cupertin-lake_dn.tga",
-            "cupertin-lake_bk.tga",
-            "cupertin-lake_ft.tga",
-        }}
-    );
-
 
     shaders.push_back(Shader::create_from_files(vertex_shader_path, fragment_shader_path));
     currentShader = nullptr;
@@ -37,13 +25,14 @@ void Renderer::init()
 
 void Renderer::render(std::shared_ptr<Scene> scene)
 {
-    auto matrix = scene->activeCamera->getProjectionMatrix();
-    auto view = scene->activeCamera->getViewMatrix();
-    render_pass(matrix,view);
     while (running && !scene->getWindow()->should_be_closed())
     {
         //clear the window
         scene->window->clear();
+        scene->skyBox->set_view(scene->activeCamera->getViewMatrix());
+        this->renderSkyBox(scene->getSkyBox(),scene->activeCamera);
+        this->currentShader->use();
+
         calcDeltaTime();
 
         scene->update(delta_time);
@@ -66,7 +55,7 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         scene->window->swap_buffers();
     }
 
-    glUseProgram(0);
+    clear();
 }
 
 void Renderer::renderDirLight(std::shared_ptr<DirectionalLight> dirLight)
@@ -95,6 +84,7 @@ void Renderer::renderCamera(std::shared_ptr<CameraComponent> camera)
         glUniformMatrix4fv(currentShader->get_uniform_view_id(), 1, GL_FALSE, glm::value_ptr(view));
 
     }
+    
 }
 
 void Renderer::renderObject(std::shared_ptr<GameObject> object)
@@ -125,7 +115,7 @@ void Renderer::stop()
 
 void Renderer::clear() noexcept
 {
-    
+    glUseProgram(0);
 }  
 
 GLfloat Renderer::getDeltaTime() const noexcept
@@ -140,44 +130,24 @@ void Renderer::calcDeltaTime()
     last_frame_time = current_time;
 }
 
-void Renderer::render_pass(const glm::mat4& projection, const glm::mat4& view) 
+void Renderer::renderSkyBox(std::shared_ptr<SkyBox>  sky_box, std::shared_ptr<CameraComponent> camera)
 {
-    //glViewport(0, 0, Data::WIDTH, Data::HEIGHT);
-
-    // Clear the window
-    glClearColor(0.f, 0.f, 0.f, 1.f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    sky_box->render(view, projection);
-
+    if(sky_box != nullptr)
+    {
+        glDepthMask(GL_FALSE);
     
-/*
-    Data::shader_list[0]->use();
-    Data::uniform_model_id = Data::shader_list[0]->get_uniform_model_id();
-    Data::uniform_projection_id = Data::shader_list[0]->get_uniform_projection_id();
-    Data::uniform_view_id = Data::shader_list[0]->get_uniform_view_id();
-    Data::uniform_eye_position_id = Data::shader_list[0]->get_uniform_eye_position_id();
-    Data::uniform_specular_intensity_id = Data::shader_list[0]->get_uniform_specular_intensity_id();
-    Data::uniform_shininess_id = Data::shader_list[0]->get_uniform_specular_shininess_id();
+        sky_box->shader->use();
 
-    glUniformMatrix4fv(Data::shader_list[0]->get_uniform_projection_id(), 1, GL_FALSE, glm::value_ptr(projection));
-    glUniformMatrix4fv(Data::shader_list[0]->get_uniform_view_id(), 1, GL_FALSE, glm::value_ptr(view));
-    glUniform3f(Data::shader_list[0]->get_uniform_eye_position_id(), Data::camera->get_position().x, Data::camera->get_position().y, Data::camera->get_position().z);
+        auto view = sky_box->get_view();
+        auto projection = camera->getProjectionMatrix();
+    
+        glUniformMatrix4fv(sky_box->shader->get_uniform_view_id(), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(sky_box->shader->get_uniform_projection_id(), 1, GL_FALSE, glm::value_ptr(projection));
 
-    Data::shader_list[0]->set_directional_light(Data::main_light);
-    Data::shader_list[0]->set_point_lights(Data::point_lights, 3, 0);
-    Data::shader_list[0]->set_spot_lights(Data::spot_lights, 3 + Data::point_lights.size(), Data::point_lights.size());
-    Data::shader_list[0]->set_directional_light_space_transform(Data::main_light->get_light_transform());
+        sky_box->render();
+    
+        glDepthMask(GL_TRUE);
 
-    Data::main_light->get_shadow_map()->read(GL_TEXTURE2);
-    Data::shader_list[0]->set_texture(1);
-    Data::shader_list[0]->set_directional_shadow_map(2);
+    }
 
-    auto lower_light = Data::camera->get_position();
-    lower_light.y -= 0.3f;
-    //Data::spot_lights[0]->set(lower_light, Data::camera->get_direction());
-
-    render_scene();
-
-    */
 }

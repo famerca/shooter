@@ -88,22 +88,22 @@ SkyBox::~SkyBox()
     }
 }
 
-void SkyBox::render(const glm::mat4& view, const glm::mat4 projection) const noexcept
+void SkyBox::render() const noexcept
 {
-    // Removing translations
-    glm::mat4 the_view = glm::mat4(glm::mat3(view));
-
-    glDepthMask(GL_FALSE);
-
-    shader->use();
-
-    glUniformMatrix4fv(shader->get_uniform_view_id(), 1, GL_FALSE, glm::value_ptr(the_view));
-    glUniformMatrix4fv(shader->get_uniform_projection_id(), 1, GL_FALSE, glm::value_ptr(projection));
-
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);
-
     mesh->render();
+}
 
-    glDepthMask(GL_TRUE);
+
+const glm::mat4& SkyBox::get_view() const noexcept
+{
+    return skybox_view;
+}
+
+
+void SkyBox::set_view(const glm::mat4& view) noexcept
+{
+    // Removing translation
+    skybox_view = glm::mat4(glm::mat3(view));
 }
