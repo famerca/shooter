@@ -43,6 +43,6 @@
 #build directory
 build/
 
-textures/
+
 
 .DS_Store
