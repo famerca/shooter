@@ -51,9 +51,11 @@ private:
     
     // Métodos privados para manejo de texturas PBR (nuevo código)
     struct DefaultTextures {
-        GLuint albedo{0};      // Textura blanca para albedo/AO
-        GLuint normal{0};       // Textura normal por defecto
-        GLuint metallic{0};    // Textura negra para metallic/roughness
+        GLuint albedo{0};      // Textura blanca para albedo
+        GLuint normal{0};      // Textura normal por defecto
+        GLuint metallic{0};    // Textura negra para metallic
+        GLuint roughness{0};   // Textura gris para roughness
+        GLuint ao{0};          // Textura blanca para AO
     };
     
     static DefaultTextures& getDefaultTextures() noexcept;

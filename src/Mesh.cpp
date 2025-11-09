@@ -102,7 +102,7 @@ Mesh::DefaultTextures& Mesh::getDefaultTextures() noexcept
 
 void Mesh::initializeDefaultTextures(DefaultTextures& defaults) noexcept
 {
-    // Textura blanca para albedo y AO (valor por defecto: blanco = sin color, AO = 1.0 = sin oclusión)
+    // Textura blanca para albedo (valor por defecto: blanco = sin color)
     glGenTextures(1, &defaults.albedo);
     glBindTexture(GL_TEXTURE_2D, defaults.albedo);
     unsigned char albedo[4] = {255, 255, 255, 255};
@@ -122,11 +122,31 @@ void Mesh::initializeDefaultTextures(DefaultTextures& defaults) noexcept
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     
-    // Textura para metallic y roughness (R=0 metallic, G=128 roughness 0.5, B=0, A=255)
+    // Textura negra para metallic (R=0 = no metálico)
     glGenTextures(1, &defaults.metallic);
     glBindTexture(GL_TEXTURE_2D, defaults.metallic);
-    unsigned char metallic[4] = {0, 128, 0, 255}; // R=0 (no metálico), G=128 (roughness 0.5), B=0, A=255
+    unsigned char metallic[4] = {0, 0, 0, 255}; // R=0 (no metálico)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, metallic);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    // Textura gris para roughness (R=128 = roughness 0.5)
+    glGenTextures(1, &defaults.roughness);
+    glBindTexture(GL_TEXTURE_2D, defaults.roughness);
+    unsigned char roughness[4] = {128, 128, 128, 255}; // R=128 (roughness 0.5)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, roughness);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    // Textura blanca para AO (R=255 = AO 1.0 = sin oclusión)
+    glGenTextures(1, &defaults.ao);
+    glBindTexture(GL_TEXTURE_2D, defaults.ao);
+    unsigned char ao[4] = {255, 255, 255, 255}; // R=255 (AO 1.0 = sin oclusión)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, ao);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -229,7 +249,7 @@ void Mesh::bindDefaultTextures(std::shared_ptr<Shader> shader, unsigned int& tex
     if (!hasRoughness)
     {
         glActiveTexture(GL_TEXTURE0 + textureSlot);
-        glBindTexture(GL_TEXTURE_2D, defaults.metallic);
+        glBindTexture(GL_TEXTURE_2D, defaults.roughness);
         shader->setInt("texture_roughness", textureSlot);
         shader->setInt("texture_roughness1", textureSlot);
         textureSlot++;
@@ -238,7 +258,7 @@ void Mesh::bindDefaultTextures(std::shared_ptr<Shader> shader, unsigned int& tex
     if (!hasAO)
     {
         glActiveTexture(GL_TEXTURE0 + textureSlot);
-        glBindTexture(GL_TEXTURE_2D, defaults.albedo);
+        glBindTexture(GL_TEXTURE_2D, defaults.ao);
         shader->setInt("texture_ao", textureSlot);
         shader->setInt("texture_ao1", textureSlot);
         textureSlot++;

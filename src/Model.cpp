@@ -196,7 +196,7 @@ void Model::process_mesh(const aiMesh *mesh, const aiScene* scene, const std::fi
                     {"_normal", "texture_normal"},
                     {"_metallic", "texture_metallic"},
                     {"_roughness", "texture_roughness"},
-                    {"_AO", "texture_ao"}
+                    {"_ao", "texture_ao"}
                 };
                 
                 for (const auto& pattern : patterns)
