@@ -47,7 +47,7 @@ std::shared_ptr<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene, con
 {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
-    std::vector<MeshTexture> textures;
+    std::vector<std::shared_ptr<Texture>> textures;
 
     // Procesar vértices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -108,7 +108,7 @@ void Model::process_mesh(const aiMesh *mesh, const aiScene* scene, const std::fi
 {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
-    std::vector<MeshTexture> textures;
+    std::vector<std::shared_ptr<Texture>> textures;
 
     // Recorre los datos del aiMesh y los copia
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
@@ -153,31 +153,31 @@ void Model::process_mesh(const aiMesh *mesh, const aiScene* scene, const std::fi
         // Cargar texturas PBR
         // Albedo (Diffuse)
         std::cout << "  Buscando texturas albedo..." << std::endl;
-        std::vector<MeshTexture> albedoMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_albedo", model_path, scene);
+        std::vector<std::shared_ptr<Texture>> albedoMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_albedo", model_path, scene);
         std::cout << "  Encontradas " << albedoMaps.size() << " texturas albedo" << std::endl;
         textures.insert(textures.end(), albedoMaps.begin(), albedoMaps.end());
         
         // Normal maps (usando HEIGHT como convención común)
         std::cout << "  Buscando texturas normal..." << std::endl;
-        std::vector<MeshTexture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal", model_path, scene);
+        std::vector<std::shared_ptr<Texture>> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal", model_path, scene);
         std::cout << "  Encontradas " << normalMaps.size() << " texturas normal" << std::endl;
         textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
         
         // Metallic (usando SPECULAR como aproximación)
         std::cout << "  Buscando texturas metallic..." << std::endl;
-        std::vector<MeshTexture> metallicMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_metallic", model_path, scene);
+        std::vector<std::shared_ptr<Texture>> metallicMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_metallic", model_path, scene);
         std::cout << "  Encontradas " << metallicMaps.size() << " texturas metallic" << std::endl;
         textures.insert(textures.end(), metallicMaps.begin(), metallicMaps.end());
         
         // Roughness (usando SHININESS como aproximación)
         std::cout << "  Buscando texturas roughness..." << std::endl;
-        std::vector<MeshTexture> roughnessMaps = loadMaterialTextures(material, aiTextureType_SHININESS, "texture_roughness", model_path, scene);
+        std::vector<std::shared_ptr<Texture>> roughnessMaps = loadMaterialTextures(material, aiTextureType_SHININESS, "texture_roughness", model_path, scene);
         std::cout << "  Encontradas " << roughnessMaps.size() << " texturas roughness" << std::endl;
         textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
         
         // AO (Ambient Occlusion) - Assimp no tiene un tipo específico, intentamos con AMBIENT
         std::cout << "  Buscando texturas AO..." << std::endl;
-        std::vector<MeshTexture> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ao", model_path, scene);
+        std::vector<std::shared_ptr<Texture>> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ao", model_path, scene);
         std::cout << "  Encontradas " << aoMaps.size() << " texturas AO" << std::endl;
         textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
         
@@ -214,14 +214,10 @@ void Model::process_mesh(const aiMesh *mesh, const aiScene* scene, const std::fi
                             if (entryNameLower.find(patternLower) != std::string::npos)
                             {
                                 std::cout << "  Encontrada textura por patrón: " << entryName << " -> " << pattern.second << std::endl;
-                                auto texture = Texture::create_from_file(entry.path());
+                                auto texture = Texture::create_from_file(entry.path(), pattern.second, entry.path().string());
                                 if (texture)
                                 {
-                                    MeshTexture meshTexture;
-                                    meshTexture.type = pattern.second;
-                                    meshTexture.path = entry.path().string();
-                                    meshTexture.texture = texture;
-                                    textures.push_back(meshTexture);
+                                    textures.push_back(texture);
                                     break; // Solo tomar la primera que coincida
                                 }
                             }
@@ -278,29 +274,29 @@ void Model::clear() noexcept
 {
 }
 
-void Model::loadPBRTextures(aiMaterial* material, const aiScene* scene, const std::filesystem::path& model_path, std::vector<MeshTexture>& textures) noexcept
+void Model::loadPBRTextures(aiMaterial* material, const aiScene* scene, const std::filesystem::path& model_path, std::vector<std::shared_ptr<Texture>>& textures) noexcept
 {
     // Cargar texturas PBR según el plan
-    std::vector<MeshTexture> albedoMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_albedo", model_path, scene);
+    std::vector<std::shared_ptr<Texture>> albedoMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_albedo", model_path, scene);
     textures.insert(textures.end(), albedoMaps.begin(), albedoMaps.end());
     
-    std::vector<MeshTexture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal", model_path, scene);
+    std::vector<std::shared_ptr<Texture>> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal", model_path, scene);
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     
-    std::vector<MeshTexture> metallicMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_metallic", model_path, scene);
+    std::vector<std::shared_ptr<Texture>> metallicMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_metallic", model_path, scene);
     textures.insert(textures.end(), metallicMaps.begin(), metallicMaps.end());
     
-    std::vector<MeshTexture> roughnessMaps = loadMaterialTextures(material, aiTextureType_SHININESS, "texture_roughness", model_path, scene);
+    std::vector<std::shared_ptr<Texture>> roughnessMaps = loadMaterialTextures(material, aiTextureType_SHININESS, "texture_roughness", model_path, scene);
     textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
     
     // Nota: Assimp no tiene aiTextureType_AMBIENT_OCCLUSION directamente, usamos AMBIENT como aproximación
-    std::vector<MeshTexture> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ao", model_path, scene);
+    std::vector<std::shared_ptr<Texture>> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ao", model_path, scene);
     textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
     
     // Si no se encontraron texturas PBR, intentar cargar texturas difusas estándar
     if (textures.empty())
     {
-        std::vector<MeshTexture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", model_path, scene);
+        std::vector<std::shared_ptr<Texture>> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", model_path, scene);
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
     }
 }
@@ -314,16 +310,16 @@ std::shared_ptr<Texture> Model::findDiffuseTexture(const std::shared_ptr<Mesh>& 
     // Buscar textura difusa en las texturas del mesh
     for (const auto& tex : meshTextures)
     {
-        if (tex.texture && (tex.type == "texture_diffuse" || tex.type == "texture_albedo"))
+        if (tex && (tex->get_type() == "texture_diffuse" || tex->get_type() == "texture_albedo"))
         {
-            return tex.texture;
+            return tex;
         }
     }
     
     // Si no se encontró, usar la primera textura disponible
-    if (!meshTextures.empty() && meshTextures[0].texture)
+    if (!meshTextures.empty() && meshTextures[0])
     {
-        return meshTextures[0].texture;
+        return meshTextures[0];
     }
     
     // Si aún no hay, usar texturas globales
@@ -605,9 +601,9 @@ std::shared_ptr<Texture> Model::create_texture_from_uncompressed_data(const aiTe
     return texture;
 }
 
-std::vector<MeshTexture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName, const std::filesystem::path& model_path, const aiScene* scene)
+std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName, const std::filesystem::path& model_path, const aiScene* scene)
 {
-    std::vector<MeshTexture> textures;
+    std::vector<std::shared_ptr<Texture>> textures;
     
     unsigned int textureCount = mat->GetTextureCount(type);
     
@@ -622,9 +618,7 @@ std::vector<MeshTexture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureT
         
         if (mat->GetTexture(type, i, &str, &mapping, &uvindex, &blend, &op, mapmode) == AI_SUCCESS)
         {
-            MeshTexture meshTexture;
-            meshTexture.type = typeName;
-            meshTexture.path = str.C_Str();
+            std::string texturePath = str.C_Str();
             
             // Verificar si la textura está embebida
             if (str.data[0] == '*')
@@ -649,8 +643,9 @@ std::vector<MeshTexture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureT
                     
                     if (texture)
                     {
-                        meshTexture.texture = texture;
-                        textures.push_back(meshTexture);
+                        texture->set_type(typeName);
+                        texture->set_path(texturePath);
+                        textures.push_back(texture);
                     }
                 }
             }
@@ -676,8 +671,9 @@ std::vector<MeshTexture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureT
                     
                     if (texture)
                     {
-                        meshTexture.texture = texture;
-                        textures.push_back(meshTexture);
+                        texture->set_type(typeName);
+                        texture->set_path(texturePath);
+                        textures.push_back(texture);
                         continue;
                     }
                 }
@@ -686,11 +682,10 @@ std::vector<MeshTexture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureT
                 // Primero intentar la ruta directa
                 if (std::filesystem::exists(texture_path))
                 {
-                    auto texture = Texture::create_from_file(texture_path);
+                    auto texture = Texture::create_from_file(texture_path, typeName, texturePath);
                     if (texture)
                     {
-                        meshTexture.texture = texture;
-                        textures.push_back(meshTexture);
+                        textures.push_back(texture);
                         continue;
                     }
                 }
@@ -703,11 +698,10 @@ std::vector<MeshTexture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureT
                     std::filesystem::path texture_path_in_textures = textures_dir / str.C_Str();
                     if (std::filesystem::exists(texture_path_in_textures))
                     {
-                        auto texture = Texture::create_from_file(texture_path_in_textures);
+                        auto texture = Texture::create_from_file(texture_path_in_textures, typeName, texturePath);
                         if (texture)
                         {
-                            meshTexture.texture = texture;
-                            textures.push_back(meshTexture);
+                            textures.push_back(texture);
                             continue;
                         }
                     }
@@ -745,12 +739,10 @@ std::vector<MeshTexture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureT
                                 
                                 if (entryNameLower.find(patternLower) != std::string::npos)
                                 {
-                                    auto texture = Texture::create_from_file(entry.path());
+                                    auto texture = Texture::create_from_file(entry.path(), typeName, entry.path().string());
                                     if (texture)
                                     {
-                                        meshTexture.texture = texture;
-                                        meshTexture.path = entry.path().string();
-                                        textures.push_back(meshTexture);
+                                        textures.push_back(texture);
                                         break;
                                     }
                                 }

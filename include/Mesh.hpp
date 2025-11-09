@@ -19,19 +19,13 @@ struct Vertex {
     glm::vec2 texCoords;
 };
 
-struct MeshTexture {
-    std::shared_ptr<Texture> texture;
-    std::string type; // "texture_albedo", "texture_normal", "texture_metallic", "texture_roughness", "texture_ao"
-    std::string path;
-};
-
 class Mesh
 {
 public:
     Mesh() = default;
 
     static std::shared_ptr<Mesh> create(const std::vector<Vertex>& vertices, std::vector<unsigned int>& indices) noexcept;
-    static std::shared_ptr<Mesh> create(const std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, const std::vector<MeshTexture>& textures) noexcept;
+    static std::shared_ptr<Mesh> create(const std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, const std::vector<std::shared_ptr<Texture>>& textures) noexcept;
 
     Mesh(const Mesh& mesh) = delete;
 
@@ -49,8 +43,8 @@ public:
     const std::string& get_name() const noexcept { return name; }
     void set_name(const std::string& n) noexcept { name = n; }
     
-    const std::vector<MeshTexture>& get_textures() const noexcept { return textures; }
-    void set_textures(const std::vector<MeshTexture>& tex) noexcept { textures = tex; }
+    const std::vector<std::shared_ptr<Texture>>& get_textures() const noexcept { return textures; }
+    void set_textures(const std::vector<std::shared_ptr<Texture>>& tex) noexcept { textures = tex; }
     
 private:
     void clear() noexcept;
@@ -72,7 +66,7 @@ private:
     GLuint IBO_id{0};
     GLsizei index_count{0};
     std::string name;
-    std::vector<MeshTexture> textures;
+    std::vector<std::shared_ptr<Texture>> textures;
 };
 
 #endif // MESH_HPP

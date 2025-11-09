@@ -4,10 +4,10 @@
 
 std::shared_ptr<Mesh> Mesh::create(const std::vector<Vertex>& vertices, std::vector<unsigned int>& indices) noexcept
 {
-    return create(vertices, indices, std::vector<MeshTexture>());
+    return create(vertices, indices, std::vector<std::shared_ptr<Texture>>());
 }
 
-std::shared_ptr<Mesh> Mesh::create(const std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, const std::vector<MeshTexture>& textures) noexcept
+std::shared_ptr<Mesh> Mesh::create(const std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, const std::vector<std::shared_ptr<Texture>>& textures) noexcept
 {
     auto mesh = std::make_shared<Mesh>();
 
@@ -144,12 +144,12 @@ void Mesh::bindPBRTextures(std::shared_ptr<Shader> shader, unsigned int& texture
     // Activar y vincular las texturas PBR cargadas
     for (unsigned int i = 0; i < textures.size(); i++)
     {
-        if (!textures[i].texture) continue;
+        if (!textures[i]) continue;
 
         glActiveTexture(GL_TEXTURE0 + i);
         
         std::string number;
-        std::string name = textures[i].type;
+        std::string name = textures[i]->get_type();
         
         if (name == "texture_albedo")
         {
@@ -192,7 +192,7 @@ void Mesh::bindPBRTextures(std::shared_ptr<Shader> shader, unsigned int& texture
         }
         
         // Vincular la textura usando el método bind
-        textures[i].texture->bind(i);
+        textures[i]->bind(i);
     }
     
     textureSlot = textures.size();

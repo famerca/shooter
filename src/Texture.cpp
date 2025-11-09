@@ -11,7 +11,7 @@ Texture::~Texture()
     clear();
 }
 
-std::shared_ptr<Texture> Texture::create_from_file(const std::filesystem::path& texture_path) noexcept
+std::shared_ptr<Texture> Texture::create_from_file(const std::filesystem::path& texture_path, const std::string& type, const std::string& path) noexcept
 {
     auto texture = std::make_shared<Texture>();
     
@@ -50,6 +50,10 @@ std::shared_ptr<Texture> Texture::create_from_file(const std::filesystem::path& 
     }
     
     glBindTexture(GL_TEXTURE_2D, 0);
+    
+    // Establecer type y path (atributos de MeshTexture)
+    texture->type = type;
+    texture->path = path.empty() ? texture_path.string() : path;
     
     return texture;
 }

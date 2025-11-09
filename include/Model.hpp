@@ -59,10 +59,10 @@ private:
     void clear() noexcept;
     void processNode(aiNode* node, const aiScene* scene, const std::filesystem::path& model_path);
     std::shared_ptr<Mesh> processMesh(aiMesh* mesh, const aiScene* scene, const std::filesystem::path& model_path);
-    std::vector<MeshTexture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName, const std::filesystem::path& model_path, const aiScene* scene);
+    std::vector<std::shared_ptr<Texture>> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName, const std::filesystem::path& model_path, const aiScene* scene);
     
     // Métodos privados para carga de texturas PBR (nuevo código)
-    void loadPBRTextures(aiMaterial* material, const aiScene* scene, const std::filesystem::path& model_path, std::vector<MeshTexture>& textures) noexcept;
+    void loadPBRTextures(aiMaterial* material, const aiScene* scene, const std::filesystem::path& model_path, std::vector<std::shared_ptr<Texture>>& textures) noexcept;
     std::shared_ptr<Texture> findDiffuseTexture(const std::shared_ptr<Mesh>& mesh) const noexcept;
     
     // Método legacy mantenido para compatibilidad

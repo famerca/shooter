@@ -203,9 +203,9 @@ bool Renderer::hasPBRTextures(std::shared_ptr<Model> model) const noexcept
         const auto& textures = mesh->get_textures();
         for (const auto& tex : textures)
         {
-            if (tex.type == "texture_albedo" || tex.type == "texture_metallic" || 
-                tex.type == "texture_roughness" || tex.type == "texture_normal" || 
-                tex.type == "texture_ao")
+            if (tex && (tex->get_type() == "texture_albedo" || tex->get_type() == "texture_metallic" || 
+                tex->get_type() == "texture_roughness" || tex->get_type() == "texture_normal" || 
+                tex->get_type() == "texture_ao"))
             {
                 return true;
             }

@@ -195,10 +195,34 @@ int main()
         
         // Restaurar modelos de prueba
         scene->createModel(user)->loadModel("suzanne.fbx");
+        
+        // Cargar esfera
         auto sphere = scene->createGameObject();
-        scene->createModel(sphere)->loadModel("filthy-prison-toilet-4096px2/source/toilet.fbx");
+        scene->createModel(sphere)->loadModel("sphere.fbx");
         scene->at(sphere)->getTransform()->translate(2.f, 0.f, -3.f);
-        scene->at(sphere)->getTransform()->scale(2.0f, 2.0f, 2.0f); // Asegurar que la esfera tenga escala correcta
+        scene->at(sphere)->getTransform()->scale(0.5f, 0.5f, 0.5f);
+        scene->at(sphere)->setVisible(true);
+        
+        // Cargar dado (cubo)
+        auto dado = scene->createGameObject();
+        scene->createModel(dado)->loadModel("dado.fbx");
+        scene->at(dado)->getTransform()->translate(-2.f, 0.f, -3.f);
+        scene->at(dado)->getTransform()->scale(0.3f, 0.3f, 0.3f);
+        scene->at(dado)->setVisible(true);
+        
+        // Cargar cilindro
+        auto cilinder = scene->createGameObject();
+        scene->createModel(cilinder)->loadModel("cilinder.fbx");
+        scene->at(cilinder)->getTransform()->translate(0.f, 0.f, -4.f);
+        scene->at(cilinder)->getTransform()->scale(0.4f, 0.4f, 0.4f);
+        scene->at(cilinder)->setVisible(true);
+        
+        // Cargar mundo/terreno (usando sphere como base, o puedes usar otro modelo)
+        auto mundo = scene->createGameObject();
+        scene->createModel(mundo)->loadModel("sphere.fbx");
+        scene->at(mundo)->getTransform()->translate(0.f, -2.f, 0.f);
+        scene->at(mundo)->getTransform()->scale(10.f, 0.5f, 10.f); // Plano grande como terreno
+        scene->at(mundo)->setVisible(true);
 
         auto obstacles = std::make_shared<std::vector<unsigned>>();
 

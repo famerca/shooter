@@ -20,7 +20,7 @@ class Texture
 public:
     Texture() = default;
     
-    static std::shared_ptr<Texture> create_from_file(const std::filesystem::path& texture_path) noexcept;
+    static std::shared_ptr<Texture> create_from_file(const std::filesystem::path& texture_path, const std::string& type = "", const std::string& path = "") noexcept;
     
     Texture(const Texture& texture) = delete;
     Texture(Texture&& texture) = delete;
@@ -37,6 +37,12 @@ public:
     int get_width() const noexcept { return width; }
     int get_height() const noexcept { return height; }
     
+    // Getters para type y path (atributos de MeshTexture)
+    const std::string& get_type() const noexcept { return type; }
+    const std::string& get_path() const noexcept { return path; }
+    void set_type(const std::string& t) noexcept { type = t; }
+    void set_path(const std::string& p) noexcept { path = p; }
+    
 private:
     void clear() noexcept;
     
@@ -44,6 +50,8 @@ private:
     int width{0};
     int height{0};
     int channels{0};
+    std::string type; // "texture_albedo", "texture_normal", "texture_metallic", "texture_roughness", "texture_ao", "texture_diffuse"
+    std::string path; // Ruta del archivo de textura
 };
 
 #endif // TEXTURE_HPP 
