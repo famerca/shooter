@@ -293,6 +293,60 @@ void Model::loadPBRTextures(aiMaterial* material, const aiScene* scene, const st
     std::vector<std::shared_ptr<Texture>> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ao", model_path, scene);
     textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
     
+    // Si no se encontraron texturas PBR en el material, buscar automáticamente en la carpeta textures
+    std::filesystem::path textures_dir = model_path.parent_path() / "textures";
+    if (std::filesystem::exists(textures_dir))
+    {
+        // Buscar texturas PBR por patrón si no se encontraron en el material
+        std::vector<std::pair<std::string, std::string>> patterns = {
+            {"_albedo", "texture_albedo"},
+            {"_normal", "texture_normal"},
+            {"_metallic", "texture_metallic"},
+            {"_roughness", "texture_roughness"},
+            {"_ao", "texture_ao"}
+        };
+        
+        for (const auto& pattern : patterns)
+        {
+            // Verificar si ya tenemos una textura de este tipo
+            bool hasType = false;
+            for (const auto& tex : textures)
+            {
+                if (tex && tex->get_type() == pattern.second)
+                {
+                    hasType = true;
+                    break;
+                }
+            }
+            
+            // Si no tenemos esta textura, buscarla por patrón
+            if (!hasType)
+            {
+                for (const auto& entry : std::filesystem::directory_iterator(textures_dir))
+                {
+                    if (entry.is_regular_file())
+                    {
+                        std::string entryName = entry.path().filename().string();
+                        std::string entryNameLower = entryName;
+                        std::transform(entryNameLower.begin(), entryNameLower.end(), entryNameLower.begin(), ::tolower);
+                        std::string patternLower = pattern.first;
+                        std::transform(patternLower.begin(), patternLower.end(), patternLower.begin(), ::tolower);
+                        
+                        if (entryNameLower.find(patternLower) != std::string::npos)
+                        {
+                            auto texture = Texture::create_from_file(entry.path(), pattern.second, entry.path().string());
+                            if (texture)
+                            {
+                                textures.push_back(texture);
+                                break; // Solo tomar la primera que coincida
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     // Si no se encontraron texturas PBR, intentar cargar texturas difusas estándar
     if (textures.empty())
     {
@@ -721,7 +775,7 @@ std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* ma
                     else if (typeName == "texture_roughness")
                         searchPattern = "_roughness";
                     else if (typeName == "texture_ao")
-                        searchPattern = "_AO";
+                        searchPattern = "_ao"; // Buscar tanto _ao como _AO (la comparación es case-insensitive)
                     
                     if (!searchPattern.empty())
                     {
