@@ -1,23 +1,34 @@
 #include "Renderer.hpp"
 #include "Input.hpp"
 
+
 Renderer::Renderer()
 {
-    fs::path vertex_shader_path =  fs::path{__FILE__}.parent_path().parent_path() / "shaders" / "shader.vert";
-    fs::path fragment_shader_path =  fs::path{__FILE__}.parent_path().parent_path() / "shaders" / "shader.frag";
+    fs::path path =  fs::path{__FILE__}.parent_path().parent_path() / "shaders";
 
-    shaders.push_back(Shader::create_from_files(vertex_shader_path, fragment_shader_path));
+    shaders.push_back(Shader::create_from_files(path / "shader.vert", path / "shader.frag"));
+    shaders.push_back(Shader::create_from_files(path / "skybox.vert", path / "skybox.frag"));
+
     currentShader = nullptr;
+    activeShade = Shader::LIST::BASE;
 }
 
 Renderer::~Renderer()
 {   
 }
 
+void Renderer::useShader(Shader::LIST shader)
+{
+    if(shader == activeShade)
+        return;
+
+    currentShader = shaders[static_cast<int>(shader)];
+    currentShader->use();
+    activeShade = shader;
+}
+
 void Renderer::init()
 {
-    shaders[0]->use();
-    currentShader = shaders[0];
     running = true;
     last_frame_time = glfwGetTime();
 }
@@ -28,9 +39,12 @@ void Renderer::render(std::shared_ptr<Scene> scene)
     {
         //clear the window
         scene->window->clear();
-        calcDeltaTime();
+        this->renderSkyBox(scene->getSkyBox(),scene->activeCamera);
 
+        calcDeltaTime();
         scene->update(delta_time);
+
+        this->useShader(Shader::LIST::BASE);
 
         if(scene->window->getInput() != nullptr)
         {
@@ -50,7 +64,7 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         scene->window->swap_buffers();
     }
 
-    glUseProgram(0);
+    clear();
 }
 
 void Renderer::renderDirLight(std::shared_ptr<DirectionalLight> dirLight)
@@ -79,6 +93,7 @@ void Renderer::renderCamera(std::shared_ptr<CameraComponent> camera)
         glUniformMatrix4fv(currentShader->get_uniform_view_id(), 1, GL_FALSE, glm::value_ptr(view));
 
     }
+    
 }
 
 void Renderer::renderObject(std::shared_ptr<GameObject> object)
@@ -109,7 +124,7 @@ void Renderer::stop()
 
 void Renderer::clear() noexcept
 {
-    
+    glUseProgram(0);
 }  
 
 GLfloat Renderer::getDeltaTime() const noexcept
@@ -122,4 +137,29 @@ void Renderer::calcDeltaTime()
     GLdouble current_time = glfwGetTime();
     delta_time = static_cast<GLfloat>(current_time - last_frame_time);
     last_frame_time = current_time;
+}
+
+void Renderer::renderSkyBox(std::shared_ptr<SkyBox>  sky_box, std::shared_ptr<CameraComponent> camera)
+{
+    if(sky_box != nullptr)
+    {
+        if(!camera->isRenderd())
+            sky_box->set_view(camera->getViewMatrix());
+            
+        glDepthMask(GL_FALSE);
+    
+        this->useShader(Shader::LIST::SKYBOX);
+
+        auto view = sky_box->get_view();
+        auto projection = camera->getProjectionMatrix();
+    
+        glUniformMatrix4fv(this->currentShader->get_uniform_view_id(), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(this->currentShader->get_uniform_projection_id(), 1, GL_FALSE, glm::value_ptr(projection));
+
+        sky_box->render();
+    
+        glDepthMask(GL_TRUE);
+
+    }
+
 }

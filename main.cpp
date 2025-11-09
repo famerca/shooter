@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <random>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -17,7 +18,8 @@
 #include "DirectionalLight.hpp"
 #include "Renderer.hpp"
 #include "Input.hpp"
-#include <random>
+#include "SkyBox.hpp"
+#include "JoltTest.hpp" 
 
 class inputManager: public Input
 {
@@ -150,6 +152,7 @@ int main()
 {
     try
     {
+        JoltTest::RunBasicTest();
         // Window dimensions
         constexpr GLint WIDTH = 1200;
         constexpr GLint HEIGHT = 720;
@@ -202,6 +205,21 @@ int main()
         scene->at(dado2)->getTransform()->translate(1.f, 0.5f, 3.f);
 
         auto obstacles = std::make_shared<std::vector<unsigned>>();
+
+
+        std::shared_ptr<SkyBox> sky_box = std::make_shared<SkyBox>(
+            fs::path{__FILE__}.parent_path(),
+            std::vector<fs::path>{{
+                "cupertin-lake_rt.tga",
+                "cupertin-lake_lf.tga",
+                "cupertin-lake_up.tga",
+                "cupertin-lake_dn.tga",
+                "cupertin-lake_bk.tga",
+                "cupertin-lake_ft.tga",
+            }}
+        );
+
+        scene->setSkyBox(sky_box);
 
 
         scene->at(sphere)->getTransform()->scale(0.4f, 0.4f, 0.4f);

@@ -36,10 +36,15 @@ private:
     std::vector<std::shared_ptr<Shader>> shaders;
     bool running;
     std::shared_ptr<Shader> currentShader;
+    Shader::LIST activeShade;
+
     void renderDirLight(std::shared_ptr<DirectionalLight> dirLight);
     void renderCamera(std::shared_ptr<CameraComponent> camera);
     void renderObject(std::shared_ptr<GameObject> object);
     void renderModel(std::shared_ptr<ModelComponent> model);
+    void renderSkyBox(std::shared_ptr<SkyBox> sky_box,std::shared_ptr<CameraComponent> camera);
+
+    void useShader(Shader::LIST shader);
 
     void calcDeltaTime();
 
