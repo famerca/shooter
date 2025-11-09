@@ -134,27 +134,8 @@ void Renderer::renderModel(std::shared_ptr<ModelComponent> model, std::shared_pt
         return;
     }
     
-    // Verificar si algún mesh tiene texturas PBR
-    bool hasPBRTextures = false;
-    for (const auto& mesh : meshes)
-    {
-        if (!mesh) continue;
-        const auto& textures = mesh->get_textures();
-        for (const auto& tex : textures)
-        {
-            if (tex.type == "texture_albedo" || tex.type == "texture_metallic" || 
-                tex.type == "texture_roughness" || tex.type == "texture_normal" || 
-                tex.type == "texture_ao")
-            {
-                hasPBRTextures = true;
-                break;
-            }
-        }
-        if (hasPBRTextures) break;
-    }
-    
     // Usar PBR si hay texturas PBR y el shader está disponible
-    bool usePBR = hasPBRTextures && shaders.size() > 1 && shaders[1] != nullptr && shaders[1]->get_program_id() != 0;
+    bool usePBR = hasPBRTextures(model_ptr) && shaders.size() > 1 && shaders[1] != nullptr && shaders[1]->get_program_id() != 0;
     
     if (usePBR)
     {
@@ -162,62 +143,8 @@ void Renderer::renderModel(std::shared_ptr<ModelComponent> model, std::shared_pt
         auto pbrShader = shaders[1];
         pbrShader->use();
         
-        // Configurar matrices
-        glm::mat4 modelMatrix = model->getOwner()->getTransform()->getModelMatrix();
-        GLint modelLoc = glGetUniformLocation(pbrShader->get_program_id(), "model");
-        GLint viewLoc = glGetUniformLocation(pbrShader->get_program_id(), "view");
-        GLint projLoc = glGetUniformLocation(pbrShader->get_program_id(), "projection");
-        
-        if (modelLoc != -1)
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-        
-        // Obtener matrices de la cámara activa
-        auto camera = scene->getCamera();
-        if (camera)
-        {
-            glm::mat4 view = camera->getViewMatrix();
-            glm::mat4 projection = camera->getProjectionMatrix();
-            
-            if (viewLoc != -1)
-                glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-            
-            if (projLoc != -1)
-                glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-            
-            // Obtener posición de la cámara
-            GLint camPosLoc = glGetUniformLocation(pbrShader->get_program_id(), "camPos");
-            if (camPosLoc != -1)
-            {
-                glm::mat4 invView = glm::inverse(view);
-                glm::vec3 camPos = glm::vec3(invView[3]);
-                glUniform3f(camPosLoc, camPos.x, camPos.y, camPos.z);
-            }
-        }
-        
-        // Configurar luces
-        GLint lightPosLoc = glGetUniformLocation(pbrShader->get_program_id(), "lightPositions");
-        GLint lightColorLoc = glGetUniformLocation(pbrShader->get_program_id(), "lightColors");
-        
-        if (lightPosLoc != -1 && lightColorLoc != -1)
-        {
-            // Valores estándar para luces PBR (distancias moderadas, intensidades típicas)
-            glm::vec3 lightPositions[4] = {
-                glm::vec3(10.0f, 10.0f, 10.0f),
-                glm::vec3(-10.0f, 10.0f, 10.0f),
-                glm::vec3(10.0f, -10.0f, 10.0f),
-                glm::vec3(-10.0f, -10.0f, 10.0f)
-            };
-            // Intensidad estándar para PBR (típicamente 100-300)
-            glm::vec3 lightColors[4] = {
-                glm::vec3(150.0f, 150.0f, 150.0f),
-                glm::vec3(150.0f, 150.0f, 150.0f),
-                glm::vec3(150.0f, 150.0f, 150.0f),
-                glm::vec3(150.0f, 150.0f, 150.0f)
-            };
-            
-            glUniform3fv(lightPosLoc, 4, glm::value_ptr(lightPositions[0]));
-            glUniform3fv(lightColorLoc, 4, glm::value_ptr(lightColors[0]));
-        }
+        // Configurar shader PBR (matrices, cámara, luces)
+        setupPBRShader(pbrShader, model, scene);
         
         // Renderizar todos los meshes con shader PBR
         for (const auto& mesh : meshes)
@@ -263,6 +190,90 @@ void Renderer::renderModel(std::shared_ptr<ModelComponent> model, std::shared_pt
 void Renderer::stop()
 {
     running = false;
+}
+
+bool Renderer::hasPBRTextures(std::shared_ptr<Model> model) const noexcept
+{
+    if (!model) return false;
+    
+    auto meshes = model->getMeshes();
+    for (const auto& mesh : meshes)
+    {
+        if (!mesh) continue;
+        const auto& textures = mesh->get_textures();
+        for (const auto& tex : textures)
+        {
+            if (tex.type == "texture_albedo" || tex.type == "texture_metallic" || 
+                tex.type == "texture_roughness" || tex.type == "texture_normal" || 
+                tex.type == "texture_ao")
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void Renderer::setupPBRShader(std::shared_ptr<Shader> pbrShader, std::shared_ptr<ModelComponent> model, std::shared_ptr<Scene> scene) noexcept
+{
+    if (!pbrShader) return;
+    
+    // Configurar matrices
+    glm::mat4 modelMatrix = model->getOwner()->getTransform()->getModelMatrix();
+    GLint modelLoc = glGetUniformLocation(pbrShader->get_program_id(), "model");
+    GLint viewLoc = glGetUniformLocation(pbrShader->get_program_id(), "view");
+    GLint projLoc = glGetUniformLocation(pbrShader->get_program_id(), "projection");
+    
+    if (modelLoc != -1)
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+    
+    // Obtener matrices de la cámara activa
+    auto camera = scene->getCamera();
+    if (camera)
+    {
+        glm::mat4 view = camera->getViewMatrix();
+        glm::mat4 projection = camera->getProjectionMatrix();
+        
+        if (viewLoc != -1)
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        
+        if (projLoc != -1)
+            glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+        
+        // Obtener posición de la cámara
+        GLint camPosLoc = glGetUniformLocation(pbrShader->get_program_id(), "camPos");
+        if (camPosLoc != -1)
+        {
+            glm::mat4 invView = glm::inverse(view);
+            glm::vec3 camPos = glm::vec3(invView[3]);
+            glUniform3f(camPosLoc, camPos.x, camPos.y, camPos.z);
+        }
+    }
+    
+    // Configurar luces
+    GLint lightPosLoc = glGetUniformLocation(pbrShader->get_program_id(), "lightPositions");
+    GLint lightColorLoc = glGetUniformLocation(pbrShader->get_program_id(), "lightColors");
+    
+    if (lightPosLoc != -1 && lightColorLoc != -1)
+    {
+        // Valores estándar para luces PBR (distancias moderadas, intensidades típicas)
+        glm::vec3 lightPositions[4] = {
+            glm::vec3(10.0f, 10.0f, 10.0f),
+            glm::vec3(-10.0f, 10.0f, 10.0f),
+            glm::vec3(10.0f, -10.0f, 10.0f),
+            glm::vec3(-10.0f, -10.0f, 10.0f)
+        };
+        // Intensidad estándar para PBR (típicamente 100-300)
+        glm::vec3 lightColors[4] = {
+            glm::vec3(150.0f, 150.0f, 150.0f),
+            glm::vec3(150.0f, 150.0f, 150.0f),
+            glm::vec3(150.0f, 150.0f, 150.0f),
+            glm::vec3(150.0f, 150.0f, 150.0f)
+        };
+        
+        glUniform3fv(lightPosLoc, 4, glm::value_ptr(lightPositions[0]));
+        glUniform3fv(lightColorLoc, 4, glm::value_ptr(lightColors[0]));
+    }
 }       
 
 void Renderer::clear() noexcept

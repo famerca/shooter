@@ -4,38 +4,21 @@
 #include <algorithm>
 #include <cctype>
 
-Model::Model(const std::string &model_name)
+void Model::processScene(const aiScene* scene, const std::filesystem::path& model_path)
 {
-    std::filesystem::path model_path{std::filesystem::path{__FILE__}.parent_path().parent_path() / "models" / model_name};
-    loadModel(model_path);
-}
-
-void Model::loadModel(const std::filesystem::path& path)
-{
-    if (!std::filesystem::exists(path))
-    {
-        throw std::runtime_error("Model " + path.string() + " not found");
-    }
-
-    Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFile(path.string(),
-                                             aiProcess_Triangulate |
-                                                 aiProcess_FlipUVs |
-                                                 aiProcess_CalcTangentSpace);
-
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {
-        throw std::runtime_error("Error de Assimp al importar el modelo: " + std::string(importer.GetErrorString()));
+        throw std::runtime_error("Escena de Assimp inválida");
     }
 
-    std::cout << "Cargando modelo: " << path.filename() << std::endl;
+    std::cout << "Cargando modelo: " << model_path.filename() << std::endl;
     std::cout << "  Meshes: " << scene->mNumMeshes << ", Materiales: " << scene->mNumMaterials << std::endl;
 
     // Cargar texturas (método legacy, mantenido para compatibilidad)
-    load_textures(scene, path);
+    load_textures(scene, model_path);
     
     // Procesar el nodo raíz y recursivamente todos los nodos hijos
-    processNode(scene->mRootNode, scene, path);
+    processNode(scene->mRootNode, scene, model_path);
     
     std::cout << "  ✓ Modelo cargado: " << meshes.size() << " meshes totales" << std::endl;
 }
@@ -108,30 +91,7 @@ std::shared_ptr<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene, con
     if (mesh->mMaterialIndex >= 0)
     {
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        
-        // Cargar texturas PBR según el plan
-        std::vector<MeshTexture> albedoMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_albedo", model_path, scene);
-        textures.insert(textures.end(), albedoMaps.begin(), albedoMaps.end());
-        
-        std::vector<MeshTexture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal", model_path, scene);
-        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-        
-        std::vector<MeshTexture> metallicMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_metallic", model_path, scene);
-        textures.insert(textures.end(), metallicMaps.begin(), metallicMaps.end());
-        
-        std::vector<MeshTexture> roughnessMaps = loadMaterialTextures(material, aiTextureType_SHININESS, "texture_roughness", model_path, scene);
-        textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
-        
-        // Nota: Assimp no tiene aiTextureType_AMBIENT_OCCLUSION directamente, usamos AMBIENT como aproximación
-        std::vector<MeshTexture> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ao", model_path, scene);
-        textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
-        
-        // Si no se encontraron texturas PBR, intentar cargar texturas difusas estándar
-        if (textures.empty())
-        {
-            std::vector<MeshTexture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", model_path, scene);
-            textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-        }
+        loadPBRTextures(material, scene, model_path, textures);
     }
 
     // Crear y retornar el mesh
@@ -296,31 +256,8 @@ void Model::render(GLuint texture_id) noexcept
         auto& mesh = meshes[i];
         if (!mesh) continue;
         
-        // Buscar la primera textura difusa disponible (para shader estándar)
-        std::shared_ptr<Texture> diffuseTexture = nullptr;
-        const auto& meshTextures = mesh->get_textures();
-        
-        // Buscar textura difusa en las texturas del mesh
-        for (const auto& tex : meshTextures)
-        {
-            if (tex.texture && (tex.type == "texture_diffuse" || tex.type == "texture_albedo"))
-            {
-                diffuseTexture = tex.texture;
-                break;
-            }
-        }
-        
-        // Si no se encontró, usar la primera textura disponible
-        if (!diffuseTexture && !meshTextures.empty() && meshTextures[0].texture)
-        {
-            diffuseTexture = meshTextures[0].texture;
-        }
-        
-        // Si aún no hay, usar texturas globales
-        if (!diffuseTexture && !textures.empty() && textures[0])
-        {
-            diffuseTexture = textures[0];
-        }
+        // Buscar y vincular textura difusa (para shader estándar)
+        std::shared_ptr<Texture> diffuseTexture = findDiffuseTexture(mesh);
         
         // Configurar y vincular textura
         if (texture_id != 0 && diffuseTexture)
@@ -339,6 +276,63 @@ void Model::render(GLuint texture_id) noexcept
 
 void Model::clear() noexcept
 {
+}
+
+void Model::loadPBRTextures(aiMaterial* material, const aiScene* scene, const std::filesystem::path& model_path, std::vector<MeshTexture>& textures) noexcept
+{
+    // Cargar texturas PBR según el plan
+    std::vector<MeshTexture> albedoMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_albedo", model_path, scene);
+    textures.insert(textures.end(), albedoMaps.begin(), albedoMaps.end());
+    
+    std::vector<MeshTexture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal", model_path, scene);
+    textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+    
+    std::vector<MeshTexture> metallicMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_metallic", model_path, scene);
+    textures.insert(textures.end(), metallicMaps.begin(), metallicMaps.end());
+    
+    std::vector<MeshTexture> roughnessMaps = loadMaterialTextures(material, aiTextureType_SHININESS, "texture_roughness", model_path, scene);
+    textures.insert(textures.end(), roughnessMaps.begin(), roughnessMaps.end());
+    
+    // Nota: Assimp no tiene aiTextureType_AMBIENT_OCCLUSION directamente, usamos AMBIENT como aproximación
+    std::vector<MeshTexture> aoMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_ao", model_path, scene);
+    textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
+    
+    // Si no se encontraron texturas PBR, intentar cargar texturas difusas estándar
+    if (textures.empty())
+    {
+        std::vector<MeshTexture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse", model_path, scene);
+        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+    }
+}
+
+std::shared_ptr<Texture> Model::findDiffuseTexture(const std::shared_ptr<Mesh>& mesh) const noexcept
+{
+    if (!mesh) return nullptr;
+    
+    const auto& meshTextures = mesh->get_textures();
+    
+    // Buscar textura difusa en las texturas del mesh
+    for (const auto& tex : meshTextures)
+    {
+        if (tex.texture && (tex.type == "texture_diffuse" || tex.type == "texture_albedo"))
+        {
+            return tex.texture;
+        }
+    }
+    
+    // Si no se encontró, usar la primera textura disponible
+    if (!meshTextures.empty() && meshTextures[0].texture)
+    {
+        return meshTextures[0].texture;
+    }
+    
+    // Si aún no hay, usar texturas globales
+    if (!textures.empty() && textures[0])
+    {
+        return textures[0];
+    }
+    
+    return nullptr;
 }
 
 void Model::load_textures(const aiScene* scene, const std::filesystem::path& model_path) noexcept

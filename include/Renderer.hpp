@@ -43,6 +43,10 @@ private:
     void renderModel(std::shared_ptr<ModelComponent> model, std::shared_ptr<Scene> scene);
     void renderSkyBox(std::shared_ptr<SkyBox> sky_box,std::shared_ptr<CameraComponent> camera);
 
+    // Métodos privados para renderizado PBR (nuevo código)
+    bool hasPBRTextures(std::shared_ptr<Model> model) const noexcept;
+    void setupPBRShader(std::shared_ptr<Shader> pbrShader, std::shared_ptr<ModelComponent> model, std::shared_ptr<Scene> scene) noexcept;
+
     void calcDeltaTime();
 
     GLdouble last_frame_time{0.0}; // Tiempo al final del frame anterior (usamos GLdouble por la precisión de glfwGetTime)

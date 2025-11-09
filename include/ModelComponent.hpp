@@ -16,7 +16,7 @@ public:
 
     void update(const GLfloat &dt);
 
-    bool loadModel(std::string);
+    bool loadModel(const std::string& model_name);
     
     void start();
     std::shared_ptr<Model> getModel()

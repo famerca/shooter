@@ -183,10 +183,10 @@ int main()
         
         //scene->at(user)->getTransform()->rotate(-20.f, glm::vec3(1.f, 0.f, 0.f));
        
-        // Cargar modelo
+        // Cargar modelo TV
         auto tv = scene->createGameObject();
         auto tv_model = scene->createModel(tv);
-        if (tv_model->loadModel("filthy-prison-toilet-4096px2/source/toilet.fbx"))
+        if (tv_model->loadModel("crt-tv/source/model/model.dae"))
         {
             scene->at(tv)->getTransform()->translate(0.f, 0.f, -1.5f);
             scene->at(tv)->getTransform()->scale(0.5f, 0.5f, 0.5f);

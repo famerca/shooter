@@ -65,56 +65,81 @@ void Mesh::render(std::shared_ptr<Shader> shader) const noexcept
         return;
     }
 
-    // Crear texturas por defecto si no hay texturas cargadas
-    static GLuint defaultWhiteTexture = 0;
-    static GLuint defaultNormalTexture = 0;
-    static GLuint defaultBlackTexture = 0;
-    
-    if (defaultWhiteTexture == 0)
-    {
-        // Textura blanca para albedo
-        glGenTextures(1, &defaultWhiteTexture);
-        glBindTexture(GL_TEXTURE_2D, defaultWhiteTexture);
-        unsigned char white[4] = {255, 255, 255, 255};
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, white);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        
-        // Textura normal por defecto (128, 128, 255) = (0.5, 0.5, 1.0) en espacio normalizado
-        glGenTextures(1, &defaultNormalTexture);
-        glBindTexture(GL_TEXTURE_2D, defaultNormalTexture);
-        unsigned char normal[4] = {128, 128, 255, 255};
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, normal);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        
-        // Textura negra para metallic/roughness (0 = no metálico, 0.5 = roughness medio)
-        glGenTextures(1, &defaultBlackTexture);
-        glBindTexture(GL_TEXTURE_2D, defaultBlackTexture);
-        unsigned char black[4] = {0, 128, 0, 255}; // R=0 (metallic), G=128 (roughness 0.5), B=0, A=255
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, black);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // Obtener o inicializar texturas por defecto
+    auto& defaults = getDefaultTextures();
+    if (defaults.white == 0) {
+        initializeDefaultTextures(defaults);
     }
 
-    unsigned int albedoNr = 1;
-    unsigned int normalNr = 1;
-    unsigned int metallicNr = 1;
-    unsigned int roughnessNr = 1;
-    unsigned int aoNr = 1;
-    
-    // Mapeo de qué texturas se han encontrado
+    // Estado de texturas encontradas
     bool hasAlbedo = false;
     bool hasNormal = false;
     bool hasMetallic = false;
     bool hasRoughness = false;
     bool hasAO = false;
+    
+    // Vincular texturas PBR cargadas
+    unsigned int textureSlot = 0;
+    bindPBRTextures(shader, textureSlot, hasAlbedo, hasNormal, hasMetallic, hasRoughness, hasAO);
+    
+    // Vincular texturas por defecto para las que faltan
+    bindDefaultTextures(shader, textureSlot, hasAlbedo, hasMetallic, hasRoughness, hasAO, defaults);
+
+    // Renderizar la malla
+    glBindVertexArray(VAO_id);
+    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+
+    // Resetear el estado de texturas
+    glActiveTexture(GL_TEXTURE0);
+}
+
+Mesh::DefaultTextures& Mesh::getDefaultTextures() noexcept
+{
+    static DefaultTextures defaults;
+    return defaults;
+}
+
+void Mesh::initializeDefaultTextures(DefaultTextures& defaults) noexcept
+{
+    // Textura blanca para albedo
+    glGenTextures(1, &defaults.white);
+    glBindTexture(GL_TEXTURE_2D, defaults.white);
+    unsigned char white[4] = {255, 255, 255, 255};
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, white);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    // Textura normal por defecto (128, 128, 255) = (0.5, 0.5, 1.0) en espacio normalizado
+    glGenTextures(1, &defaults.normal);
+    glBindTexture(GL_TEXTURE_2D, defaults.normal);
+    unsigned char normal[4] = {128, 128, 255, 255};
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, normal);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    // Textura negra para metallic/roughness (0 = no metálico, 0.5 = roughness medio)
+    glGenTextures(1, &defaults.black);
+    glBindTexture(GL_TEXTURE_2D, defaults.black);
+    unsigned char black[4] = {0, 128, 0, 255}; // R=0 (metallic), G=128 (roughness 0.5), B=0, A=255
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, black);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
+
+void Mesh::bindPBRTextures(std::shared_ptr<Shader> shader, unsigned int& textureSlot, bool& hasAlbedo, bool& hasNormal, bool& hasMetallic, bool& hasRoughness, bool& hasAO) const noexcept
+{
+    unsigned int albedoNr = 1;
+    unsigned int normalNr = 1;
+    unsigned int metallicNr = 1;
+    unsigned int roughnessNr = 1;
+    unsigned int aoNr = 1;
 
     // Activar y vincular las texturas PBR cargadas
     for (unsigned int i = 0; i < textures.size(); i++)
@@ -170,13 +195,16 @@ void Mesh::render(std::shared_ptr<Shader> shader) const noexcept
         textures[i].texture->bind(i);
     }
     
+    textureSlot = textures.size();
+}
+
+void Mesh::bindDefaultTextures(std::shared_ptr<Shader> shader, unsigned int& textureSlot, bool hasAlbedo, bool hasMetallic, bool hasRoughness, bool hasAO, const DefaultTextures& defaults) const noexcept
+{
     // Vincular texturas por defecto para los samplers que no tienen textura
-    unsigned int textureSlot = textures.size();
-    
     if (!hasAlbedo)
     {
         glActiveTexture(GL_TEXTURE0 + textureSlot);
-        glBindTexture(GL_TEXTURE_2D, defaultWhiteTexture);
+        glBindTexture(GL_TEXTURE_2D, defaults.white);
         shader->setInt("texture_albedo", textureSlot);
         shader->setInt("texture_albedo1", textureSlot);
         textureSlot++;
@@ -185,7 +213,7 @@ void Mesh::render(std::shared_ptr<Shader> shader) const noexcept
     if (!hasMetallic)
     {
         glActiveTexture(GL_TEXTURE0 + textureSlot);
-        glBindTexture(GL_TEXTURE_2D, defaultBlackTexture);
+        glBindTexture(GL_TEXTURE_2D, defaults.black);
         shader->setInt("texture_metallic", textureSlot);
         shader->setInt("texture_metallic1", textureSlot);
         textureSlot++;
@@ -194,7 +222,7 @@ void Mesh::render(std::shared_ptr<Shader> shader) const noexcept
     if (!hasRoughness)
     {
         glActiveTexture(GL_TEXTURE0 + textureSlot);
-        glBindTexture(GL_TEXTURE_2D, defaultBlackTexture);
+        glBindTexture(GL_TEXTURE_2D, defaults.black);
         shader->setInt("texture_roughness", textureSlot);
         shader->setInt("texture_roughness1", textureSlot);
         textureSlot++;
@@ -203,19 +231,11 @@ void Mesh::render(std::shared_ptr<Shader> shader) const noexcept
     if (!hasAO)
     {
         glActiveTexture(GL_TEXTURE0 + textureSlot);
-        glBindTexture(GL_TEXTURE_2D, defaultWhiteTexture);
+        glBindTexture(GL_TEXTURE_2D, defaults.white);
         shader->setInt("texture_ao", textureSlot);
         shader->setInt("texture_ao1", textureSlot);
         textureSlot++;
     }
-
-    // Renderizar la malla
-    glBindVertexArray(VAO_id);
-    glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-
-    // Resetear el estado de texturas
-    glActiveTexture(GL_TEXTURE0);
 }
 
 void Mesh::clear() noexcept
