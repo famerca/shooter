@@ -22,6 +22,12 @@ struct DirectionalLightUniforms
 class Shader
 {
 public:
+
+    enum class LIST{
+        BASE = 0,
+        SKYBOX = 1
+    };
+    
     Shader() = default;
 
     Shader(const Shader& shader) = delete;

@@ -1,15 +1,8 @@
 #include <SkyBox.hpp>
-
-const std::filesystem::path& SkyBox::vertex_shader_filename{"skybox.vert"};
-const std::filesystem::path& SkyBox::fragment_shader_filename{"skybox.frag"};
+#include <BSlogger.hpp>
 
 SkyBox::SkyBox(const std::filesystem::path& root_path, const std::vector<std::filesystem::path>& face_filenames) noexcept
 {
-    // Shader setup
-    shader = Shader::create_from_files(root_path / "shaders" / vertex_shader_filename, root_path / "shaders" / fragment_shader_filename);
-    uniform_projection_id = shader->get_uniform_projection_id();
-    uniform_view_id = shader->get_uniform_view_id();
-
     // Texture setup
     glGenTextures(1, &texture_id);
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture_id);

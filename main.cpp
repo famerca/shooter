@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <random>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -18,7 +19,7 @@
 #include "Renderer.hpp"
 #include "Input.hpp"
 #include "SkyBox.hpp"
-#include <random>
+#include "JoltTest.hpp" 
 
 class inputManager: public Input
 {
@@ -151,6 +152,7 @@ int main()
 {
     try
     {
+        JoltTest::RunBasicTest();
         // Window dimensions
         constexpr GLint WIDTH = 1200;
         constexpr GLint HEIGHT = 720;

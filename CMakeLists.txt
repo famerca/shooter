@@ -45,21 +45,45 @@ execute_process(
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/third_party/BSlogger/src ${CMAKE_CURRENT_BINARY_DIR}/third_party/stb)
 
+# --- INICIO CONFIGURACIÓN JOLT ---
+set(VENDOR_DIR ${PROJECT_SOURCE_DIR}/vendor)
+
+# 1. Definir rutas de Jolt
+find_path(JOLT_INCLUDE_DIR Jolt/Jolt.h PATHS ${VENDOR_DIR}/JoltPhysics/include)
+set(JOLT_LIB_DIR ${VENDOR_DIR}/JoltPhysics/lib)
+
+# 2. Declarar la librería del motor
 file(GLOB SRC "${PROJECT_SOURCE_DIR}/src/*.cpp")
 add_library(GLSHOOTERLIB ${SRC})
-target_include_directories(GLSHOOTERLIB PUBLIC "${PROJECT_SOURCE_DIR}/include")
 
+# Incluir headers de tu proyecto y de Jolt
+target_include_directories(GLSHOOTERLIB PUBLIC "${PROJECT_SOURCE_DIR}/include" ${JOLT_INCLUDE_DIR})
 
-if(APPLE)
-    target_link_libraries(GLSHOOTERLIB PUBLIC ${OPENGL_LIBRARY} ${COCOA_LIBRARY} ${IOKIT_LIBRARY} ${COREVIDEO_LIBRARY} ${GLEW_LIBRARIES} glfw ${ASSIMP_LIBRARY})
-    target_include_directories(GLSHOOTERLIB PUBLIC ${ASSIMP_INCLUDE_DIR})
-else()
-    target_link_libraries(GLSHOOTERLIB PUBLIC GL GLEW glfw )
-    target_link_libraries(GLSHOOTERLIB PRIVATE assimp)
+# 3. Encontrar y Enlazar Jolt (incluyendo math y threading)
+find_library(JOLT_LIBRARY NAMES Jolt PATHS ${JOLT_LIB_DIR})
+
+if(NOT JOLT_LIBRARY)
+    message(FATAL_ERROR "No se pudo encontrar la librería Jolt.a en ${JOLT_LIB_DIR}")
 endif()
 
-# Set the main source to generate the executable code
+# Enlazar dependencias del motor (GLFW, GLEW, etc.) y de Jolt
+if(APPLE)
+    # Dependencias de macOS
+    target_link_libraries(GLSHOOTERLIB PUBLIC ${OPENGL_LIBRARY} ${COCOA_LIBRARY} ${IOKIT_LIBRARY} ${COREVIDEO_LIBRARY} ${GLEW_LIBRARIES} glfw ${ASSIMP_LIBRARY} ${JOLT_LIBRARY} m pthread)
+    target_include_directories(GLSHOOTERLIB PUBLIC ${ASSIMP_INCLUDE_DIR})
+else()
+    # Dependencias de Linux/Unix
+    target_link_libraries(GLSHOOTERLIB PUBLIC GL GLEW glfw assimp ${JOLT_LIBRARY} m pthread)
+endif()
+
+
+# --- DECLARACIÓN Y ENLAZADO DEL EJECUTABLE ---
+
+# 4. Declarar el ejecutable (Esto debe ir antes del target_link_libraries de GLSooter)
 add_executable(GLShooter main.cpp)
 
-
-target_link_libraries(GLShooter GLSHOOTERLIB)
+# 5. Enlazar el ejecutable a la librería principal (GLSHOOTERLIB ya tiene todas las dependencias)
+target_link_libraries(GLShooter
+    PRIVATE
+        GLSHOOTERLIB
+)

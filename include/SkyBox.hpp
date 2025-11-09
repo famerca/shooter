@@ -14,14 +14,10 @@
 #include <stb_image.h>
 
 #include <Mesh.hpp>
-#include <Shader.hpp>
 
 class SkyBox
 {
 public:
-    static const std::filesystem::path& vertex_shader_filename;
-    static const std::filesystem::path& fragment_shader_filename;
-
     SkyBox() = default;
 
     SkyBox(const std::filesystem::path& root_path, const std::vector<std::filesystem::path>& face_filenames) noexcept;
@@ -33,7 +29,6 @@ public:
     ~SkyBox();
 
     void render() const noexcept;
-    std::shared_ptr<Shader> shader{nullptr};
 
 private:
     std::shared_ptr<Mesh> mesh{nullptr};
@@ -41,6 +36,4 @@ private:
    
     
     GLuint texture_id{0};
-    GLuint uniform_projection_id{0};
-    GLuint uniform_view_id{0};
 };
