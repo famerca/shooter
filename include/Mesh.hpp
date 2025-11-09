@@ -51,15 +51,15 @@ private:
     
     // Métodos privados para manejo de texturas PBR (nuevo código)
     struct DefaultTextures {
-        GLuint white{0};
-        GLuint normal{0};
-        GLuint black{0};
+        GLuint albedo{0};      // Textura blanca para albedo/AO
+        GLuint normal{0};       // Textura normal por defecto
+        GLuint metallic{0};    // Textura negra para metallic/roughness
     };
     
     static DefaultTextures& getDefaultTextures() noexcept;
     static void initializeDefaultTextures(DefaultTextures& defaults) noexcept;
     void bindPBRTextures(std::shared_ptr<Shader> shader, unsigned int& textureSlot, bool& hasAlbedo, bool& hasNormal, bool& hasMetallic, bool& hasRoughness, bool& hasAO) const noexcept;
-    void bindDefaultTextures(std::shared_ptr<Shader> shader, unsigned int& textureSlot, bool hasAlbedo, bool hasMetallic, bool hasRoughness, bool hasAO, const DefaultTextures& defaults) const noexcept;
+    void bindDefaultTextures(std::shared_ptr<Shader> shader, unsigned int& textureSlot, bool hasAlbedo, bool hasNormal, bool hasMetallic, bool hasRoughness, bool hasAO, const DefaultTextures& defaults) const noexcept;
 
     GLuint VAO_id{0};
     GLuint VBO_id{0};
