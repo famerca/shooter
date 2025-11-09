@@ -39,8 +39,8 @@ private:
 
     void renderDirLight(std::shared_ptr<DirectionalLight> dirLight);
     void renderCamera(std::shared_ptr<CameraComponent> camera);
-    void renderObject(std::shared_ptr<GameObject> object);
-    void renderModel(std::shared_ptr<ModelComponent> model);
+    void renderObject(std::shared_ptr<GameObject> object, std::shared_ptr<Scene> scene);
+    void renderModel(std::shared_ptr<ModelComponent> model, std::shared_ptr<Scene> scene);
     void renderSkyBox(std::shared_ptr<SkyBox> sky_box,std::shared_ptr<CameraComponent> camera);
 
     void calcDeltaTime();

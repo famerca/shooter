@@ -16,12 +16,12 @@ SkyBox::SkyBox(const std::filesystem::path& root_path, const std::vector<std::fi
 
     int width{0};
     int height{0};
-    int bit_depth{0};
+    int channels{0};
 
     for (size_t i = 0; i < face_filenames.size(); ++i)
     {
         auto file_path = root_path / "textures" / "skybox" / face_filenames[i];
-        unsigned char* tex_data = stbi_load(file_path.c_str(), &width, &height, &bit_depth, 0);
+        unsigned char* tex_data = stbi_load(file_path.string().c_str(), &width, &height, &channels, 0);
 
         if (!tex_data)
         {
@@ -30,7 +30,13 @@ SkyBox::SkyBox(const std::filesystem::path& root_path, const std::vector<std::fi
             return;
         }
 
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
+        GLenum format = GL_RGB;
+        if (channels == 4)
+            format = GL_RGBA;
+        else if (channels == 1)
+            format = GL_RED;
+
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, tex_data);
 
         stbi_image_free(tex_data);
     }

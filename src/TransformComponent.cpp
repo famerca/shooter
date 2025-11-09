@@ -17,6 +17,11 @@ glm::vec3 TransformComponent::getPosition()
     return position;
 }
 
+glm::vec3 TransformComponent::getScale() const
+{
+    return _scale;
+}
+
 TransformComponent::~TransformComponent()
 {
 

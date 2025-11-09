@@ -50,14 +50,21 @@ public:
     std::shared_ptr<Texture> create_texture_from_embedded_data(const aiTexture* embedded_texture) noexcept;
     std::shared_ptr<Texture> create_texture_from_uncompressed_data(const aiTexture* embedded_texture) noexcept;
     
-    std::shared_ptr<Mesh> getMesh() const noexcept { return mesh; }
+    std::shared_ptr<Mesh> getMesh() const noexcept { return meshes.empty() ? nullptr : meshes[0]; } // Compatibilidad con código existente
+    std::vector<std::shared_ptr<Mesh>> getMeshes() const noexcept { return meshes; }
     std::vector<std::shared_ptr<Texture>> getTextures() const noexcept { return textures; }
     
 private:
     void clear() noexcept;
-    void process_mesh(const aiMesh *mesh, const std::string& model_name);
+    void loadModel(const std::filesystem::path& path);
+    void processNode(aiNode* node, const aiScene* scene, const std::filesystem::path& model_path);
+    std::shared_ptr<Mesh> processMesh(aiMesh* mesh, const aiScene* scene, const std::filesystem::path& model_path);
+    std::vector<MeshTexture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName, const std::filesystem::path& model_path, const aiScene* scene);
+    
+    // Método legacy mantenido para compatibilidad
+    void process_mesh(const aiMesh *mesh, const aiScene* scene, const std::filesystem::path& model_path);
 
-    std::shared_ptr<Mesh> mesh;
+    std::vector<std::shared_ptr<Mesh>> meshes; // Cambiado a vector para soportar múltiples meshes
     std::vector<std::shared_ptr<Texture>> textures;
 };
 

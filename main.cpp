@@ -183,24 +183,22 @@ int main()
         
         //scene->at(user)->getTransform()->rotate(-20.f, glm::vec3(1.f, 0.f, 0.f));
        
+        // Cargar modelo
+        auto tv = scene->createGameObject();
+        auto tv_model = scene->createModel(tv);
+        if (tv_model->loadModel("filthy-prison-toilet-4096px2/source/toilet.fbx"))
+        {
+            scene->at(tv)->getTransform()->translate(0.f, 0.f, -1.5f);
+            scene->at(tv)->getTransform()->scale(0.5f, 0.5f, 0.5f);
+            scene->at(tv)->setVisible(true);
+        }
+        
+        // Restaurar modelos de prueba
         scene->createModel(user)->loadModel("suzanne.fbx");
         auto sphere = scene->createGameObject();
-        scene->createModel(sphere)->loadModel("sphere.fbx");
-
-        scene->at(sphere)->getTransform()->translate(1.f, 0.f, -1.f);
-
-        auto dado = scene->createGameObject();
-        scene->createModel(dado)->loadModel("dado.fbx");
-        scene->at(dado)->getTransform()->translate(-1.f, 0.f, -0.f);
-
-        auto cilindro = scene->createGameObject();
-        scene->createModel(cilindro)->loadModel("cilinder.fbx");
-        scene->at(cilindro)->getTransform()->translate(0.f, 0.f, 1.5f);
-        scene->at(cilindro)->getTransform()->rotate(90.f, glm::vec3(0.f, 1.f, 0.f));
-
-        auto dado2 = scene->createGameObject();
-        scene->createModel(dado2)->loadModel("dado.fbx");
-        scene->at(dado2)->getTransform()->translate(1.f, 0.5f, 3.f);
+        scene->createModel(sphere)->loadModel("filthy-prison-toilet-4096px2/source/toilet.fbx");
+        scene->at(sphere)->getTransform()->translate(2.f, 0.f, -3.f);
+        scene->at(sphere)->getTransform()->scale(2.0f, 2.0f, 2.0f); // Asegurar que la esfera tenga escala correcta
 
         auto obstacles = std::make_shared<std::vector<unsigned>>();
 
@@ -220,16 +218,10 @@ int main()
         scene->setSkyBox(sky_box);
 
 
-        scene->at(sphere)->getTransform()->scale(0.4f, 0.4f, 0.4f);
-        scene->at(dado)->getTransform()->scale(0.4f, 0.4f, 0.4f);
+        // La escala de sphere ya se estableció arriba, solo escalar user
         scene->at(user)->getTransform()->scale(0.4f, 0.4f, 0.4f);
-        scene->at(cilindro)->getTransform()->scale(0.4f, 0.4f, 0.8f);
-        scene->at(dado2)->getTransform()->scale(0.8f, 0.8f, 0.4f);
 
         obstacles->push_back(sphere);
-        obstacles->push_back(dado);
-        obstacles->push_back(cilindro);
-        obstacles->push_back(dado2);
 
         input->init(scene, scene->at(user), obstacles);
 
@@ -239,7 +231,8 @@ int main()
 
     }catch(const std::exception& e)
     {
-
+        std::cerr << "Error: " << e.what() << std::endl;
+        return EXIT_FAILURE;
     }
     
     return EXIT_SUCCESS;

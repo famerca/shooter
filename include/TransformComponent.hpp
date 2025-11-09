@@ -43,6 +43,7 @@ public:
     void updateModel();
 
     glm::vec3 getPosition();
+    glm::vec3 getScale() const;
 
     glm::mat4 getModelMatrix();
 

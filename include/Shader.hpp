@@ -46,11 +46,14 @@ public:
 
     GLuint get_uniform_view_id() const noexcept { return uniform_view_id; }
 
+    GLuint get_program_id() const noexcept { return program_id; }
+
     void use() const noexcept;
 
     DirectionalLightUniforms get_uniform_directional_light() const noexcept { return uniform_directional_light; }
 
-   
+    // Método para establecer uniforms de enteros (compatibilidad con el plan PBR)
+    void setInt(const std::string& name, int value) const noexcept;
 
 private:
     void clear() noexcept;

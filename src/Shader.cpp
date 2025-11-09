@@ -26,6 +26,15 @@ void Shader::use() const noexcept
     glUseProgram(program_id);
 }
 
+void Shader::setInt(const std::string& name, int value) const noexcept
+{
+    GLint location = glGetUniformLocation(program_id, name.c_str());
+    if (location != -1)
+    {
+        glUniform1i(location, value);
+    }
+}
+
 void Shader::create_program(std::string_view vertex_shader_code, std::string_view fragment_shader_code) noexcept
 {
     LOG_INIT_CERR();
