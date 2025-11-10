@@ -45,6 +45,11 @@ void GameObject::setBody(std::shared_ptr<Engine::Body> body)
     body->SetPosition(transform->getPosition());
 }
 
+std::shared_ptr<Engine::Body> GameObject::getBody()
+{
+    return body;
+}
+
 void GameObject::update(const GLfloat &dt)
 {
     if(body != nullptr)

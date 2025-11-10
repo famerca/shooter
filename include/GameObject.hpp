@@ -27,6 +27,7 @@ public:
     void setVisible(bool);
 
     void setBody(std::shared_ptr<Engine::Body> body);
+    std::shared_ptr<Engine::Body> getBody();
 
     void addComponent(std::shared_ptr<Component>);
 

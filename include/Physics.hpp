@@ -54,5 +54,4 @@ private:
 
 } // namespace Engine
 
-
 #endif // JPH_PHYSICS_H

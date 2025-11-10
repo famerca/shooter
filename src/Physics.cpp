@@ -10,6 +10,7 @@ bool Engine::Physics::s_IsInitialized = false;
 
 namespace Engine {
 
+
 // --- Definición de capas ---
 namespace Layers {
     static constexpr ObjectLayer NON_MOVING = 0;
@@ -96,11 +97,16 @@ void Physics::Init() {
 
     m_PhysicsSystem = std::make_unique<PhysicsSystem>();
     m_PhysicsSystem->Init(
-        8192, 0, 8192, 8192,
+        1024, //Max num bodies
+        0, // Max num Mutex
+        1024,
+        1024,
         *m_BPLayerInterface,
         *m_ObjectVsBroadPhaseFilter,
         *m_ObjectPairFilter
     );
+
+    m_PhysicsSystem->SetGravity(Vec3(0.f, 0.f, 0.f));
 
     s_IsInitialized = true;
 

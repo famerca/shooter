@@ -72,32 +72,15 @@ public:
         // 1. --- Lógica del Salto del Jugador (Y) ---
         if (is_key_pressed(GLFW_KEY_SPACE) && !is_jumping)
         {
-            is_jumping = true;
-            current_y_velocity = jump_velocity; 
-            initial_y = pos.y; 
+            object->getBody()->ApplyImpulse({0.f, 10.f, 0.f});
         }
 
-        if (is_jumping)
+
+        if(is_key_pressed(GLFW_KEY_LEFT_SHIFT))
         {
-            // Aplicar gravedad: v = v + a * dt
-            current_y_velocity += gravity * dt; 
-
-            // Calcular desplazamiento: y = y + v * dt
-            float y_displacement = current_y_velocity * dt;
-            
-            // Mover el objeto
-            pos.y += y_displacement;
-            
-            // Lógica de Aterrizaje
-            if (pos.y <= initial_y)
-            {
-                pos.y = initial_y; 
-                is_jumping = false;
-                current_y_velocity = 0.f;
-            }
-            
-            object->getTransform()->translate(pos); // Aplicamos la nueva posición Y
+            object->getBody()->ApplyImpulse({0.f, -10.f, 0.f});
         }
+
         
         // 2. --- Lógica de Movimiento Horizontal del Jugador (X/Z) ---
         // Nota: Solo se usa translate para el movimiento horizontal.
@@ -105,40 +88,48 @@ public:
         if(is_key_pressed(GLFW_KEY_A))
         {
             // Mover en X positivo (asumiendo que 'A' es para ir a la derecha en el plano XZ)
-            if(pos.x < 1.5f)
-                object->getTransform()->translate(pos + glm::vec3(1.f, 0.f, 0.f) * speed * dt);
+            object->getBody()->ApplyImpulse({10.f, 0.f, 0.f});
         }
 
         if(is_key_pressed(GLFW_KEY_D))
         {
             // Mover en X negativo (asumiendo que 'D' es para ir a la izquierda)
-            if(pos.x > -1.5f)
-                object->getTransform()->translate(pos + glm::vec3(-1.f, 0.f, 0.f) * speed * dt);
+            object->getBody()->ApplyImpulse({-10.f, 0.f, 0.f});
+        }
+        
+        if(is_key_pressed(GLFW_KEY_W))
+        {
+            object->getBody()->ApplyImpulse({0.f, 0.f, 10.f});
+        }
+
+        if(is_key_pressed(GLFW_KEY_S))
+        {
+            object->getBody()->ApplyImpulse({0.f, 0.f, -10.f});
         }
         
         // 3. --- Lógica de Movimiento y Reaparición de Obstáculos ---
-        if (obstacles_list && scene) 
-        {
-            for (unsigned id : *obstacles_list) 
-            {
-                std::shared_ptr<GameObject> obstacle = scene->at(id);
-                glm::vec3 obs_pos = obstacle->getTransform()->getPosition();
+        // if (obstacles_list && scene) 
+        // {
+        //     for (unsigned id : *obstacles_list) 
+        //     {
+        //         std::shared_ptr<GameObject> obstacle = scene->at(id);
+        //         glm::vec3 obs_pos = obstacle->getTransform()->getPosition();
 
-                // Mover el obstáculo hacia el usuario (Z negativa)
-                obs_pos.z -= OBSTACLE_SPEED * dt;
+        //         // Mover el obstáculo hacia el usuario (Z negativa)
+        //         obs_pos.z -= OBSTACLE_SPEED * dt;
                 
-                // Verificar si el obstáculo alcanzó el límite de reaparición
-                if (obs_pos.z < Z_LIMIT) 
-                {
-                    // Reiniciar la posición Z y asignar una X aleatoria (-1.0 a 1.0)
-                    obs_pos.z = Z_RESET;
-                    obs_pos.x = distrib_x(gen); 
-                }
+        //         // Verificar si el obstáculo alcanzó el límite de reaparición
+        //         if (obs_pos.z < Z_LIMIT) 
+        //         {
+        //             // Reiniciar la posición Z y asignar una X aleatoria (-1.0 a 1.0)
+        //             obs_pos.z = Z_RESET;
+        //             obs_pos.x = distrib_x(gen); 
+        //         }
 
-                // Aplicar la nueva posición
-                obstacle->getTransform()->translate(obs_pos);
-            }
-        }
+        //         // Aplicar la nueva posición
+        //         obstacle->getTransform()->translate(obs_pos);
+        //     }
+        // }
         // -------------------------------------------------------------
         
         std::cout << "delta: " << dt <<  ", FPS: " << 1.f / dt << std::endl;
@@ -225,10 +216,22 @@ int main()
 
 
         scene->at(sphere)->getTransform()->scale(0.4f, 0.4f, 0.4f);
+        scene->at(sphere)->setBody(Engine::Physics::Get().CreateSphere(0.4f, {0.f, 0.f, 0.f}, true));
+
+
         scene->at(dado)->getTransform()->scale(0.4f, 0.4f, 0.4f);
+        scene->at(dado)->setBody(Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, true));
+
         scene->at(user)->getTransform()->scale(0.4f, 0.4f, 0.4f);
+
         scene->at(cilindro)->getTransform()->scale(0.4f, 0.4f, 0.8f);
+        scene->at(cilindro)->setBody(Engine::Physics::Get().CreateBox({0.4f, 0.4f, 0.8f}, {0.f, 0.f, 0.f}, true));
+
         scene->at(dado2)->getTransform()->scale(0.8f, 0.8f, 0.4f);
+        scene->at(dado2)->setBody(Engine::Physics::Get().CreateBox({0.8f, 0.8f, 0.4f}, {0.f, 0.f, 0.f}, true));
+
+        auto body = Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, true);
+        scene->at(user)->setBody(body);
 
         obstacles->push_back(sphere);
         obstacles->push_back(dado);

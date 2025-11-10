@@ -1,5 +1,6 @@
 #include "Renderer.hpp"
 #include "Input.hpp"
+#include "Physics.hpp"
 
 
 Renderer::Renderer()
@@ -42,6 +43,10 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         this->renderSkyBox(scene->getSkyBox(),scene->activeCamera);
 
         calcDeltaTime();
+
+        if(Engine::Physics::Get().IsInitialized())
+            Engine::Physics::Get().Step(delta_time);
+            
         scene->update(delta_time);
 
         this->useShader(Shader::LIST::BASE);
