@@ -98,7 +98,7 @@ std::shared_ptr<Mesh> Model::process_mesh(const aiMesh *mesh, const aiScene *sce
         loadPBRTextures(material, scene, model_path, textures);
     }
 
-    // Si el mesh no tiene texturas, usar las texturas globales del modelo si están disponibles
+    // Si el mesh no tiene texturas, usar las texturas globales o crear una por defecto
     if (textures.empty())
     {
         if (!this->textures.empty())
@@ -107,39 +107,24 @@ std::shared_ptr<Mesh> Model::process_mesh(const aiMesh *mesh, const aiScene *sce
         }
         else
         {
-            // Si tampoco hay texturas globales, crear una textura por defecto
             create_default_texture();
-            if (!this->textures.empty())
-            {
-                textures = this->textures;
-            }
+            textures = this->textures;
         }
     }
 
     auto new_mesh = Mesh::create(vertices, indices, textures);
-    std::string mesh_name = model_path.stem().string() + "_mesh" + std::to_string(meshes.size());
-    new_mesh->set_name(mesh_name);
-    // this->mesh->set_name(model_name);
+    new_mesh->set_name(model_path.stem().string() + "_mesh" + std::to_string(meshes.size()));
     return new_mesh;
 }
 
 void Model::render(GLuint texture_id) noexcept
 {
     // Asegurarse de que siempre haya una textura por defecto disponible
-    if (textures.empty())
+    if (textures.empty() || !textures[0] || textures[0]->get_id() == 0)
     {
         create_default_texture();
     }
-
-    // Obtener una textura por defecto para usar como fallback
-    std::shared_ptr<Texture> defaultTexture = textures.empty() ? nullptr : textures[0];
-    
-    // Si aún no hay textura por defecto, crear una ahora
-    if (!defaultTexture || defaultTexture->get_id() == 0)
-    {
-        create_default_texture();
-        defaultTexture = textures.empty() ? nullptr : textures[0];
-    }
+    std::shared_ptr<Texture> defaultTexture = textures[0];
 
     for (size_t i = 0; i < meshes.size(); i++)
     {
@@ -147,63 +132,24 @@ void Model::render(GLuint texture_id) noexcept
         if (!mesh)
             continue;
 
-        // Buscar textura DIFUSA para este mesh - esto es crítico
+        // Buscar textura difusa para este mesh, usar la por defecto si no se encuentra
         std::shared_ptr<Texture> textureToUse = findDiffuseTexture(mesh);
-        
-        // Si no se encontró una textura difusa, usar la textura por defecto
-        // NO usar otras texturas (normales, metallic, etc.) porque el shader espera una textura difusa
         if (!textureToUse || textureToUse->get_id() == 0)
         {
             textureToUse = defaultTexture;
         }
-
-        // Vincular la textura ANTES de renderizar - SIEMPRE debe haber una textura
-        // Asegurarse de que siempre haya una textura válida
-        if (!textureToUse || textureToUse->get_id() == 0)
-        {
-            // Si no hay textura, usar la textura por defecto
-            if (!defaultTexture || defaultTexture->get_id() == 0)
-            {
-                create_default_texture();
-                defaultTexture = textures.empty() ? nullptr : textures[0];
-            }
-            textureToUse = defaultTexture;
-        }
         
-        // SIEMPRE vincular una textura - esto es crítico
-        // IMPORTANTE: Vincular la textura PRIMERO, luego establecer el uniform
+        // Vincular la textura y establecer el uniform
         if (textureToUse && textureToUse->get_id() != 0)
         {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, textureToUse->get_id());
-            // Establecer el uniform DESPUÉS de vincular la textura
-            // texture_id puede ser 0 si el uniform tiene location 0 (válido) o si no se encontró (-1 convertido)
-            // Verificamos que no sea -1 (el valor máximo de GLuint cuando -1 se convierte)
             if (texture_id != static_cast<GLuint>(-1))
             {
                 glUniform1i(texture_id, 0);
             }
         }
-        else
-        {
-            // Si aún no hay textura válida, forzar la creación y vinculación
-            std::cerr << "ERROR: No se pudo obtener una textura válida para el mesh " << i << std::endl;
-            if (textures.empty())
-            {
-                create_default_texture();
-            }
-            if (!textures.empty() && textures[0] && textures[0]->get_id() != 0)
-            {
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, textures[0]->get_id());
-                if (texture_id != 0 && texture_id != static_cast<GLuint>(-1))
-                {
-                    glUniform1i(texture_id, 0);
-                }
-            }
-        }
 
-        // Renderizar el mesh - la textura debe estar vinculada en este punto
         mesh->render();
     }
 
@@ -387,16 +333,8 @@ void Model::create_default_texture() noexcept
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    // Crear una textura de 1x1 píxeles con color basado en el nombre del modelo
-    unsigned char data[4];
-
-    // Color gris por defecto
-    data[0] = 128;
-    data[1] = 128;
-    data[2] = 128;
-    data[3] = 255; // RGBA gris
-    std::cout << "  Creando textura gris por defecto" << std::endl;
-
+    // Crear una textura de 1x1 píxeles gris por defecto (RGBA)
+    unsigned char data[4] = {128, 128, 128, 255};
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
     texture->width = 1;
@@ -405,11 +343,8 @@ void Model::create_default_texture() noexcept
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    // Asignar tipo a la textura por defecto
     texture->set_type("texture_diffuse");
-    
     textures.push_back(texture);
-    std::cout << "  Textura por defecto creada con ID: " << texture->texture_id << std::endl;
 }
 
 std::shared_ptr<Texture> Model::create_texture_from_embedded_data(const aiTexture *embedded_texture) noexcept

@@ -72,34 +72,19 @@ void Shader::create_program(std::string_view vertex_shader_code, std::string_vie
         log(LOG_ERR) << "Error validating the program: " << log_text << " \n";
     }
 
-    // IMPORTANTE: Activar el programa antes de obtener las ubicaciones de los uniforms
-    // Aunque no es estrictamente necesario, algunos drivers pueden optimizar uniforms si el programa no está activo
     glUseProgram(program_id);
     
     uniform_model_id = glGetUniformLocation(program_id, "model");
     uniform_projection_id = glGetUniformLocation(program_id, "projection");
     uniform_view_id = glGetUniformLocation(program_id, "view");
     
-    // Obtener la ubicación del uniform de textura
     GLint uniform_location = glGetUniformLocation(program_id, "diffuseTexture");
-    if (uniform_location == -1)
-    {
-        log(LOG_ERR) << "ERROR: No se pudo encontrar el uniform 'diffuseTexture' en el shader. El uniform podría estar optimizado o no existe.\n";
-        // Si el uniform no se encuentra, usar 0 como valor por defecto
-        // Esto significa que no podremos establecer el uniform, pero aún podemos vincular la textura a GL_TEXTURE0
-        uniform_diffuse_texture_id = 0;
-    }
-    else
-    {
-        uniform_diffuse_texture_id = static_cast<GLuint>(uniform_location);
-        log(LOG_INFO) << "Uniform 'diffuseTexture' encontrado con ID: " << uniform_diffuse_texture_id << " (location: " << uniform_location << ")\n";
-    }
+    uniform_diffuse_texture_id = (uniform_location == -1) ? 0 : static_cast<GLuint>(uniform_location);
     
     uniform_directional_light.color_id = glGetUniformLocation(program_id, "directional_light.color");
     uniform_directional_light.diffuse_intensity_id = glGetUniformLocation(program_id, "directional_light.diffuse_intensity");
     uniform_directional_light.direction_id = glGetUniformLocation(program_id, "directional_light.direction");
     
-    // Desactivar el programa después de obtener las ubicaciones
     glUseProgram(0);
 }
 
