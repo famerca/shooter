@@ -6,6 +6,8 @@
 
 using namespace JPH;
 
+bool Engine::Physics::s_IsInitialized = false;
+
 namespace Engine {
 
 // --- Definición de capas ---
@@ -73,6 +75,10 @@ Physics& Physics::Get() {
     return instance;
 }
 
+bool Physics::IsInitialized() {
+    return s_IsInitialized;
+}
+
 // --- Inicialización ---
 void Physics::Init() {
     RegisterDefaultAllocator();
@@ -96,6 +102,8 @@ void Physics::Init() {
         *m_ObjectPairFilter
     );
 
+    s_IsInitialized = true;
+
     std::cout << "[Physics] Initialized.\n";
 }
 
@@ -116,6 +124,7 @@ void Physics::Shutdown() {
         Factory::sInstance = nullptr;
         m_PhysicsSystem.reset();
         std::cout << "[Physics] Shutdown.\n";
+        s_IsInitialized = false;
     }
 }
 

@@ -1,9 +1,17 @@
 #pragma once
+#include <memory>
+
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/EActivation.h>
+#include <glm/glm.hpp>
+
+#ifndef BODY_H
+#define BODY_H
+
+class GameObject;
 
 namespace Engine {
-
 class Physics;
 
 class Body {
@@ -18,11 +26,16 @@ public:
     Body(Body&& other) noexcept;
     Body& operator=(Body&& other) noexcept;
 
+    
     void destroy();
-
+    
     void ApplyImpulse(const JPH::Vec3& impulse);
     void ApplyForce(const JPH::Vec3& force);
     JPH::RVec3 GetPosition() const;
+    void SetPosition(const glm::vec3& inPosition, JPH::EActivation inActivation = JPH::EActivation::Activate);
+    void SetOwner(std::shared_ptr<GameObject> gameObject);
+
+    void update();
 
     bool IsValid() const { return ! m_BodyID.IsInvalid(); }
 
@@ -31,6 +44,11 @@ private:
 
     JPH::BodyID m_BodyID;
     bool m_IsDynamic = false;
+    std::shared_ptr<GameObject> owner;
+    
 };
 
 } // namespace Engine
+
+
+#endif // JPH_BODY_H

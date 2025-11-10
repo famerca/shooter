@@ -1,6 +1,6 @@
 #include "GameObject.hpp"
 
-GameObject::GameObject(): components(), visible(true), transform{nullptr}
+GameObject::GameObject(): components(), visible(true), transform{nullptr}, body{nullptr}
 {
 }
 
@@ -38,9 +38,20 @@ std::shared_ptr<TransformComponent> GameObject::getTransform()
     return transform;
 }
 
+void GameObject::setBody(std::shared_ptr<Engine::Body> body)
+{
+    this->body = body;
+    body->SetOwner(shared_from_this());
+    body->SetPosition(transform->getPosition());
+}
+
 void GameObject::update(const GLfloat &dt)
 {
-    transform->update(dt);
+    if(body != nullptr)
+        body->update();
+
+    transform->update();
+
     for (std::shared_ptr<Component> component : components)
     {
         component->update(dt);

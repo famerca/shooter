@@ -12,11 +12,15 @@
 
 JPH_SUPPRESS_WARNINGS
 
+#ifndef PHYSICS_H
+#define PHYSICS_H
+
 namespace Engine {
 
 class Physics {
 public:
     static Physics& Get();
+    static bool IsInitialized();
 
     void Init();
     void Shutdown();
@@ -32,6 +36,7 @@ public:
 
 private:
     Physics() = default;
+    static bool s_IsInitialized;
 
     // Filtros internos
     class BPLayerInterfaceImpl;
@@ -48,3 +53,6 @@ private:
 };
 
 } // namespace Engine
+
+
+#endif // JPH_PHYSICS_H
