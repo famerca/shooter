@@ -73,6 +73,12 @@ std::shared_ptr<Mesh> Model::process_mesh(const aiMesh *mesh, const aiScene *sce
             vertex.texCoords.x = mesh->mTextureCoords[0][i].x;
             vertex.texCoords.y = mesh->mTextureCoords[0][i].y;
         }
+        else
+        {
+            // Inicializar coordenadas de textura por defecto si no existen
+            vertex.texCoords.x = 0.0f;
+            vertex.texCoords.y = 0.0f;
+        }
         vertices.push_back(vertex);
     }
 
@@ -92,6 +98,24 @@ std::shared_ptr<Mesh> Model::process_mesh(const aiMesh *mesh, const aiScene *sce
         loadPBRTextures(material, scene, model_path, textures);
     }
 
+    // Si el mesh no tiene texturas, usar las texturas globales del modelo si están disponibles
+    if (textures.empty())
+    {
+        if (!this->textures.empty())
+        {
+            textures = this->textures;
+        }
+        else
+        {
+            // Si tampoco hay texturas globales, crear una textura por defecto
+            create_default_texture();
+            if (!this->textures.empty())
+            {
+                textures = this->textures;
+            }
+        }
+    }
+
     auto new_mesh = Mesh::create(vertices, indices, textures);
     std::string mesh_name = model_path.stem().string() + "_mesh" + std::to_string(meshes.size());
     new_mesh->set_name(mesh_name);
@@ -101,6 +125,21 @@ std::shared_ptr<Mesh> Model::process_mesh(const aiMesh *mesh, const aiScene *sce
 
 void Model::render(GLuint texture_id) noexcept
 {
+    // Asegurarse de que siempre haya una textura por defecto disponible
+    if (textures.empty())
+    {
+        create_default_texture();
+    }
+
+    // Obtener una textura por defecto para usar como fallback
+    std::shared_ptr<Texture> defaultTexture = textures.empty() ? nullptr : textures[0];
+    
+    // Si aún no hay textura por defecto, crear una ahora
+    if (!defaultTexture || defaultTexture->get_id() == 0)
+    {
+        create_default_texture();
+        defaultTexture = textures.empty() ? nullptr : textures[0];
+    }
 
     for (size_t i = 0; i < meshes.size(); i++)
     {
@@ -108,15 +147,63 @@ void Model::render(GLuint texture_id) noexcept
         if (!mesh)
             continue;
 
-        std::shared_ptr<Texture> diffuseTexture = findDiffuseTexture(mesh);
-
-        if (texture_id != 0 && diffuseTexture)
+        // Buscar textura DIFUSA para este mesh - esto es crítico
+        std::shared_ptr<Texture> textureToUse = findDiffuseTexture(mesh);
+        
+        // Si no se encontró una textura difusa, usar la textura por defecto
+        // NO usar otras texturas (normales, metallic, etc.) porque el shader espera una textura difusa
+        if (!textureToUse || textureToUse->get_id() == 0)
         {
-            glActiveTexture(GL_TEXTURE0);
-            diffuseTexture->bind(0);
-            glUniform1i(texture_id, 0);
+            textureToUse = defaultTexture;
         }
 
+        // Vincular la textura ANTES de renderizar - SIEMPRE debe haber una textura
+        // Asegurarse de que siempre haya una textura válida
+        if (!textureToUse || textureToUse->get_id() == 0)
+        {
+            // Si no hay textura, usar la textura por defecto
+            if (!defaultTexture || defaultTexture->get_id() == 0)
+            {
+                create_default_texture();
+                defaultTexture = textures.empty() ? nullptr : textures[0];
+            }
+            textureToUse = defaultTexture;
+        }
+        
+        // SIEMPRE vincular una textura - esto es crítico
+        // IMPORTANTE: Vincular la textura PRIMERO, luego establecer el uniform
+        if (textureToUse && textureToUse->get_id() != 0)
+        {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, textureToUse->get_id());
+            // Establecer el uniform DESPUÉS de vincular la textura
+            // texture_id puede ser 0 si el uniform tiene location 0 (válido) o si no se encontró (-1 convertido)
+            // Verificamos que no sea -1 (el valor máximo de GLuint cuando -1 se convierte)
+            if (texture_id != static_cast<GLuint>(-1))
+            {
+                glUniform1i(texture_id, 0);
+            }
+        }
+        else
+        {
+            // Si aún no hay textura válida, forzar la creación y vinculación
+            std::cerr << "ERROR: No se pudo obtener una textura válida para el mesh " << i << std::endl;
+            if (textures.empty())
+            {
+                create_default_texture();
+            }
+            if (!textures.empty() && textures[0] && textures[0]->get_id() != 0)
+            {
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, textures[0]->get_id());
+                if (texture_id != 0 && texture_id != static_cast<GLuint>(-1))
+                {
+                    glUniform1i(texture_id, 0);
+                }
+            }
+        }
+
+        // Renderizar el mesh - la textura debe estar vinculada en este punto
         mesh->render();
     }
 
@@ -318,8 +405,11 @@ void Model::create_default_texture() noexcept
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    // Asignar tipo a la textura por defecto
+    texture->set_type("texture_diffuse");
+    
     textures.push_back(texture);
-    std::cout << "  Textura por defecto creada" << std::endl;
+    std::cout << "  Textura por defecto creada con ID: " << texture->texture_id << std::endl;
 }
 
 std::shared_ptr<Texture> Model::create_texture_from_embedded_data(const aiTexture *embedded_texture) noexcept
