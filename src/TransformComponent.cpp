@@ -7,7 +7,6 @@ TransformComponent::TransformComponent(Owner _owner): Component(_owner, Componen
    position = glm::vec3(0.f, 0.f, 0.f);
    _scale = glm::vec3(1.f, 1.f, 1.f);
    axis = glm::vec3(0.f, 1.f, 0.f);
-   movement = nullptr;
    this->updateModel();
    changed = false;
 }
@@ -44,17 +43,6 @@ void TransformComponent::update(const GLfloat &dt)
 glm::mat4 TransformComponent::getModelMatrix()
 {
     return model;
-}
-
-
-void TransformComponent::createMovement(glm::vec3 velocity = glm::vec3(0.f), glm::vec3 acceleration = glm::vec3(0.f))
-{
-    if(movement == nullptr)
-    {
-        movement = new Movement(this);
-        movement->setVelocity(velocity);
-        movement->setAceleration(acceleration);
-    }
 }
 
 void TransformComponent::translate(float x , float y, float z)

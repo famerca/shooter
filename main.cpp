@@ -19,7 +19,7 @@
 #include "Renderer.hpp"
 #include "Input.hpp"
 #include "SkyBox.hpp"
-#include "JoltTest.hpp" 
+#include "Physics.hpp"
 
 class inputManager: public Input
 {
@@ -152,7 +152,9 @@ int main()
 {
     try
     {
-        JoltTest::RunBasicTest();
+        Engine::Physics::Get().Init();
+        
+
         // Window dimensions
         constexpr GLint WIDTH = 1200;
         constexpr GLint HEIGHT = 720;
@@ -238,6 +240,8 @@ int main()
         auto renderer = std::make_shared<Renderer>();
         renderer->init();
         renderer->render(scene);
+
+        Engine::Physics::Get().Shutdown();
 
     }catch(const std::exception& e)
     {

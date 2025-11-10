@@ -3,7 +3,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Component.hpp"
-#include "Movement.hpp"
 
 #ifndef TRANSFORM_COMPONENT_HPP
 #define TRANSFORM_COMPONENT_HPP
@@ -21,8 +20,6 @@ private:
     glm::vec3 axis;
     glm::vec3 position;
 
-    Movement * movement;
-
     /* data */
 public:
     TransformComponent(Owner);
@@ -35,8 +32,6 @@ public:
 
     void scale(float x, float y, float z);
     void scale(glm::vec3);
-
-    void createMovement(glm::vec3 velocity, glm::vec3 acceleration);
 
     void update(const GLfloat &dt);
 

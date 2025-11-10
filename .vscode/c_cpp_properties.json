@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/build/third_party/BSlogger/src",
-                "${workspaceFolder}/build/third_party/stb"
+                "${workspaceFolder}/build/third_party/stb",
+                "${workspaceFolder}/vendor/JoltPhysics/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
