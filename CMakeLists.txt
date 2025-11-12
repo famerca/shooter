@@ -26,18 +26,33 @@ if(APPLE)
     find_library(COREVIDEO_LIBRARY CoreVideo)
     
     # Set GLEW/Assimp paths for macOS (Asumiendo Homebrew)
+    find_library(GLEW_LIBRARY GLEW PATHS "/opt/homebrew/lib" NO_DEFAULT_PATH)
+    find_path(GLEW_INCLUDE_DIR GL/glew.h PATHS "/opt/homebrew/include" NO_DEFAULT_PATH)
     find_library(ASSIMP_LIBRARY assimp PATHS "/opt/homebrew/lib" NO_DEFAULT_PATH)
     find_path(ASSIMP_INCLUDE_DIR assimp/ai_assert.h PATHS "/opt/homebrew/include" NO_DEFAULT_PATH)
+    
+    # Set GLEW_LIBRARIES if not set by find_package
+    if(NOT GLEW_LIBRARIES AND GLEW_LIBRARY)
+        set(GLEW_LIBRARIES ${GLEW_LIBRARY})
+    endif()
 endif()
 
 # --- Terceros ---
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party)
-execute_process(
-    COMMAND git clone "https://github.com/bschiffthaler/BSlogger.git" BSlogger
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party)
-execute_process(
-    COMMAND git clone "https://github.com/nothings/stb.git" stb
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party)
+if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/third_party/BSlogger)
+    execute_process(
+        COMMAND git clone "https://github.com/bschiffthaler/BSlogger.git" BSlogger
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party
+        ERROR_QUIET
+    )
+endif()
+if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/third_party/stb)
+    execute_process(
+        COMMAND git clone "https://github.com/nothings/stb.git" stb
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party
+        ERROR_QUIET
+    )
+endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/third_party/BSlogger/src ${CMAKE_CURRENT_BINARY_DIR}/third_party/stb)
 
@@ -88,6 +103,9 @@ if(APPLE)
         pthread
     )
     target_include_directories(GLSHOOTERLIB PUBLIC ${ASSIMP_INCLUDE_DIR})
+    if(GLEW_INCLUDE_DIR)
+        target_include_directories(GLSHOOTERLIB PUBLIC ${GLEW_INCLUDE_DIR})
+    endif()
 else()
     # Dependencias de Linux/Unix
     target_link_libraries(GLSHOOTERLIB PUBLIC 
