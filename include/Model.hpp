@@ -46,18 +46,27 @@ public:
     
     void load_textures(const aiScene* scene, const std::filesystem::path& model_path) noexcept;
     void create_default_texture() noexcept;
+
+    
+    
     
     std::shared_ptr<Texture> create_texture_from_embedded_data(const aiTexture* embedded_texture) noexcept;
     std::shared_ptr<Texture> create_texture_from_uncompressed_data(const aiTexture* embedded_texture) noexcept;
     
-    std::shared_ptr<Mesh> getMesh() const noexcept { return mesh; }
+    std::shared_ptr<Mesh> getMesh() const noexcept { return meshes.empty() ? nullptr : meshes[0]; } 
+    std::vector<std::shared_ptr<Mesh>> getMeshes() const noexcept { return meshes; }
     std::vector<std::shared_ptr<Texture>> getTextures() const noexcept { return textures; }
+    std::shared_ptr<Mesh> process_mesh(const aiMesh *mesh, const aiScene *scene, const std::filesystem::path&   model_path );
+    void processNode(aiNode* node, const aiScene* scene, const std::filesystem::path& model_path);
     
 private:
     void clear() noexcept;
-    void process_mesh(const aiMesh *mesh, const std::string& model_name);
-
-    std::shared_ptr<Mesh> mesh;
+    
+    void loadPBRTextures(aiMaterial* material, const aiScene* scene, const std::filesystem::path& model_path, std::vector<std::shared_ptr<Texture>>& textures) noexcept;
+    std::shared_ptr<Texture> findDiffuseTexture(const std::shared_ptr<Mesh>& mesh) const noexcept;
+    std::vector<std::shared_ptr<Texture>> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName, const std::filesystem::path& model_path, const aiScene* scene);
+    
+    std::vector<std::shared_ptr<Mesh>> meshes;
     std::vector<std::shared_ptr<Texture>> textures;
 };
 

@@ -203,7 +203,9 @@ int main()
         scene->at(cilindro)->getTransform()->rotate(90.f, glm::vec3(0.f, 1.f, 0.f));
 
         auto dado2 = scene->createGameObject();
-        scene->createModel(dado2)->loadModel("dado.fbx");
+        //scene->createModel(dado2)->loadModel("dado.fbx");
+        //scene->createModel(dado2)->loadModel("filthy-prison-toilet-4096px2/source/toilet.fbx");
+        scene->createModel(dado2)->loadModel("crt-tv/source/model/model.dae");
         scene->at(dado2)->getTransform()->translate(1.f, 0.5f, 3.f);
 
         auto obstacles = std::make_shared<std::vector<unsigned>>();

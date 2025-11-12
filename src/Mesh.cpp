@@ -2,9 +2,15 @@
 
 std::shared_ptr<Mesh> Mesh::create(const std::vector<Vertex>& vertices, std::vector<unsigned int>& indices) noexcept
 {
+    return create(vertices, indices, std::vector<std::shared_ptr<Texture>>());
+}
+
+std::shared_ptr<Mesh> Mesh::create(const std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, const std::vector<std::shared_ptr<Texture>>& textures) noexcept
+{
     auto mesh = std::make_shared<Mesh>();
 
     mesh->index_count = indices.size();
+    mesh->textures = textures;
 
     glGenVertexArrays(1, &mesh->VAO_id);
     glBindVertexArray(mesh->VAO_id);
@@ -37,6 +43,7 @@ std::shared_ptr<Mesh> Mesh::create(const std::vector<Vertex>& vertices, std::vec
 
     return mesh;
 }
+
 
 Mesh::~Mesh()
 {

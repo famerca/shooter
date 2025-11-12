@@ -72,13 +72,20 @@ void Shader::create_program(std::string_view vertex_shader_code, std::string_vie
         log(LOG_ERR) << "Error validating the program: " << log_text << " \n";
     }
 
+    glUseProgram(program_id);
+    
     uniform_model_id = glGetUniformLocation(program_id, "model");
     uniform_projection_id = glGetUniformLocation(program_id, "projection");
     uniform_view_id = glGetUniformLocation(program_id, "view");
-    uniform_diffuse_texture_id = glGetUniformLocation(program_id, "diffuseTexture");
+    
+    GLint uniform_location = glGetUniformLocation(program_id, "diffuseTexture");
+    uniform_diffuse_texture_id = (uniform_location == -1) ? 0 : static_cast<GLuint>(uniform_location);
+    
     uniform_directional_light.color_id = glGetUniformLocation(program_id, "directional_light.color");
     uniform_directional_light.diffuse_intensity_id = glGetUniformLocation(program_id, "directional_light.diffuse_intensity");
     uniform_directional_light.direction_id = glGetUniformLocation(program_id, "directional_light.direction");
+    
+    glUseProgram(0);
 }
 
 void Shader::create_shader(std::string_view shader_code, GLenum shader_type) noexcept
