@@ -1,5 +1,6 @@
 #include "Component.hpp"
 #include "TransformComponent.hpp"
+#include "Body.hpp"
 #include <vector>
 
 #ifndef GAMEOBJECT_HPP
@@ -10,6 +11,7 @@ class GameObject: public std::enable_shared_from_this<GameObject>
 private:
     /* data */
     std::shared_ptr<TransformComponent> transform;
+    std::shared_ptr<Engine::Body> body;
 
     std::vector<std::shared_ptr<Component>> components;
     bool visible;
@@ -23,6 +25,8 @@ public:
 
     bool isVisible();
     void setVisible(bool);
+
+    void setBody(std::shared_ptr<Engine::Body> body);
 
     void addComponent(std::shared_ptr<Component>);
 

@@ -1,6 +1,7 @@
 #include "Body.hpp"
 #include "Physics.hpp"
-#include <iostream>
+#include "GameObject.hpp"
+
 using namespace JPH;
 
 namespace Engine {
@@ -9,6 +10,7 @@ Body::Body(Body&& other) noexcept {
     m_BodyID = other.m_BodyID;
     m_IsDynamic = other.m_IsDynamic;
     other.m_BodyID = BodyID(); // invalida el antiguo
+    owner = other.owner;
 }
 
 Body& Body::operator=(Body&& other) noexcept {
@@ -16,12 +18,14 @@ Body& Body::operator=(Body&& other) noexcept {
         m_BodyID = other.m_BodyID;
         m_IsDynamic = other.m_IsDynamic;
         other.m_BodyID = BodyID();
+        owner = other.owner;
     }
     return *this;
 }
 
 Body::Body(BodyID id, bool isDynamic)
-    : m_BodyID(id), m_IsDynamic(isDynamic) {}
+    : m_BodyID(id), m_IsDynamic(isDynamic), owner{nullptr}
+    {}
 
 void Body::destroy() {
     if (IsValid()) {
@@ -33,6 +37,32 @@ void Body::destroy() {
 
 Body::~Body() {
 
+}
+
+
+void Body::SetOwner(std::shared_ptr<GameObject> gameObject)
+{
+    owner = gameObject;
+}
+
+void Body::update()
+{
+    if (owner != nullptr && IsValid())
+    {
+        JPH::RVec3 pos = Physics::Get().GetBodyInterface().GetCenterOfMassPosition(m_BodyID);
+        owner->getTransform()->translate(pos.GetX(), pos.GetY(), pos.GetZ());
+    }
+}
+
+void Body::SetPosition(const glm::vec3& inPosition, JPH::EActivation inActivation) {
+    if (IsValid()) {
+
+        BodyInterface& iface = Physics::Get().GetBodyInterface();
+        // --- CONVERSIÓN CRUCIAL ---
+        Vec3 jolt_vec3(inPosition.x, inPosition.y, inPosition.z);
+        iface.SetPosition(m_BodyID, jolt_vec3, inActivation);
+
+    }
 }
 
 

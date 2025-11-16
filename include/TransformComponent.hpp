@@ -33,7 +33,7 @@ public:
     void scale(float x, float y, float z);
     void scale(glm::vec3);
 
-    void update(const GLfloat &dt);
+    void update();
 
     void updateModel();
 
