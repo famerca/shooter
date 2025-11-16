@@ -79,6 +79,7 @@ void Shader::create_program(std::string_view vertex_shader_code, std::string_vie
     uniform_directional_light.color_id = glGetUniformLocation(program_id, "directional_light.color");
     uniform_directional_light.diffuse_intensity_id = glGetUniformLocation(program_id, "directional_light.diffuse_intensity");
     uniform_directional_light.direction_id = glGetUniformLocation(program_id, "directional_light.direction");
+    uniform_line_color_id = glGetUniformLocation(program_id, "lineColor");
 }
 
 void Shader::create_shader(std::string_view shader_code, GLenum shader_type) noexcept

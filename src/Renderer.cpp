@@ -9,6 +9,7 @@ Renderer::Renderer()
 
     shaders.push_back(Shader::create_from_files(path / "shader.vert", path / "shader.frag"));
     shaders.push_back(Shader::create_from_files(path / "skybox.vert", path / "skybox.frag"));
+    hitboxRenderer = nullptr;
 
     currentShader = nullptr;
     activeShade = Shader::LIST::BASE;
@@ -16,6 +17,22 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {   
+}
+
+void Renderer::debug()
+{
+    #ifdef JPH_DEBUG_RENDERER
+        fs::path path =  fs::path{__FILE__}.parent_path().parent_path() / "shaders";
+        hitboxRenderer = std::make_shared<Engine::HitboxRenderer>(Shader::create_from_files(path / "line.vert", path / "line.frag"));
+        JPH::BodyManager::DrawSettings bodyDrawSettings;
+        // 1. Dibuja las formas de colisión (hitbox)
+        bodyDrawSettings.mDrawShape = true; 
+
+        // 2. Fuerzas que las formas se dibujen como wireframe (contorno)
+        bodyDrawSettings.mDrawShapeWireframe = true;
+        drawSetting = bodyDrawSettings;
+    #endif
+
 }
 
 void Renderer::useShader(Shader::LIST shader)
@@ -65,6 +82,11 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         {
             this->renderObject(object);
         }
+
+        #ifdef JPH_DEBUG_RENDERER
+        if(hitboxRenderer != nullptr)
+            Engine::Physics::Get().DrawBodies(drawSetting, hitboxRenderer.get());
+        #endif
 
         scene->window->swap_buffers();
     }

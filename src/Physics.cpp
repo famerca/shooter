@@ -171,4 +171,11 @@ std::shared_ptr<Body> Physics::CreateSphere(float radius, const RVec3& pos, bool
     return body;
 }
 
+#ifdef JPH_DEBUG_RENDERER
+    void Physics::DrawBodies(JPH::BodyManager::DrawSettings& settings, JPH::DebugRenderer *debugRenderer)
+    {
+       m_PhysicsSystem->DrawBodies(settings, debugRenderer);
+    }
+#endif  
+
 } // namespace Engine
