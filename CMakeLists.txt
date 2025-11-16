@@ -59,6 +59,8 @@ target_compile_definitions(GLSHOOTERLIB PUBLIC
     JPH_OBJECT_STREAM=1
 )
 
+target_compile_options(GLSHOOTERLIB PRIVATE -fno-rtti)
+
 # 3. Incluir headers de tu proyecto y de Jolt
 target_include_directories(GLSHOOTERLIB PUBLIC 
     "${PROJECT_SOURCE_DIR}/include" 
@@ -106,11 +108,10 @@ endif()
 # 5. Declarar el ejecutable
 add_executable(GLShooter main.cpp)
 
+#target_compile_options(GLShooter PRIVATE -fno-rtti)
+
 # 6. Enlazar el ejecutable a la librería principal
 target_link_libraries(GLShooter
     PRIVATE
         GLSHOOTERLIB
-        -Wl,--whole-archive
-        ${JOLT_LIBRARY}
-        -Wl,--no-whole-archive
 )

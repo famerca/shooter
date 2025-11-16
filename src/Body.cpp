@@ -51,8 +51,10 @@ void Body::update()
     if (owner != nullptr && IsValid())
     {
         JPH::RVec3 pos = Physics::Get().GetBodyInterface().GetCenterOfMassPosition(m_BodyID);
-        std::cout << pos << std::endl;
+        JPH::Quat jolt_rot = Physics::Get().GetBodyInterface().GetRotation(m_BodyID);
 
+        std::cout << pos << std::endl;
+        owner->getTransform()->rotate( jolt_rot.GetW(), jolt_rot.GetX(), jolt_rot.GetY(), jolt_rot.GetZ());
         owner->getTransform()->translate(pos.GetX(), pos.GetY(), pos.GetZ());
     }
 }

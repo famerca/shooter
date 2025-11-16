@@ -83,10 +83,7 @@ void Renderer::render(std::shared_ptr<Scene> scene)
             this->renderObject(object);
         }
 
-        #ifdef JPH_DEBUG_RENDERER
-        if(hitboxRenderer != nullptr)
-            Engine::Physics::Get().DrawBodies(drawSetting, hitboxRenderer.get());
-        #endif
+        RenderDebug(scene->activeCamera);
 
         scene->window->swap_buffers();
     }
@@ -121,6 +118,17 @@ void Renderer::renderCamera(std::shared_ptr<CameraComponent> camera)
 
     }
     
+}
+
+void Renderer::RenderDebug(std::shared_ptr<CameraComponent> camera)
+{
+    #ifdef JPH_DEBUG_RENDERER
+        auto matrix = camera->getProjectionMatrix();
+        auto view = camera->getViewMatrix();
+        hitboxRenderer->SetViewProjectionMatrix(view, matrix);
+        Engine::Physics::Get().DrawBodies(drawSetting, hitboxRenderer.get());
+     
+    #endif
 }
 
 void Renderer::renderObject(std::shared_ptr<GameObject> object)

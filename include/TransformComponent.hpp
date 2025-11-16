@@ -13,11 +13,9 @@ class TransformComponent : Component
 private:
 
     
-    float angle;
-
     glm::vec3 _scale;
     glm::mat4 model;
-    glm::vec3 axis;
+    glm::quat rotation;
     glm::vec3 position;
 
     /* data */
@@ -29,6 +27,8 @@ public:
     void translate(glm::vec3);
     
     void rotate(float angle, glm::vec3);
+    void rotate(const glm::quat& r);
+    void rotate(float w, float x, float y, float z);
 
     void scale(float x, float y, float z);
     void scale(glm::vec3);

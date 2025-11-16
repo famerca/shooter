@@ -30,6 +30,8 @@ public:
 
     void stop();
 
+    void RenderDebug(std::shared_ptr<CameraComponent> camera);
+
     void clear() noexcept;
 
     GLfloat getDeltaTime() const noexcept;

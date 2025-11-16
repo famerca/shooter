@@ -216,7 +216,7 @@ int main()
 
 
         scene->at(sphere)->getTransform()->scale(0.4f, 0.4f, 0.4f);
-        scene->at(sphere)->setBody(Engine::Physics::Get().CreateSphere(0.4f, {0.f, 0.f, 0.f}, true));
+        //scene->at(sphere)->setBody(Engine::Physics::Get().CreateSphere(0.4f, {0.f, 0.f, 0.f}, true));
 
 
         scene->at(dado)->getTransform()->scale(0.4f, 0.4f, 0.4f);
@@ -241,6 +241,7 @@ int main()
         input->init(scene, scene->at(user), obstacles);
 
         auto renderer = std::make_shared<Renderer>();
+        renderer->debug();
         renderer->init();
         renderer->render(scene);
 
