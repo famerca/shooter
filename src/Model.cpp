@@ -170,7 +170,8 @@ void Model::load_textures(const aiScene *scene, const std::filesystem::path &mod
     for (unsigned int i = 0; i < scene->mNumMaterials; i++)
     {
         aiMaterial *material = scene->mMaterials[i];
-        std::cout << "Material " << i << " - Texturas difusas: " << material->GetTextureCount(aiTextureType_DIFFUSE) << std::endl;
+        unsigned int diffuse_count = material->GetTextureCount(aiTextureType_DIFFUSE);
+        std::cout << "Material " << i << " - Texturas difusas referenciadas en el FBX: " << diffuse_count << std::endl;
 
         // Buscar texturas difusas embebidas
         for (unsigned int j = 0; j < material->GetTextureCount(aiTextureType_DIFFUSE); j++)
@@ -311,11 +312,84 @@ void Model::load_textures(const aiScene *scene, const std::filesystem::path &mod
         }
     }
 
-    // Si no se cargaron texturas, crear una textura por defecto
+    // Si no se cargaron texturas embebidas, intentar buscar en la carpeta del modelo
     if (textures.empty())
     {
-        std::cout << "No se encontraron texturas embebidas, usando textura por defecto" << std::endl;
-        create_default_texture();
+        std::cout << "  No se encontraron texturas referenciadas en el material del FBX, buscando en archivos..." << std::endl;
+        std::filesystem::path model_directory = model_path.parent_path();
+        std::vector<std::filesystem::path> search_dirs;
+        std::filesystem::path textures_dir = model_directory / "textures";
+        
+        if (std::filesystem::exists(textures_dir))
+        {
+            search_dirs.push_back(textures_dir);
+        }
+        search_dirs.push_back(model_directory); // También buscar en la misma carpeta del modelo
+        
+        // Buscar texturas por patrón común
+        std::vector<std::pair<std::string, std::string>> patterns = {
+            {"_diffuse", "texture_diffuse"},
+            {"_albedo", "texture_albedo"},
+            {"texture_diffuse", "texture_diffuse"}
+        };
+        
+        bool found_texture = false;
+        for (const auto& search_dir : search_dirs)
+        {
+            if (found_texture) break;
+            
+            for (const auto& entry : std::filesystem::directory_iterator(search_dir))
+            {
+                if (entry.is_regular_file())
+                {
+                    std::string entryName = entry.path().filename().string();
+                    std::string entryNameLower = entryName;
+                    std::transform(entryNameLower.begin(), entryNameLower.end(), entryNameLower.begin(), ::tolower);
+                    
+                    // Buscar cualquier archivo de imagen que pueda ser una textura
+                    std::string ext = entry.path().extension().string();
+                    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+                    
+                    if (ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".bmp" || ext == ".tga")
+                    {
+                        // Verificar si coincide con algún patrón
+                        for (const auto& pattern : patterns)
+                        {
+                            std::string patternLower = pattern.first;
+                            std::transform(patternLower.begin(), patternLower.end(), patternLower.begin(), ::tolower);
+                            
+                            if (entryNameLower.find(patternLower) != std::string::npos)
+                            {
+                                auto texture = Texture::create_from_file(entry.path(), pattern.second, entry.path().string());
+                                if (texture)
+                                {
+                                    textures.push_back(texture);
+                                    std::cout << "  ✓ Textura encontrada y cargada desde archivo: " << entry.path().filename() << std::endl;
+                                    found_texture = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (found_texture) break;
+                    }
+                }
+            }
+        }
+        
+        // Si aún no se encontraron texturas, crear una textura por defecto
+        if (textures.empty())
+        {
+            std::cout << "  ✗ No se encontraron archivos de textura, usando textura por defecto" << std::endl;
+            create_default_texture();
+        }
+        else
+        {
+            std::cout << "  ✓ Texturas cargadas exitosamente desde archivos (no estaban embebidas en el FBX)" << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << "  ✓ Texturas embebidas cargadas exitosamente desde el FBX" << std::endl;
     }
 }
 
