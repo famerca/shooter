@@ -184,19 +184,23 @@ int main()
        
         scene->createModel(user)->loadModel("pj/base.fbx");
         auto sphere = scene->createGameObject();
-        scene->createModel(sphere)->loadModel("sphere.fbx");
+        scene->createModel(sphere)->loadModel("ground/base.fbx");
 
         scene->at(sphere)->getTransform()->translate(1.f, 0.f, -1.f);
 
         auto dado = scene->createGameObject();
-        scene->createModel(dado)->loadModel("dado.fbx");
+        scene->createModel(dado)->loadModel("cuteplant/base.fbx");
         scene->at(dado)->getTransform()->translate(-1.f, 0.f, -0.f);
 
-        auto cilindro = scene->createGameObject();
-        scene->createModel(cilindro)->loadModel("cilinder.fbx");
-        scene->at(cilindro)->getTransform()->translate(0.f, 0.f, 1.5f);
-        scene->at(cilindro)->getTransform()->rotate(90.f, glm::vec3(0.f, 1.f, 0.f));
 
+        std::cout << "cargando cofre\n";
+
+        auto cilindro = scene->createGameObject();
+        scene->createModel(cilindro)->loadModel("cofre/base.fbx");
+        scene->at(cilindro)->getTransform()->translate(0.f, 0.f, 1.5f);
+        scene->at(cilindro)->getTransform()->rotate(-90.f, glm::vec3(0.f, 0.f, 0.f));
+        
+        std::cout << "cargando casito\n";
         auto dado2 = scene->createGameObject();
         //scene->createModel(dado2)->loadModel("dado.fbx");
         //scene->createModel(dado2)->loadModel("filthy-prison-toilet-4096px2/source/toilet.fbx");
@@ -204,17 +208,22 @@ int main()
         scene->at(dado2)->getTransform()->translate(1.f, 0.5f, 3.f);
         scene->at(dado2)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
 
+        std::cout << "cargando suelo\n";
         auto ground = scene->createGameObject();
         scene->createModel(ground)->loadModel("ground/base.fbx");
         scene->at(ground)->getTransform()->translate(0.f, -0.5f, 0.f);
         scene->at(ground)->getTransform()->scale(2.f, 2.f, 1.f);
         scene->at(ground)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
 
+        std::cout << "final suelo" << std::endl;
+
+        std::cout << "setting body suelo" << std::endl;
         scene->at(ground)->setBody(Engine::Physics::Get().CreateBox({2.f, 2.f, 0.5f}, {0.f, 0.f, 0.f}, false));
 
        
-       
+        std::cout << "definiendo obstaculos suelo" << std::endl;
         auto obstacles = std::make_shared<std::vector<unsigned>>();
+         std::cout << "definiendo skybox" << std::endl;
 
 
         std::shared_ptr<SkyBox> sky_box = std::make_shared<SkyBox>(
@@ -276,8 +285,10 @@ int main()
         Engine::Listener::Get().Add(scene, Engine::Listener::Event::ContactRemoved, user, ground, onRemove);
 
         auto renderer = std::make_shared<Renderer>();
+        std::cout << "init debug" << std::endl;
         renderer->debug();
         renderer->init();
+        std::cout << "render scene" << std::endl;
         renderer->render(scene);
 
         Engine::Physics::Get().Shutdown();
