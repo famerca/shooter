@@ -20,6 +20,7 @@
 #include "Input.hpp"
 #include "SkyBox.hpp"
 #include "Physics.hpp"
+#include "Listener.hpp"
 
 class inputManager: public Input
 {
@@ -33,7 +34,7 @@ class inputManager: public Input
     float jump_velocity{10.f}; 
     float gravity{-20.f};     
     float current_y_velocity{0.f}; 
-    bool is_jumping{false};   
+     
     float initial_y{0.f};     
 
     // Atributos de Obstáculos
@@ -48,6 +49,7 @@ class inputManager: public Input
     std::uniform_real_distribution<> distrib_x;
 
 public:
+    bool is_jumping{false};  
     inputManager() : Input() 
     {
         // Inicialización del generador aleatorio en el constructor
@@ -72,7 +74,8 @@ public:
         // 1. --- Lógica del Salto del Jugador (Y) ---
         if (is_key_pressed(GLFW_KEY_SPACE) && !is_jumping)
         {
-            object->getBody()->ApplyImpulse({0.f, 10.f, 0.f});
+            object->getBody()->ApplyImpulse({0.f, 9000.f, 0.f});
+            is_jumping = true;
         }
 
 
@@ -88,23 +91,23 @@ public:
         if(is_key_pressed(GLFW_KEY_A))
         {
             // Mover en X positivo (asumiendo que 'A' es para ir a la derecha en el plano XZ)
-            object->getBody()->ApplyImpulse({10.f, 0.f, 0.f});
+            object->getBody()->ApplyImpulse({100.f, 0.f, 0.f});
         }
 
         if(is_key_pressed(GLFW_KEY_D))
         {
             // Mover en X negativo (asumiendo que 'D' es para ir a la izquierda)
-            object->getBody()->ApplyImpulse({-10.f, 0.f, 0.f});
+            object->getBody()->ApplyImpulse({-100.f, 0.f, 0.f});
         }
         
         if(is_key_pressed(GLFW_KEY_W))
         {
-            object->getBody()->ApplyImpulse({0.f, 0.f, 10.f});
+            object->getBody()->ApplyImpulse({0.f, 0.f, 100.f});
         }
 
         if(is_key_pressed(GLFW_KEY_S))
         {
-            object->getBody()->ApplyImpulse({0.f, 0.f, -10.f});
+            object->getBody()->ApplyImpulse({0.f, 0.f, -100.f});
         }
         
         // 3. --- Lógica de Movimiento y Reaparición de Obstáculos ---
@@ -132,7 +135,7 @@ public:
         // }
         // -------------------------------------------------------------
         
-        std::cout << "delta: " << dt <<  ", FPS: " << 1.f / dt << std::endl;
+        //std::cout << "delta: " << dt <<  ", FPS: " << 1.f / dt << std::endl;
 
     }
 
@@ -144,7 +147,6 @@ int main()
     try
     {
         Engine::Physics::Get().Init();
-        
 
         // Window dimensions
         constexpr GLint WIDTH = 1200;
@@ -197,6 +199,14 @@ int main()
         scene->createModel(dado2)->loadModel("dado.fbx");
         scene->at(dado2)->getTransform()->translate(1.f, 0.5f, 3.f);
 
+        auto ground = scene->createGameObject();
+        scene->createModel(ground)->loadModel("dado.fbx");
+        scene->at(ground)->getTransform()->translate(0.f, -0.5f, 0.f);
+        scene->at(ground)->getTransform()->scale(10.f, 0.5f, 10.f);
+        scene->at(ground)->setBody(Engine::Physics::Get().CreateBox({10.f, 0.5f, 10.f}, {0.f, 0.f, 0.f}, false));
+
+       
+       
         auto obstacles = std::make_shared<std::vector<unsigned>>();
 
 
@@ -216,8 +226,10 @@ int main()
 
 
         scene->at(sphere)->getTransform()->scale(0.4f, 0.4f, 0.4f);
-        //scene->at(sphere)->setBody(Engine::Physics::Get().CreateSphere(0.4f, {0.f, 0.f, 0.f}, true));
+        scene->at(sphere)->setBody(Engine::Physics::Get().CreateBox({0.4f, 0.4f, 0.4f}, {0.f, 0.f, 0.f}, true));
 
+        //scene->at(sphere)->setBody(Engine::Physics::Get().CreateSphere(0.4f, {0.f, 0.f, 0.f}, true));
+        scene->at(sphere)->getBody()->serVelocity({10.f, 0.f, 0.f});
 
         scene->at(dado)->getTransform()->scale(0.4f, 0.4f, 0.4f);
         scene->at(dado)->setBody(Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, true));
@@ -239,6 +251,23 @@ int main()
         obstacles->push_back(dado2);
 
         input->init(scene, scene->at(user), obstacles);
+
+
+        // --- 1. Registrar la Lógica de INICIO DE COLISIÓN (OnContactAdded) ---
+        auto onAdd = [input]() {
+            std::cout << "Inicio de colisión"  << std::endl;
+            // Aquí puedes ejecutar lógica como aplicar daño o activar efectos
+            input->is_jumping = false;
+        };
+
+        auto onRemove = []() {
+            std::cout << "Fin de colisión" << std::endl;
+            // Aquí puedes ejecutar lógica como desactivar efectos o restaurar daño
+        };
+
+        Engine::Listener::Get().Add(scene, Engine::Listener::Event::ContactAdded, user, ground, onAdd);
+
+        Engine::Listener::Get().Add(scene, Engine::Listener::Event::ContactRemoved, user, ground, onRemove);
 
         auto renderer = std::make_shared<Renderer>();
         renderer->debug();

@@ -1,4 +1,5 @@
 #include "Physics.hpp"
+#include "Listener.hpp"
 #include <iostream>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
@@ -106,9 +107,11 @@ void Physics::Init() {
         *m_ObjectPairFilter
     );
 
-    m_PhysicsSystem->SetGravity(Vec3(0.f, 0.f, 0.f));
+    //m_PhysicsSystem->SetGravity(Vec3(0.f, 0.f, 0.f));
 
     s_IsInitialized = true;
+
+    m_PhysicsSystem->SetContactListener(&Listener::Get());
 
     std::cout << "[Physics] Initialized.\n";
 }

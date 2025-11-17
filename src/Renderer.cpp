@@ -123,10 +123,13 @@ void Renderer::renderCamera(std::shared_ptr<CameraComponent> camera)
 void Renderer::RenderDebug(std::shared_ptr<CameraComponent> camera)
 {
     #ifdef JPH_DEBUG_RENDERER
-        auto matrix = camera->getProjectionMatrix();
-        auto view = camera->getViewMatrix();
-        hitboxRenderer->SetViewProjectionMatrix(view, matrix);
-        Engine::Physics::Get().DrawBodies(drawSetting, hitboxRenderer.get());
+        if(hitboxRenderer)
+        {
+            auto matrix = camera->getProjectionMatrix();
+            auto view = camera->getViewMatrix();
+            hitboxRenderer->SetViewProjectionMatrix(view, matrix);
+            Engine::Physics::Get().DrawBodies(drawSetting, hitboxRenderer.get());
+        }
      
     #endif
 }
