@@ -205,7 +205,7 @@ int main()
         auto dado2 = scene->createGameObject();
         //scene->createModel(dado2)->loadModel("dado.fbx");
         //scene->createModel(dado2)->loadModel("filthy-prison-toilet-4096px2/source/toilet.fbx");
-        scene->createModel(dado2)->loadModel("crt-tv/source/model/model.dae");
+        scene->createModel(dado2)->loadModel("casita/base.fbx");
         scene->at(dado2)->getTransform()->translate(1.f, 0.5f, 3.f);
 
         auto obstacles = std::make_shared<std::vector<unsigned>>();
@@ -230,7 +230,7 @@ int main()
         scene->at(dado)->getTransform()->scale(0.4f, 0.4f, 0.4f);
         scene->at(user)->getTransform()->scale(0.4f, 0.4f, 0.4f);
         scene->at(cilindro)->getTransform()->scale(0.4f, 0.4f, 0.8f);
-        scene->at(dado2)->getTransform()->scale(0.8f, 0.8f, 0.4f);
+        scene->at(dado2)->getTransform()->scale(0.8f, 0.8f, 0.8f);
 
         obstacles->push_back(sphere);
         obstacles->push_back(dado);
