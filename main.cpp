@@ -198,9 +198,9 @@ int main()
         scene->at(dado)->getTransform()->translate(-1.f, 0.f, -0.f);
 
         auto cilindro = scene->createGameObject();
-        scene->createModel(cilindro)->loadModel("cilinder.fbx");
+        scene->createModel(cilindro)->loadModel("cofre/base.fbx");
         scene->at(cilindro)->getTransform()->translate(0.f, 0.f, 1.5f);
-        scene->at(cilindro)->getTransform()->rotate(90.f, glm::vec3(0.f, 1.f, 0.f));
+        scene->at(cilindro)->getTransform()->rotate(-90.f, glm::vec3(0.f, 0.f, 0.f));
         
 
         auto dado2 = scene->createGameObject();
@@ -235,7 +235,7 @@ int main()
         scene->at(dado)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
         scene->at(dado2)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
 
-        scene->at(cilindro)->getTransform()->scale(0.4f, 0.4f, 0.8f);
+        scene->at(cilindro)->getTransform()->scale(0.4f, 0.4f, 0.4f);
         scene->at(dado2)->getTransform()->scale(0.8f, 0.8f, 0.8f);
 
         obstacles->push_back(sphere);
