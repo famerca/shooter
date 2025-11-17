@@ -1,4 +1,5 @@
 #include "Physics.hpp"
+#include "Listener.hpp"
 #include <iostream>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
@@ -9,6 +10,7 @@ using namespace JPH;
 bool Engine::Physics::s_IsInitialized = false;
 
 namespace Engine {
+
 
 // --- Definición de capas ---
 namespace Layers {
@@ -96,13 +98,20 @@ void Physics::Init() {
 
     m_PhysicsSystem = std::make_unique<PhysicsSystem>();
     m_PhysicsSystem->Init(
-        8192, 0, 8192, 8192,
+        1024, //Max num bodies
+        0, // Max num Mutex
+        1024,
+        1024,
         *m_BPLayerInterface,
         *m_ObjectVsBroadPhaseFilter,
         *m_ObjectPairFilter
     );
 
+    //m_PhysicsSystem->SetGravity(Vec3(0.f, 0.f, 0.f));
+
     s_IsInitialized = true;
+
+    m_PhysicsSystem->SetContactListener(&Listener::Get());
 
     std::cout << "[Physics] Initialized.\n";
 }
@@ -164,5 +173,12 @@ std::shared_ptr<Body> Physics::CreateSphere(float radius, const RVec3& pos, bool
     m_Bodies.push_back(body);
     return body;
 }
+
+#ifdef JPH_DEBUG_RENDERER
+    void Physics::DrawBodies(JPH::BodyManager::DrawSettings& settings, JPH::DebugRenderer *debugRenderer)
+    {
+       m_PhysicsSystem->DrawBodies(settings, debugRenderer);
+    }
+#endif  
 
 } // namespace Engine

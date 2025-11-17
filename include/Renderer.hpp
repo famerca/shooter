@@ -1,5 +1,7 @@
 #include "Shader.hpp"
 #include "Scene.hpp"
+#include "HitboxRenderer.hpp"
+#include <Jolt/Physics/Body/BodyManager.h>
 
 #ifndef RENDER_HPP
 #define RENDER_HPP
@@ -20,11 +22,15 @@ public:
 
     Renderer& operator = (Renderer&& render) = delete;
 
+    void debug();
+
     void init();
 
     void render(std::shared_ptr<Scene> scene);
 
     void stop();
+
+    void RenderDebug(std::shared_ptr<CameraComponent> camera);
 
     void clear() noexcept;
 
@@ -37,6 +43,10 @@ private:
     bool running;
     std::shared_ptr<Shader> currentShader;
     Shader::LIST activeShade;
+    std::shared_ptr<Engine::HitboxRenderer> hitboxRenderer;
+    #ifdef JPH_DEBUG_RENDERER
+        JPH::BodyManager::DrawSettings drawSetting;
+    #endif
 
     void renderDirLight(std::shared_ptr<DirectionalLight> dirLight);
     void renderCamera(std::shared_ptr<CameraComponent> camera);

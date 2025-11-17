@@ -1,5 +1,6 @@
 #include "Renderer.hpp"
 #include "Input.hpp"
+#include "Physics.hpp"
 
 
 Renderer::Renderer()
@@ -8,6 +9,7 @@ Renderer::Renderer()
 
     shaders.push_back(Shader::create_from_files(path / "shader.vert", path / "shader.frag"));
     shaders.push_back(Shader::create_from_files(path / "skybox.vert", path / "skybox.frag"));
+    hitboxRenderer = nullptr;
 
     currentShader = nullptr;
     activeShade = Shader::LIST::BASE;
@@ -15,6 +17,22 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {   
+}
+
+void Renderer::debug()
+{
+    #ifdef JPH_DEBUG_RENDERER
+        fs::path path =  fs::path{__FILE__}.parent_path().parent_path() / "shaders";
+        hitboxRenderer = std::make_shared<Engine::HitboxRenderer>(Shader::create_from_files(path / "line.vert", path / "line.frag"));
+        JPH::BodyManager::DrawSettings bodyDrawSettings;
+        // 1. Dibuja las formas de colisión (hitbox)
+        bodyDrawSettings.mDrawShape = true; 
+
+        // 2. Fuerzas que las formas se dibujen como wireframe (contorno)
+        bodyDrawSettings.mDrawShapeWireframe = true;
+        drawSetting = bodyDrawSettings;
+    #endif
+
 }
 
 void Renderer::useShader(Shader::LIST shader)
@@ -42,6 +60,10 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         this->renderSkyBox(scene->getSkyBox(),scene->activeCamera);
 
         calcDeltaTime();
+
+        if(Engine::Physics::Get().IsInitialized())
+            Engine::Physics::Get().Step(delta_time);
+            
         scene->update(delta_time);
 
         this->useShader(Shader::LIST::BASE);
@@ -60,6 +82,8 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         {
             this->renderObject(object);
         }
+
+        RenderDebug(scene->activeCamera);
 
         scene->window->swap_buffers();
     }
@@ -94,6 +118,20 @@ void Renderer::renderCamera(std::shared_ptr<CameraComponent> camera)
 
     }
     
+}
+
+void Renderer::RenderDebug(std::shared_ptr<CameraComponent> camera)
+{
+    #ifdef JPH_DEBUG_RENDERER
+        if(hitboxRenderer)
+        {
+            auto matrix = camera->getProjectionMatrix();
+            auto view = camera->getViewMatrix();
+            hitboxRenderer->SetViewProjectionMatrix(view, matrix);
+            Engine::Physics::Get().DrawBodies(drawSetting, hitboxRenderer.get());
+        }
+     
+    #endif
 }
 
 void Renderer::renderObject(std::shared_ptr<GameObject> object)

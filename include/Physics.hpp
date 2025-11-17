@@ -34,6 +34,10 @@ public:
     JPH::PhysicsSystem& GetSystem() { return *m_PhysicsSystem; }
     JPH::BodyInterface& GetBodyInterface() { return m_PhysicsSystem->GetBodyInterface(); }
 
+    #ifdef JPH_DEBUG_RENDERER
+        void DrawBodies(JPH::BodyManager::DrawSettings& settings, JPH::DebugRenderer *debugRenderer);
+    #endif
+
 private:
     Physics() = default;
     static bool s_IsInitialized;
@@ -50,9 +54,9 @@ private:
     std::unique_ptr<BPLayerInterfaceImpl> m_BPLayerInterface;
     std::unique_ptr<ObjectVsBroadPhaseLayerFilterImpl> m_ObjectVsBroadPhaseFilter;
     std::unique_ptr<ObjectLayerPairFilterImpl> m_ObjectPairFilter;
+
 };
 
 } // namespace Engine
-
 
 #endif // JPH_PHYSICS_H

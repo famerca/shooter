@@ -1,6 +1,7 @@
 #include "Body.hpp"
 #include "Physics.hpp"
 #include "GameObject.hpp"
+#include <iostream>
 
 using namespace JPH;
 
@@ -50,6 +51,10 @@ void Body::update()
     if (owner != nullptr && IsValid())
     {
         JPH::RVec3 pos = Physics::Get().GetBodyInterface().GetCenterOfMassPosition(m_BodyID);
+        JPH::Quat jolt_rot = Physics::Get().GetBodyInterface().GetRotation(m_BodyID);
+
+        //std::cout << pos << std::endl;
+        owner->getTransform()->rotate( jolt_rot.GetW(), jolt_rot.GetX(), jolt_rot.GetY(), jolt_rot.GetZ());
         owner->getTransform()->translate(pos.GetX(), pos.GetY(), pos.GetZ());
     }
 }
@@ -68,7 +73,15 @@ void Body::SetPosition(const glm::vec3& inPosition, JPH::EActivation inActivatio
 
 void Body::ApplyImpulse(const Vec3& impulse) {
     if (m_IsDynamic)
+    {
+        //std::cout << "IMPULSE: " << impulse << std::endl;
         Physics::Get().GetBodyInterface().AddImpulse(m_BodyID, impulse);
+    }
+}
+
+void Body::serVelocity(const Vec3& velocity) {
+    if (m_IsDynamic)
+        Physics::Get().GetBodyInterface().SetLinearVelocity(m_BodyID, velocity);
 }
 
 void Body::ApplyForce(const Vec3& force) {

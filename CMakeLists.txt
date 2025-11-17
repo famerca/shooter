@@ -68,11 +68,13 @@ file(GLOB SRC "${PROJECT_SOURCE_DIR}/src/*.cpp")
 add_library(GLSHOOTERLIB ${SRC})
 
 # 🔑 SINCRONIZACIÓN JOLT: Definiciones requeridas por Jolt en modo Debug
-target_compile_definitions(GLSHOOTERLIB PRIVATE
+target_compile_definitions(GLSHOOTERLIB PUBLIC
     JPH_PROFILE_ENABLED=1
     JPH_DEBUG_RENDERER=1
     JPH_OBJECT_STREAM=1
 )
+
+target_compile_options(GLSHOOTERLIB PRIVATE -fno-rtti)
 
 # 3. Incluir headers de tu proyecto y de Jolt
 target_include_directories(GLSHOOTERLIB PUBLIC 
@@ -123,6 +125,8 @@ endif()
 
 # 5. Declarar el ejecutable
 add_executable(GLShooter main.cpp)
+
+#target_compile_options(GLShooter PRIVATE -fno-rtti)
 
 # 6. Enlazar el ejecutable a la librería principal
 target_link_libraries(GLShooter

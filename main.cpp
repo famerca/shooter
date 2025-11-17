@@ -20,6 +20,7 @@
 #include "Input.hpp"
 #include "SkyBox.hpp"
 #include "Physics.hpp"
+#include "Listener.hpp"
 
 class inputManager: public Input
 {
@@ -33,7 +34,7 @@ class inputManager: public Input
     float jump_velocity{10.f}; 
     float gravity{-20.f};     
     float current_y_velocity{0.f}; 
-    bool is_jumping{false};   
+     
     float initial_y{0.f};     
 
     // Atributos de Obstáculos
@@ -48,6 +49,7 @@ class inputManager: public Input
     std::uniform_real_distribution<> distrib_x;
 
 public:
+    bool is_jumping{false};  
     inputManager() : Input() 
     {
         // Inicialización del generador aleatorio en el constructor
@@ -72,32 +74,16 @@ public:
         // 1. --- Lógica del Salto del Jugador (Y) ---
         if (is_key_pressed(GLFW_KEY_SPACE) && !is_jumping)
         {
+            object->getBody()->ApplyImpulse({0.f, 9000.f, 0.f});
             is_jumping = true;
-            current_y_velocity = jump_velocity; 
-            initial_y = pos.y; 
         }
 
-        if (is_jumping)
+
+        if(is_key_pressed(GLFW_KEY_LEFT_SHIFT))
         {
-            // Aplicar gravedad: v = v + a * dt
-            current_y_velocity += gravity * dt; 
-
-            // Calcular desplazamiento: y = y + v * dt
-            float y_displacement = current_y_velocity * dt;
-            
-            // Mover el objeto
-            pos.y += y_displacement;
-            
-            // Lógica de Aterrizaje
-            if (pos.y <= initial_y)
-            {
-                pos.y = initial_y; 
-                is_jumping = false;
-                current_y_velocity = 0.f;
-            }
-            
-            object->getTransform()->translate(pos); // Aplicamos la nueva posición Y
+            object->getBody()->ApplyImpulse({0.f, -10.f, 0.f});
         }
+
         
         // 2. --- Lógica de Movimiento Horizontal del Jugador (X/Z) ---
         // Nota: Solo se usa translate para el movimiento horizontal.
@@ -105,43 +91,51 @@ public:
         if(is_key_pressed(GLFW_KEY_A))
         {
             // Mover en X positivo (asumiendo que 'A' es para ir a la derecha en el plano XZ)
-            if(pos.x < 1.5f)
-                object->getTransform()->translate(pos + glm::vec3(1.f, 0.f, 0.f) * speed * dt);
+            object->getBody()->ApplyImpulse({100.f, 0.f, 0.f});
         }
 
         if(is_key_pressed(GLFW_KEY_D))
         {
             // Mover en X negativo (asumiendo que 'D' es para ir a la izquierda)
-            if(pos.x > -1.5f)
-                object->getTransform()->translate(pos + glm::vec3(-1.f, 0.f, 0.f) * speed * dt);
+            object->getBody()->ApplyImpulse({-100.f, 0.f, 0.f});
+        }
+        
+        if(is_key_pressed(GLFW_KEY_W))
+        {
+            object->getBody()->ApplyImpulse({0.f, 0.f, 100.f});
+        }
+
+        if(is_key_pressed(GLFW_KEY_S))
+        {
+            object->getBody()->ApplyImpulse({0.f, 0.f, -100.f});
         }
         
         // 3. --- Lógica de Movimiento y Reaparición de Obstáculos ---
-        if (obstacles_list && scene) 
-        {
-            for (unsigned id : *obstacles_list) 
-            {
-                std::shared_ptr<GameObject> obstacle = scene->at(id);
-                glm::vec3 obs_pos = obstacle->getTransform()->getPosition();
+        // if (obstacles_list && scene) 
+        // {
+        //     for (unsigned id : *obstacles_list) 
+        //     {
+        //         std::shared_ptr<GameObject> obstacle = scene->at(id);
+        //         glm::vec3 obs_pos = obstacle->getTransform()->getPosition();
 
-                // Mover el obstáculo hacia el usuario (Z negativa)
-                obs_pos.z -= OBSTACLE_SPEED * dt;
+        //         // Mover el obstáculo hacia el usuario (Z negativa)
+        //         obs_pos.z -= OBSTACLE_SPEED * dt;
                 
-                // Verificar si el obstáculo alcanzó el límite de reaparición
-                if (obs_pos.z < Z_LIMIT) 
-                {
-                    // Reiniciar la posición Z y asignar una X aleatoria (-1.0 a 1.0)
-                    obs_pos.z = Z_RESET;
-                    obs_pos.x = distrib_x(gen); 
-                }
+        //         // Verificar si el obstáculo alcanzó el límite de reaparición
+        //         if (obs_pos.z < Z_LIMIT) 
+        //         {
+        //             // Reiniciar la posición Z y asignar una X aleatoria (-1.0 a 1.0)
+        //             obs_pos.z = Z_RESET;
+        //             obs_pos.x = distrib_x(gen); 
+        //         }
 
-                // Aplicar la nueva posición
-                obstacle->getTransform()->translate(obs_pos);
-            }
-        }
+        //         // Aplicar la nueva posición
+        //         obstacle->getTransform()->translate(obs_pos);
+        //     }
+        // }
         // -------------------------------------------------------------
         
-        std::cout << "delta: " << dt <<  ", FPS: " << 1.f / dt << std::endl;
+        //std::cout << "delta: " << dt <<  ", FPS: " << 1.f / dt << std::endl;
 
     }
 
@@ -153,7 +147,6 @@ int main()
     try
     {
         Engine::Physics::Get().Init();
-        
 
         // Window dimensions
         constexpr GLint WIDTH = 1200;
@@ -208,6 +201,14 @@ int main()
         scene->createModel(dado2)->loadModel("crt-tv/source/model/model.dae");
         scene->at(dado2)->getTransform()->translate(1.f, 0.5f, 3.f);
 
+        auto ground = scene->createGameObject();
+        scene->createModel(ground)->loadModel("dado.fbx");
+        scene->at(ground)->getTransform()->translate(0.f, -0.5f, 0.f);
+        scene->at(ground)->getTransform()->scale(10.f, 0.5f, 10.f);
+        scene->at(ground)->setBody(Engine::Physics::Get().CreateBox({10.f, 0.5f, 10.f}, {0.f, 0.f, 0.f}, false));
+
+       
+       
         auto obstacles = std::make_shared<std::vector<unsigned>>();
 
 
@@ -227,10 +228,24 @@ int main()
 
 
         scene->at(sphere)->getTransform()->scale(0.4f, 0.4f, 0.4f);
+        scene->at(sphere)->setBody(Engine::Physics::Get().CreateBox({0.4f, 0.4f, 0.4f}, {0.f, 0.f, 0.f}, true));
+
+        //scene->at(sphere)->setBody(Engine::Physics::Get().CreateSphere(0.4f, {0.f, 0.f, 0.f}, true));
+        scene->at(sphere)->getBody()->serVelocity({10.f, 0.f, 0.f});
+
         scene->at(dado)->getTransform()->scale(0.4f, 0.4f, 0.4f);
+        scene->at(dado)->setBody(Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, true));
+
         scene->at(user)->getTransform()->scale(0.4f, 0.4f, 0.4f);
+
         scene->at(cilindro)->getTransform()->scale(0.4f, 0.4f, 0.8f);
+        scene->at(cilindro)->setBody(Engine::Physics::Get().CreateBox({0.4f, 0.4f, 0.8f}, {0.f, 0.f, 0.f}, true));
+
         scene->at(dado2)->getTransform()->scale(0.8f, 0.8f, 0.4f);
+        scene->at(dado2)->setBody(Engine::Physics::Get().CreateBox({0.8f, 0.8f, 0.4f}, {0.f, 0.f, 0.f}, true));
+
+        auto body = Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, true);
+        scene->at(user)->setBody(body);
 
         obstacles->push_back(sphere);
         obstacles->push_back(dado);
@@ -239,7 +254,25 @@ int main()
 
         input->init(scene, scene->at(user), obstacles);
 
+
+        // --- 1. Registrar la Lógica de INICIO DE COLISIÓN (OnContactAdded) ---
+        auto onAdd = [input]() {
+            std::cout << "Inicio de colisión"  << std::endl;
+            // Aquí puedes ejecutar lógica como aplicar daño o activar efectos
+            input->is_jumping = false;
+        };
+
+        auto onRemove = []() {
+            std::cout << "Fin de colisión" << std::endl;
+            // Aquí puedes ejecutar lógica como desactivar efectos o restaurar daño
+        };
+
+        Engine::Listener::Get().Add(scene, Engine::Listener::Event::ContactAdded, user, ground, onAdd);
+
+        Engine::Listener::Get().Add(scene, Engine::Listener::Event::ContactRemoved, user, ground, onRemove);
+
         auto renderer = std::make_shared<Renderer>();
+        renderer->debug();
         renderer->init();
         renderer->render(scene);
 
