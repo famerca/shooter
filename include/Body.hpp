@@ -36,6 +36,7 @@ public:
     JPH::RVec3 GetPosition() const;
     void SetPosition(const glm::vec3& inPosition, JPH::EActivation inActivation = JPH::EActivation::Activate);
     void SetOwner(std::shared_ptr<GameObject> gameObject);
+    void setRotation(const glm::quat& rotation);
 
     void update();
 

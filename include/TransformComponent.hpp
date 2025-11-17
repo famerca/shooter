@@ -38,6 +38,7 @@ public:
     void updateModel();
 
     glm::vec3 getPosition();
+    glm::quat getRotation();
 
     glm::mat4 getModelMatrix();
 

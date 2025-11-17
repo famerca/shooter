@@ -74,7 +74,7 @@ public:
         // 1. --- Lógica del Salto del Jugador (Y) ---
         if (is_key_pressed(GLFW_KEY_SPACE) && !is_jumping)
         {
-            object->getBody()->ApplyImpulse({0.f, 9000.f, 0.f});
+            object->getBody()->ApplyImpulse({0.f, 1500.f, 0.f});
             is_jumping = true;
         }
 
@@ -91,23 +91,23 @@ public:
         if(is_key_pressed(GLFW_KEY_A))
         {
             // Mover en X positivo (asumiendo que 'A' es para ir a la derecha en el plano XZ)
-            object->getBody()->ApplyImpulse({100.f, 0.f, 0.f});
+            object->getBody()->ApplyImpulse({30.f, 0.f, 0.f});
         }
 
         if(is_key_pressed(GLFW_KEY_D))
         {
             // Mover en X negativo (asumiendo que 'D' es para ir a la izquierda)
-            object->getBody()->ApplyImpulse({-100.f, 0.f, 0.f});
+            object->getBody()->ApplyImpulse({-30.f, 0.f, 0.f});
         }
         
         if(is_key_pressed(GLFW_KEY_W))
         {
-            object->getBody()->ApplyImpulse({0.f, 0.f, 100.f});
+            object->getBody()->ApplyImpulse({0.f, 0.f, 40.f});
         }
 
         if(is_key_pressed(GLFW_KEY_S))
         {
-            object->getBody()->ApplyImpulse({0.f, 0.f, -100.f});
+            object->getBody()->ApplyImpulse({0.f, 0.f, -40.f});
         }
         
         // 3. --- Lógica de Movimiento y Reaparición de Obstáculos ---
@@ -168,7 +168,9 @@ int main()
         auto user = scene->createGameObject();
         auto camera = scene->createCamera(user);
 
-        scene->at(user)->getTransform()->translate(glm::vec3(0.f, 0.f, -2.5f));
+        scene->at(user)->getTransform()->translate(glm::vec3(0.f, 0.f, 0.f));
+        scene->at(user)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
+        scene->at(user)->setBody(Engine::Physics::Get().CreateBox({0.3f, 0.3f, 0.3f}, {0.f, 0.f, 0.f}, true));
         
         camera->setFront(-20.f, 90.f);
         camera->setUp(glm::vec3(0.f, 1.f, 0.f));
@@ -180,7 +182,7 @@ int main()
         
         //scene->at(user)->getTransform()->rotate(-20.f, glm::vec3(1.f, 0.f, 0.f));
        
-        scene->createModel(user)->loadModel("suzanne.fbx");
+        scene->createModel(user)->loadModel("pj/base.fbx");
         auto sphere = scene->createGameObject();
         scene->createModel(sphere)->loadModel("sphere.fbx");
 
@@ -198,14 +200,17 @@ int main()
         auto dado2 = scene->createGameObject();
         //scene->createModel(dado2)->loadModel("dado.fbx");
         //scene->createModel(dado2)->loadModel("filthy-prison-toilet-4096px2/source/toilet.fbx");
-        scene->createModel(dado2)->loadModel("crt-tv/source/model/model.dae");
+        scene->createModel(dado2)->loadModel("casita/base.fbx");
         scene->at(dado2)->getTransform()->translate(1.f, 0.5f, 3.f);
+        scene->at(dado2)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
 
         auto ground = scene->createGameObject();
-        scene->createModel(ground)->loadModel("dado.fbx");
+        scene->createModel(ground)->loadModel("ground/base.fbx");
         scene->at(ground)->getTransform()->translate(0.f, -0.5f, 0.f);
-        scene->at(ground)->getTransform()->scale(10.f, 0.5f, 10.f);
-        scene->at(ground)->setBody(Engine::Physics::Get().CreateBox({10.f, 0.5f, 10.f}, {0.f, 0.f, 0.f}, false));
+        scene->at(ground)->getTransform()->scale(2.f, 2.f, 1.f);
+        scene->at(ground)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
+
+        scene->at(ground)->setBody(Engine::Physics::Get().CreateBox({2.f, 2.f, 0.5f}, {0.f, 0.f, 0.f}, false));
 
        
        
@@ -244,8 +249,7 @@ int main()
         scene->at(dado2)->getTransform()->scale(0.8f, 0.8f, 0.4f);
         scene->at(dado2)->setBody(Engine::Physics::Get().CreateBox({0.8f, 0.8f, 0.4f}, {0.f, 0.f, 0.f}, true));
 
-        auto body = Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, true);
-        scene->at(user)->setBody(body);
+        
 
         obstacles->push_back(sphere);
         obstacles->push_back(dado);

@@ -16,6 +16,11 @@ glm::vec3 TransformComponent::getPosition()
     return position;
 }
 
+glm::quat TransformComponent::getRotation()
+{
+    return rotation;
+}
+
 TransformComponent::~TransformComponent()
 {
 

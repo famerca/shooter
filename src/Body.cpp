@@ -70,6 +70,15 @@ void Body::SetPosition(const glm::vec3& inPosition, JPH::EActivation inActivatio
     }
 }
 
+void Body::setRotation(const glm::quat& rotation)
+{
+    if (IsValid())
+    {
+        JPH::Quat jolt_rot(rotation.x, rotation.y, rotation.z, rotation.w);
+        Physics::Get().GetBodyInterface().SetRotation(m_BodyID, jolt_rot, JPH::EActivation::DontActivate);
+    }
+}
+
 
 void Body::ApplyImpulse(const Vec3& impulse) {
     if (m_IsDynamic)

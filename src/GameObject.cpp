@@ -43,6 +43,7 @@ void GameObject::setBody(std::shared_ptr<Engine::Body> body)
     this->body = body;
     body->SetOwner(shared_from_this());
     body->SetPosition(transform->getPosition());
+    body->setRotation(transform->getRotation());
 }
 
 std::shared_ptr<Engine::Body> GameObject::getBody()
