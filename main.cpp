@@ -187,20 +187,21 @@ int main()
         
         //scene->at(user)->getTransform()->rotate(-20.f, glm::vec3(1.f, 0.f, 0.f));
        
-        scene->createModel(user)->loadModel("suzanne.fbx");
+        scene->createModel(user)->loadModel("girl.fbx");
         auto sphere = scene->createGameObject();
-        scene->createModel(sphere)->loadModel("sphere.fbx");
+        scene->createModel(sphere)->loadModel("ground/base.fbx");
 
         scene->at(sphere)->getTransform()->translate(1.f, 0.f, -1.f);
 
         auto dado = scene->createGameObject();
-        scene->createModel(dado)->loadModel("dado.fbx");
+        scene->createModel(dado)->loadModel("cuteplant/base.fbx");
         scene->at(dado)->getTransform()->translate(-1.f, 0.f, -0.f);
 
         auto cilindro = scene->createGameObject();
         scene->createModel(cilindro)->loadModel("cilinder.fbx");
         scene->at(cilindro)->getTransform()->translate(0.f, 0.f, 1.5f);
         scene->at(cilindro)->getTransform()->rotate(90.f, glm::vec3(0.f, 1.f, 0.f));
+        
 
         auto dado2 = scene->createGameObject();
         //scene->createModel(dado2)->loadModel("dado.fbx");
@@ -229,6 +230,11 @@ int main()
         scene->at(sphere)->getTransform()->scale(0.4f, 0.4f, 0.4f);
         scene->at(dado)->getTransform()->scale(0.4f, 0.4f, 0.4f);
         scene->at(user)->getTransform()->scale(0.4f, 0.4f, 0.4f);
+        scene->at(user)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
+        scene->at(sphere)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
+        scene->at(dado)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
+        scene->at(dado2)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
+
         scene->at(cilindro)->getTransform()->scale(0.4f, 0.4f, 0.8f);
         scene->at(dado2)->getTransform()->scale(0.8f, 0.8f, 0.8f);
 
