@@ -47,7 +47,7 @@ void TransformComponent::update()
     }
 }
 
-glm::mat4 TransformComponent::getModelMatrix()
+const glm::mat4& TransformComponent::getModelMatrix()
 {
     return model;
 }

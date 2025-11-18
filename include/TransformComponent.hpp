@@ -40,7 +40,7 @@ public:
     glm::vec3 getPosition();
     glm::quat getRotation();
 
-    glm::mat4 getModelMatrix();
+    const glm::mat4 &getModelMatrix();
 
     
 };

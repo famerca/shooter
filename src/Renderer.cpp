@@ -138,20 +138,23 @@ void Renderer::renderObject(std::shared_ptr<GameObject> object)
 {
     if(object != nullptr && object->isVisible())
     {
-        glm::mat4 model = object->getTransform()->getModelMatrix();
-        glUniformMatrix4fv(currentShader->get_uniform_model_id(), 1, GL_FALSE, glm::value_ptr(model));
+        auto model = object->getTransform()->getModelMatrix();
         for (std::shared_ptr<Component> component : object->getComponents())
         {
             if(component->getType() == Component::Type::Model)
             {
-                renderModel(std::static_pointer_cast<ModelComponent>(component));
+                renderModel(std::static_pointer_cast<ModelComponent>(component), model);
             }
         }
     }
 }
 
-void Renderer::renderModel(std::shared_ptr<ModelComponent> model)
+void Renderer::renderModel(std::shared_ptr<ModelComponent> model,  glm::mat4 m)
 {
+    if(model->isRelative())
+        m = m * model->getModelMatrix(); 
+
+    glUniformMatrix4fv(currentShader->get_uniform_model_id(), 1, GL_FALSE, glm::value_ptr(m));
     model->getModel()->render(currentShader->get_uniform_diffuse_texture_id());
 }
 

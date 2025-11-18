@@ -70,6 +70,7 @@ void Body::SetPosition(const glm::vec3& inPosition, JPH::EActivation inActivatio
     }
 }
 
+
 void Body::setRotation(const glm::quat& rotation)
 {
     if (IsValid())

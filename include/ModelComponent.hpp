@@ -9,10 +9,29 @@ class ModelComponent : public Component
 {
 private:
     std::shared_ptr<Model> model;
+    //Modelo relativo al gameobject
+    glm::mat4 r_model;
+    bool relative;
     std::string sp_shader;
+
 public:
     ModelComponent(Owner);
     ~ModelComponent();
+
+
+    void setRelativeModel(
+        glm::vec3 position = {0.f, 0.f, 0.f}, 
+        float angle = 0.f, 
+        glm::vec3 axis = {0.f, 1.f, 0.f},
+        glm::vec3 scale = {1.f, 1.f, 1.f}
+    );
+
+    const glm::mat4& getModelMatrix();
+
+    const bool &isRelative() const noexcept
+    {
+        return relative;
+    }
 
     void update(const GLfloat &dt);
 

@@ -169,8 +169,7 @@ int main()
         auto camera = scene->createCamera(user);
 
         scene->at(user)->getTransform()->translate(glm::vec3(0.f, 0.f, 0.f));
-        scene->at(user)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
-        scene->at(user)->setBody(Engine::Physics::Get().CreateBox({0.3f, 0.3f, 0.3f}, {0.f, 0.f, 0.f}, true));
+        scene->at(user)->setBody(Engine::Physics::Get().CreateBox({0.3f, 0.4f, 0.3f}, {0.f, 0.f, 0.f}, true));
         
         camera->setFront(-20.f, 90.f);
         camera->setUp(glm::vec3(0.f, 1.f, 0.f));
@@ -182,7 +181,11 @@ int main()
         
         //scene->at(user)->getTransform()->rotate(-20.f, glm::vec3(1.f, 0.f, 0.f));
        
-        scene->createModel(user)->loadModel("pj/base.fbx");
+        auto pj_model = scene->createModel(user);
+        pj_model->loadModel("pj/base.fbx");
+        pj_model->setRelativeModel(glm::vec3(0.f, -1.f, 0.f), -90.f, glm::vec3(1.f, 0.f, 0.f));
+    
+
         auto sphere = scene->createGameObject();
         scene->createModel(sphere)->loadModel("sphere.fbx");
 

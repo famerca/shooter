@@ -51,7 +51,7 @@ private:
     void renderDirLight(std::shared_ptr<DirectionalLight> dirLight);
     void renderCamera(std::shared_ptr<CameraComponent> camera);
     void renderObject(std::shared_ptr<GameObject> object);
-    void renderModel(std::shared_ptr<ModelComponent> model);
+    void renderModel(std::shared_ptr<ModelComponent> model, glm::mat4 m);
     void renderSkyBox(std::shared_ptr<SkyBox> sky_box,std::shared_ptr<CameraComponent> camera);
 
     void useShader(Shader::LIST shader);
