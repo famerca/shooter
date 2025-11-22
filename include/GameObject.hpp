@@ -7,10 +7,17 @@
 #ifndef GAMEOBJECT_HPP
 #define GAMEOBJECT_HPP
 
+namespace Engine {
+
+class Listener;
+
+}
 class GameObject: public std::enable_shared_from_this<GameObject>
 {
 private:
     /* data */
+    friend class Engine::Listener;
+    
     std::shared_ptr<TransformComponent> transform;
     std::shared_ptr<Engine::Body> body;
     std::shared_ptr<Engine::KMovement> movement;
@@ -45,5 +52,7 @@ public:
 
     void change();
 };
+
+
 
 #endif // GAMEOBJECT_HPP
