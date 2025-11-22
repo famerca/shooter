@@ -17,6 +17,7 @@ add_compile_options(-Wall -Wextra -Wpedantic -g) # Unificado las opciones aquí
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(Freetype REQUIRED)
 
 # macOS specific: Find frameworks
 if(APPLE)
@@ -65,6 +66,28 @@ if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio/miniaudio.h)
 endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/third_party/BSlogger/src ${CMAKE_CURRENT_BINARY_DIR}/third_party/stb ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio)
+
+# --- CONFIGURACIÓN RMLUI ---
+set(RMLUI_DIR ${CMAKE_CURRENT_BINARY_DIR}/third_party/RmlUi)
+set(RMLUI_BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/third_party/RmlUi-build)
+
+# Descargar RmlUi si no existe
+if(NOT EXISTS ${RMLUI_DIR})
+    execute_process(
+        COMMAND git clone --depth 1 "https://github.com/mikke89/RmlUi.git" RmlUi
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party
+        ERROR_QUIET
+    )
+endif()
+
+# Configurar y compilar RmlUi
+if(EXISTS ${RMLUI_DIR}/CMakeLists.txt)
+    set(RMLUI_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+    set(RMLUI_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(RMLUI_BUILD_INCLUDE_TOOLS OFF CACHE BOOL "" FORCE)
+    
+    add_subdirectory(${RMLUI_DIR} ${RMLUI_BUILD_DIR})
+endif()
 
 # --- INICIO CONFIGURACIÓN JOLT ---
 set(VENDOR_DIR ${PROJECT_SOURCE_DIR}/vendor)
@@ -129,6 +152,32 @@ else()
         ${JOLT_LIBRARY} 
         m 
         pthread
+    )
+endif()
+
+# Enlazar RmlUi y sus dependencias
+if(TARGET rmlui_core)
+    # Establecer orden de compilación: rmlui_core -> rmlui_debugger -> GLSHOOTERLIB
+    if(TARGET rmlui_debugger)
+        add_dependencies(rmlui_debugger rmlui_core)
+        add_dependencies(GLSHOOTERLIB rmlui_debugger)
+    else()
+        add_dependencies(GLSHOOTERLIB rmlui_core)
+    endif()
+    
+    # Enlazar librerías
+    target_link_libraries(GLSHOOTERLIB PUBLIC 
+        rmlui_core
+        ${FREETYPE_LIBRARIES}
+    )
+    # Enlazar rmlui_debugger si está disponible (herramientas de depuración visual)
+    if(TARGET rmlui_debugger)
+        target_link_libraries(GLSHOOTERLIB PUBLIC rmlui_debugger)
+    endif()
+    # Agregar includes de RmlUi y FreeType
+    target_include_directories(GLSHOOTERLIB PUBLIC 
+        
+        ${FREETYPE_INCLUDE_DIRS}
     )
 endif()
 
