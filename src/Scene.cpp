@@ -1,4 +1,5 @@
 #include "Scene.hpp"
+#include "AudioManager.hpp"
 
 Scene::Scene(std::shared_ptr<Window> window)
 {
@@ -36,7 +37,9 @@ std::shared_ptr<Scene> Scene::create(std::shared_ptr<Window> window)
 
 std::shared_ptr<Scene> Scene::create(std::shared_ptr<Window> window, std::shared_ptr<DirectionalLight> DirLight)
 {
-    return std::make_shared<Scene>(window, DirLight);
+    auto scene = std::make_shared<Scene>(window, DirLight);
+    
+    return scene;
 }
 
 std::shared_ptr<Scene> Scene::create(std::shared_ptr<Window> window, glm::vec3 direction, glm::vec3 color, GLfloat intensity)
@@ -113,6 +116,30 @@ void Scene::update(const GLfloat &dt)
     }
 }
 
+std::shared_ptr<Engine::AudioListenerComponent> Scene::createAudioListener(unsigned index)
+{
+    if(index >= Objects.size())
+    {
+        throw std::runtime_error("Index out of range");
+    }
+    auto audioListener = std::make_shared<Engine::AudioListenerComponent>(Objects[index]);
+    Objects[index]->addComponent(std::static_pointer_cast<Component>(audioListener));
+    return audioListener;
+}
+
+std::shared_ptr<Engine::AudioSourceComponent> Scene::createAudioSource(unsigned index, const std::string& path, bool loop, float volume, float minDesc, float maxDist)
+{
+    if(index >= Objects.size())
+    {
+        throw std::runtime_error("Index out of range");
+    }
+    auto audioSource = std::make_shared<Engine::AudioSourceComponent>(Objects[index], false, loop, volume, minDesc, maxDist);
+    Objects[index]->addComponent(std::static_pointer_cast<Component>(audioSource));
+    audioSource->setAudio(Engine::AudioManager::Get().addAudio(path));
+
+    return audioSource;
+}
+
 std::shared_ptr<Window> Scene::getWindow()
 {
     return window;
@@ -126,4 +153,9 @@ void Scene::setSkyBox(std::shared_ptr<SkyBox> sky_box)
 std::shared_ptr<SkyBox> Scene::getSkyBox()
 {
     return skyBox;
+}
+
+void Scene::onReseze(int width, int height)
+{
+    activeCamera->setAspectRation(width / height);
 }

@@ -12,6 +12,7 @@
 #define WINDOW_HPP
 
 class Input;
+class Scene;
 
 class Window
 {
@@ -44,6 +45,8 @@ public:
 
     void setInput(std::shared_ptr<Input> input) noexcept;
 
+    void setScene(std::shared_ptr<Scene> scene) noexcept;
+
     std::shared_ptr<Input> getInput() noexcept;
 
 
@@ -54,6 +57,9 @@ private:
     GLint buffer_width{0};
     GLint buffer_height{0};
     std::shared_ptr<Input> input{nullptr};
+    std::shared_ptr<Scene> scene{nullptr};
+
+    static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 };
 
 #endif // WINDOW_HPP

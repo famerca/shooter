@@ -7,6 +7,8 @@
 #ifndef GAMEOBJECT_HPP
 #define GAMEOBJECT_HPP
 
+class CameraComponent;
+
 namespace Engine {
 
 class Listener;

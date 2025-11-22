@@ -1,5 +1,6 @@
 #include <Window.hpp>
 #include <Input.hpp> 
+#include <Scene.hpp>
 
 Window::~Window()
 {
@@ -66,6 +67,9 @@ std::shared_ptr<Window> Window::create(GLint width, GLint height, std::string_vi
 
     glfwSetWindowUserPointer(window->window, window.get());
 
+
+    glfwSetFramebufferSizeCallback(window->window, Window::framebuffer_size_callback);
+
     return window;
 }
 
@@ -101,4 +105,22 @@ void Window::setInput(std::shared_ptr<Input> input) noexcept
 std::shared_ptr<Input> Window::getInput() noexcept
 {
     return input;
+}
+
+void Window::setScene(std::shared_ptr<Scene> scene) noexcept
+{
+    this->scene = scene;
+}
+
+void Window::framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+
+    auto window_ptr = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+    window_ptr->buffer_width = width;
+    window_ptr->buffer_height = height;
+
+    if(window_ptr->scene != nullptr)
+        window_ptr->scene->onReseze(width, height);
 }

@@ -5,6 +5,9 @@
 #include "Window.hpp"
 #include "GameObject.hpp"
 #include "SkyBox.hpp"
+#include "AudioListenerComponent.hpp"
+#include "AudioSourceComponent.hpp"
+
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -22,7 +25,7 @@ private:
     std::shared_ptr<CameraComponent> activeCamera;
     std::shared_ptr<DirectionalLight> DirLight;
     std::shared_ptr<Window> window;
-     std::shared_ptr<SkyBox> skyBox;
+    std::shared_ptr<SkyBox> skyBox;
     
 public:
     Scene(std::shared_ptr<Window> window);
@@ -42,6 +45,8 @@ public:
     unsigned createGameObject();
     std::shared_ptr<ModelComponent> createModel(unsigned);
     std::shared_ptr<CameraComponent> createCamera(unsigned);
+    std::shared_ptr<Engine::AudioListenerComponent> createAudioListener(unsigned);
+    std::shared_ptr<Engine::AudioSourceComponent> createAudioSource(unsigned, const std::string& path, bool loop = false, float volume = 1.0f, float minDesc = 1.0f, float maxDist = 20.0f);
     
     void setCamera(std::shared_ptr<CameraComponent> camera);
     std::shared_ptr<CameraComponent> getCamera();
@@ -53,6 +58,8 @@ public:
 
     void setSkyBox(std::shared_ptr<SkyBox> sky_box);
     std::shared_ptr<SkyBox> getSkyBox();
+
+    void onReseze(int width, int height);
 
     
 };

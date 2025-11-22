@@ -1,5 +1,6 @@
 #include "CameraComponent.hpp"
 #include "Scene.hpp"
+#include "AudioManager.hpp"
 
 CameraComponent::CameraComponent(Owner owner, std::shared_ptr<Scene> scene): Component(owner, Component::Type::Camera), scene(scene)
 {
@@ -127,6 +128,8 @@ void CameraComponent::update(const GLfloat &dt)
             calcFront(); // Calcula hacia dónde miro
             auto absPos = owner->getTransform()->getPosition() + position; // Mi posición es fija relativa al padre
             view = glm::lookAt(absPos, absPos + front, up);
+            Engine::AudioManager::Get().setListenerDirection(front);
+
         }
 
         changed = false;

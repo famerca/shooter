@@ -16,6 +16,8 @@ public:
         Model, // Valor por defecto
         Transform,
         Camera,
+        AudioListener,
+        AudioSource,
         // ... más tipos
     };
 

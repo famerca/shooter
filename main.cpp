@@ -11,9 +11,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#define MINIAUDIO_IMPLEMENTATION
-#include <miniaudio.h>
-
 #include <Window.hpp>
 #include "Scene.hpp"
 #include "GameObject.hpp"
@@ -25,6 +22,10 @@
 #include "SkyBox.hpp"
 #include "Physics.hpp"
 #include "Listener.hpp"
+#include "AudioManager.hpp"
+#include "AudioPlayer.hpp"
+#include "AudioListenerComponent.hpp"
+#include "AudioSourceComponent.hpp"
 
 class inputManager: public Input
 {
@@ -79,7 +80,7 @@ public:
         // 1. --- Lógica del Salto del Jugador (Y) ---
         if (is_key_pressed(GLFW_KEY_SPACE) && !is_jumping)
         {
-            object->getBody()->ApplyImpulse({0.f, 1500.f, 0.f});
+            object->getBody()->ApplyImpulse({0.f, 1000.f, 0.f});
             is_jumping = true;
         }
 
@@ -171,16 +172,9 @@ int main()
 {
     try
     {
-        ma_result result;
-        ma_engine engine;
-
-        result = ma_engine_init(NULL, &engine);
-        if (result != MA_SUCCESS) {
-            printf("Failed to initialize engine.\n");
-            return -1;
-        }
-
+        
         Engine::Physics::Get().Init();
+        Engine::AudioManager::Get().init();
 
         // Window dimensions
         constexpr GLint WIDTH = 1200;
@@ -214,6 +208,8 @@ int main()
 
         camera->init(glm::vec3(0.f, 1.5f, -2.5f), main_window->get_aspect_ratio(), 45.f, 0.1f, 100.f, true);
         camera->activate();
+
+        scene->at(user)->addComponent(std::make_shared<Engine::AudioListenerComponent>(scene->at(user)));
         
         //scene->at(user)->getTransform()->rotate(-20.f, glm::vec3(1.f, 0.f, 0.f));
        
@@ -276,6 +272,9 @@ int main()
         //scene->at(sphere)->setBody(Engine::Physics::Get().CreateSphere(0.4f, {0.f, 0.f, 0.f}, true));
         scene->at(sphere)->getBody()->SetVelocity({10.f, 0.f, 0.f});
 
+
+        auto player = scene->createAudioSource(sphere, "Lost-Verdania.mp3", true, 1.0f, 1.0f, 20.0f);
+
         scene->at(dado)->getTransform()->scale(0.4f, 0.4f, 0.4f);
         scene->at(dado)->setBody(Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
 
@@ -287,7 +286,7 @@ int main()
         scene->at(dado2)->getTransform()->scale(0.8f, 0.8f, 0.4f);
         scene->at(dado2)->setBody(Engine::Physics::Get().CreateBox({0.8f, 0.8f, 0.4f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
 
-        auto body = Engine::Physics::Get().CreateBox({0.2f, 0.3f, 0.2f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic);
+        auto body = Engine::Physics::Get().CreateBox({0.2f, 0.4f, 0.2f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic);
         scene->at(user)->setBody(body);
 
         obstacles->push_back(sphere);
@@ -321,15 +320,13 @@ int main()
         std::cout << "Playing sound" << std::endl;
         std::filesystem::path audio_path = std::filesystem::path(__FILE__).parent_path() / "audios" / "Lost-Verdania.mp3";
         std::cout << "Audio path: " << audio_path.string() << std::endl;
-        result = ma_engine_play_sound(&engine, audio_path.string().c_str(), NULL);
-        if (result != MA_SUCCESS) {
-            printf("Failed to play sound.\n");
-            return -1;
-        }
+        
+        player->play();
+        
         renderer->render(scene);
 
         Engine::Physics::Get().Shutdown();
-        ma_engine_uninit(&engine);
+        Engine::AudioManager::Get().shutdown();
 
     }catch(const std::exception& e)
     {

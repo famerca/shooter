@@ -120,6 +120,7 @@ void Renderer::renderCamera(std::shared_ptr<CameraComponent> camera)
     
 }
 
+
 void Renderer::RenderDebug(std::shared_ptr<CameraComponent> camera)
 {
     #ifdef JPH_DEBUG_RENDERER

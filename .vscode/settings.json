@@ -83,6 +83,9 @@
         "forward_list": "cpp",
         "queue": "cpp",
         "shared_mutex": "cpp",
-        "stack": "cpp"
+        "stack": "cpp",
+        "csignal": "cpp",
+        "set": "cpp",
+        "unordered_set": "cpp"
     }
 }
