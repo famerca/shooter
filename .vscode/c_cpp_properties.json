@@ -6,7 +6,9 @@
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/build/third_party/BSlogger/src",
                 "${workspaceFolder}/build/third_party/stb",
-                "${workspaceFolder}/vendor/JoltPhysics/include"
+                "${workspaceFolder}/vendor/JoltPhysics/include",
+                "${workspaceFolder}/vendor",
+                "${workspaceFolder}/vendor/miniaudio"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

@@ -30,7 +30,7 @@ public:
 
     Model() = default;
 
-    Model(const std::string &model_name);
+    Model(const std::string &model_name, const float& scale_factor = 1.0f);
 
     Model(const Model &model) = delete;
 

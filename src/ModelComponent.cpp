@@ -44,12 +44,12 @@ void ModelComponent::setRelativeModel(
 
 }
 
-bool ModelComponent::loadModel(std::string model_name)
+bool ModelComponent::loadModel(const std::string& model_name, const float& scale_factor)
 {
     try
     {
         /* code */
-        model = std::make_shared<Model>(model_name);
+        model = std::make_shared<Model>(model_name, scale_factor);
         return true;
         
     }

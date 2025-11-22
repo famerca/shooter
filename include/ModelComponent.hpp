@@ -35,7 +35,7 @@ public:
 
     void update(const GLfloat &dt);
 
-    bool loadModel(std::string);
+    bool loadModel(const std::string& model_name,const float& scale_factor = 1.0f);
     
     void start();
     std::shared_ptr<Model> getModel()

@@ -14,6 +14,7 @@ CameraComponent::CameraComponent(Owner owner, std::shared_ptr<Scene> scene): Com
     x_rotation = 0.f;
     y_rotation = 0.f;
     changed = true;
+    perpective_changed = true;
     renderd = false;
     pitch = 0.f;
     yaw = 0.f;
@@ -34,21 +35,37 @@ void CameraComponent::updateRotation(const GLfloat &dt)
     if(rotation_changed)
     {
         pitch += y_rotation * dt;
-        yaw += x_rotation * dt;
-
-        pitch = std::max(-89.f, std::min(89.f, pitch));
-
-        calcFront();
-
-        auto absPos = owner->getTransform()->getPosition() + position;
-        view = glm::lookAt(absPos, absPos + front, up);
-
-        x_rotation = 0.f;
-        y_rotation = 0.f;
+        yaw   += x_rotation * dt;
+        
+        // Clamp del pitch para que la cámara no pase por debajo del suelo ni de una voltereta completa
+        if(clampPitch > 0.0f)
+            pitch = std::max(-clampPitch, std::min(clampPitch, pitch));
+        if(clampYaw > 0.0f)
+            yaw   = std::max(-clampYaw, std::min(clampYaw, yaw));
 
         rotation_changed = false;
-        renderd = false;
+        changed = true; // Marcar para recalcular matriz
+        
+        // Resetear inputs temporales
+        x_rotation = 0.f;
+        y_rotation = 0.f;
     }
+}
+
+void CameraComponent::updatePerpective()
+{
+    if(perpective_changed)
+    {
+        projection = glm::perspective(glm::radians(fov), aspectRation, nearPlane, farPlane);
+        perpective_changed = false;
+        changed = true;
+    }
+}
+
+void CameraComponent::setDistance(float dist)
+{
+    distance = dist;
+    changed = true;
 }
 
 void CameraComponent::calcFront()
@@ -61,23 +78,80 @@ void CameraComponent::calcFront()
 
 void CameraComponent::update(const GLfloat &dt)
 {
+    // Actualizar valores de pitch y yaw basados en input (tu lógica de x_rotation/y_rotation)
     updateRotation(dt);
+    updatePerpective();
 
     if(changed)
     {
-        auto absPos = owner->getTransform()->getPosition() + position;
-        view = glm::lookAt(absPos, absPos + front, up);
-        projection = glm::perspective(glm::radians(fov), aspectRation, nearPlane, farPlane);
+        // 1. OBTENER LA POSICIÓN DEL JUGADOR (TARGET)
+        // Le sumamos un offset para mirar al pecho/cabeza, no al pivote que suele estar en los pies
+        glm::vec3 targetPos = owner->getTransform()->getPosition() + targetOffset;
+
+        if (isOrbiting) 
+        {
+            // --- LÓGICA DE TERCERA PERSONA (ORBITAL) ---
+
+            // A. Calcular la dirección desde el centro hacia afuera (esféricas)
+            // Nota: Usamos trigonometría para convertir Ángulos -> Vector Dirección
+            float hDist = distance * glm::cos(glm::radians(pitch));
+            float xOffset = hDist * glm::sin(glm::radians(yaw));
+            float zOffset = hDist * glm::cos(glm::radians(yaw));
+            float yOffset = distance * glm::sin(glm::radians(pitch));
+
+            // B. Calcular la posición de la cámara
+            // Si yaw/pitch son 0, la cámara estará detrás del jugador.
+            // Restamos offsets o sumamos dependiendo de tu sistema de coordenadas.
+            // Asumiendo OpenGL estándar (Z+ sale de la pantalla):
+            glm::vec3 orbitOffset;
+            orbitOffset.x = xOffset; 
+            orbitOffset.y = yOffset; 
+            orbitOffset.z = zOffset;
+
+            // Posición final = Centro del Jugador + Vector Rotado
+            // NOTA: Si quieres que la cámara esté "detrás", a menudo se resta el vector dirección.
+            // Aquí calculamos la posición en la esfera.
+            glm::vec3 finalCamPos = targetPos - orbitOffset; // El '-' la pone "detrás" de la dirección de vista
+
+            // C. Configurar la vista
+            // La cámara está en finalCamPos y mira a targetPos
+            view = glm::lookAt(finalCamPos, targetPos, up);
+            
+            // Actualizamos la variable interna 'position' por si alguien la consulta,
+            // aunque ahora es relativa dinámica.
+            //this->position = finalCamPos - owner->getTransform()->getPosition();
+        }
+        else 
+        {
+            // --- TU LÓGICA ORIGINAL (PRIMERA PERSONA) ---
+            calcFront(); // Calcula hacia dónde miro
+            auto absPos = owner->getTransform()->getPosition() + position; // Mi posición es fija relativa al padre
+            view = glm::lookAt(absPos, absPos + front, up);
+        }
+
         changed = false;
         renderd = false;
     }
+
+    
 }
 
-void CameraComponent::setRotation(GLfloat x, GLfloat y)
+void CameraComponent::rotate(GLfloat x, GLfloat y)
 {
     x_rotation = x;
     y_rotation = y;
     rotation_changed = true;
+}
+
+void CameraComponent::setOrbiting(bool orbiting)
+{
+    isOrbiting = orbiting;
+}
+
+void CameraComponent::setClamp(float pitch, float yaw)
+{
+    clampPitch = pitch;
+    clampYaw = yaw;
 }
 
 CameraComponent::~CameraComponent()
@@ -105,7 +179,7 @@ void CameraComponent::setPosition(glm::vec3 pos)
 void CameraComponent::setAspectRation(float aspect)
 {
     aspectRation = aspect;
-    changed = true;
+    perpective_changed = true;
 }
 
 void CameraComponent::setFov(float fov)
@@ -117,19 +191,19 @@ void CameraComponent::setFov(float fov)
 void CameraComponent::setNearPlane(float near)
 {
     nearPlane = near;
-    changed = true;
+    perpective_changed = true;
 }
 
 void CameraComponent::setFarPlane(float far)
 {
     farPlane = far;
-    changed = true;
+    perpective_changed = true;
 }
 
 void CameraComponent::setOrthographic(bool orthographic)
 {
     isOrthographic = orthographic;
-    changed = true;
+    perpective_changed = true;
 }
 
 void CameraComponent::setFront(glm::vec3 front)

@@ -10,6 +10,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define MINIAUDIO_IMPLEMENTATION
+#include <miniaudio.h>
+
 #include <Window.hpp>
 #include "Scene.hpp"
 #include "GameObject.hpp"
@@ -85,6 +88,26 @@ public:
             object->getBody()->ApplyImpulse({0.f, -10.f, 0.f});
         }
 
+        if(is_key_pressed(GLFW_KEY_LEFT))
+        {
+            scene->getCamera()->rotate(-50.f, 0.f);
+        }
+
+        if(is_key_pressed(GLFW_KEY_RIGHT))
+        {
+            scene->getCamera()->rotate(50.f, 0.f);
+        }
+
+        if(is_key_pressed(GLFW_KEY_UP))
+        {
+            scene->getCamera()->rotate(0.f, 50.f);
+        }
+
+        if(is_key_pressed(GLFW_KEY_DOWN))
+        {
+            scene->getCamera()->rotate(0.f, -50.f);
+        }
+
         
         // 2. --- Lógica de Movimiento Horizontal del Jugador (X/Z) ---
         // Nota: Solo se usa translate para el movimiento horizontal.
@@ -147,6 +170,15 @@ int main()
 {
     try
     {
+        ma_result result;
+        ma_engine engine;
+
+        result = ma_engine_init(NULL, &engine);
+        if (result != MA_SUCCESS) {
+            printf("Failed to initialize engine.\n");
+            return -1;
+        }
+
         Engine::Physics::Get().Init();
 
         // Window dimensions
@@ -169,8 +201,10 @@ int main()
         auto user = scene->createGameObject();
         auto camera = scene->createCamera(user);
 
+        camera->setClamp(0.0f, 0.0f);
+        camera->setOrbiting(false);
+
         scene->at(user)->getTransform()->translate(glm::vec3(0.f, 0.f, 0.f));
-        scene->at(user)->setBody(Engine::Physics::Get().CreateBox({0.3f, 0.4f, 0.3f}, {0.f, 0.f, 0.f}, true));
         
         camera->setFront(-20.f, 90.f);
         camera->setUp(glm::vec3(0.f, 1.f, 0.f));
@@ -184,7 +218,7 @@ int main()
        
         auto pj_model = scene->createModel(user);
         pj_model->loadModel("pj/base.fbx");
-        pj_model->setRelativeModel(glm::vec3(0.f, -1.f, 0.f), -90.f, glm::vec3(1.f, 0.f, 0.f));
+        pj_model->setRelativeModel(glm::vec3(0.f, -1.f, 0.f));
     
 
         auto sphere = scene->createGameObject();
@@ -211,7 +245,7 @@ int main()
         auto ground = scene->createGameObject();
         scene->createModel(ground)->loadModel("ground/base.fbx");
         scene->at(ground)->getTransform()->translate(0.f, -0.5f, 0.f);
-        scene->at(ground)->getTransform()->scale(10.f, 0.5f, 10.f);
+        scene->at(ground)->getTransform()->scale(10.f, 1.f, 10.f);
         scene->at(ground)->setBody(Engine::Physics::Get().CreateBox({10.f, 0.5f, 10.f}, {0.f, 0.f, 0.f}, Engine::BodyType::Static));
 
        
@@ -239,7 +273,7 @@ int main()
         //scene->at(sphere)->setBody(Engine::Physics::Get().CreateSphere(0.4f, {0.f, 0.f, 0.f}, true));
 
         //scene->at(sphere)->setBody(Engine::Physics::Get().CreateSphere(0.4f, {0.f, 0.f, 0.f}, true));
-        scene->at(sphere)->getBody()->serVelocity({10.f, 0.f, 0.f});
+        scene->at(sphere)->getBody()->SetVelocity({10.f, 0.f, 0.f});
 
         scene->at(dado)->getTransform()->scale(0.4f, 0.4f, 0.4f);
         scene->at(dado)->setBody(Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
@@ -252,7 +286,7 @@ int main()
         scene->at(dado2)->getTransform()->scale(0.8f, 0.8f, 0.4f);
         scene->at(dado2)->setBody(Engine::Physics::Get().CreateBox({0.8f, 0.8f, 0.4f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
 
-        auto body = Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic);
+        auto body = Engine::Physics::Get().CreateBox({0.2f, 0.3f, 0.2f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic);
         scene->at(user)->setBody(body);
 
         obstacles->push_back(sphere);
@@ -283,9 +317,16 @@ int main()
         scene->at(sphere)->getMovement()->moveTo(glm::vec3(0.f, 0.f, 10.f), 1.f);
         renderer->debug();
         renderer->init();
+        std::cout << "Playing sound" << std::endl;
+        result = ma_engine_play_sound(&engine, "/home/fabian/Documentos/Universidad/computacion grafica/shooter/audios/Lost-Verdania.mp3", NULL);
+        if (result != MA_SUCCESS) {
+            printf("Failed to play sound.\n");
+            return -1;
+        }
         renderer->render(scene);
 
         Engine::Physics::Get().Shutdown();
+        ma_engine_uninit(&engine);
 
     }catch(const std::exception& e)
     {

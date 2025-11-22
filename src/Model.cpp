@@ -1,7 +1,7 @@
 #include "Model.hpp"
 #include <stb_image.h>
 
-Model::Model(const std::string &model_name)
+Model::Model(const std::string &model_name, const float& scale_factor)
 {
 
     std::filesystem::path model_path{std::filesystem::path{__FILE__}.parent_path().parent_path() / "models" / model_name};
@@ -13,10 +13,20 @@ Model::Model(const std::string &model_name)
 
     Assimp::Importer importer;
 
-    const aiScene *scene = importer.ReadFile(model_path.string(),
-                                             aiProcess_Triangulate |
-                                                 aiProcess_FlipUVs |
-                                                 aiProcess_CalcTangentSpace);
+    // Si el usuario pidió una escala distinta de 1.0, la configuramos
+ 
+    importer.SetPropertyFloat(AI_CONFIG_GLOBAL_SCALE_FACTOR_KEY, scale_factor);
+    
+
+    // Añadimos aiProcess_GlobalScale a tus flags
+    unsigned int flags = aiProcess_Triangulate |
+                         aiProcess_FlipUVs |
+                         aiProcess_CalcTangentSpace |
+                         aiProcess_GlobalScale |
+                         aiProcess_PreTransformVertices;
+
+
+    const aiScene *scene = importer.ReadFile(model_path.string(), flags);
 
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
     {

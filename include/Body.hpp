@@ -40,7 +40,6 @@ public:
     
     void ApplyImpulse(const JPH::Vec3& impulse);
     void ApplyForce(const JPH::Vec3& force);
-    void serVelocity(const JPH::Vec3& velocity);
     JPH::RVec3 GetPosition() const;
     void SetPosition(const glm::vec3& inPosition, JPH::EActivation inActivation = JPH::EActivation::Activate);
     void SetVelocity(const JPH::Vec3& velocity);

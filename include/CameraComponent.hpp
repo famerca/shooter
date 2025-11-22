@@ -26,12 +26,21 @@ private:
 
     float x_rotation{0.f};
     float y_rotation{0.f};
+
+    float clampPitch = 89.0f;
+    float clampYaw = 0.0f;
     bool rotation_changed{false};
+    bool perpective_changed{false};
 
     GLfloat pitch;
     GLfloat yaw;
 
+    float distance = 5.0f;      // Distancia al personaje
+    glm::vec3 targetOffset = glm::vec3(0.0f, 1.5f, 0.0f); // Para mirar a la cabeza, no a los pies
+    bool isOrbiting = true;  // Flag para cambiar de modo
+  
     void updateRotation(const GLfloat &dt);
+    void updatePerpective();
     
 public:
     CameraComponent(Owner, std::shared_ptr<Scene> scene);
@@ -45,6 +54,8 @@ public:
 
     void init(glm::vec3 pos, float aspect, float fov, float near, float far, bool orthographic);
 
+    void setDistance(float dist);
+
     void setPosition(glm::vec3);
     void setAspectRation(float);
     void setFov(float);
@@ -55,7 +66,11 @@ public:
     void setFront(GLfloat pitch, GLfloat yaw);
     void setUp(glm::vec3);
 
-    void setRotation(GLfloat x, GLfloat y);
+    void rotate(GLfloat x, GLfloat y);
+
+    void setOrbiting(bool orbiting);
+    void setClamp(float pitch, float yaw);
+
     void calcFront();
     
 

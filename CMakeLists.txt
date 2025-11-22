@@ -61,6 +61,7 @@ set(VENDOR_DIR ${PROJECT_SOURCE_DIR}/vendor)
 
 # 1. Definir rutas de Jolt
 find_path(JOLT_INCLUDE_DIR Jolt/Jolt.h PATHS ${VENDOR_DIR}/JoltPhysics/include)
+find_path(MINIAUDIO_INCLUDE_DIR miniaudio.h PATHS ${VENDOR_DIR}/miniaudio)
 set(JOLT_LIB_DIR ${VENDOR_DIR}/JoltPhysics/lib)
 
 # 2. Declarar la librería del motor
@@ -80,6 +81,7 @@ target_compile_options(GLSHOOTERLIB PRIVATE -fno-rtti)
 target_include_directories(GLSHOOTERLIB PUBLIC 
     "${PROJECT_SOURCE_DIR}/include" 
     ${JOLT_INCLUDE_DIR}
+    ${MINIAUDIO_INCLUDE_DIR}
 )
 
 # 4. Encontrar y Enlazar Jolt (incluyendo math y threading)
