@@ -49,7 +49,8 @@ class inputManager: public Input
     std::uniform_real_distribution<> distrib_x;
 
 public:
-    bool is_jumping{false};  
+    bool is_jumping {false};
+
     inputManager() : Input() 
     {
         // Inicialización del generador aleatorio en el constructor
@@ -210,10 +211,8 @@ int main()
         auto ground = scene->createGameObject();
         scene->createModel(ground)->loadModel("ground/base.fbx");
         scene->at(ground)->getTransform()->translate(0.f, -0.5f, 0.f);
-        scene->at(ground)->getTransform()->scale(2.f, 2.f, 1.f);
-        scene->at(ground)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
-
-        scene->at(ground)->setBody(Engine::Physics::Get().CreateBox({2.f, 2.f, 0.5f}, {0.f, 0.f, 0.f}, false));
+        scene->at(ground)->getTransform()->scale(10.f, 0.5f, 10.f);
+        scene->at(ground)->setBody(Engine::Physics::Get().CreateBox({10.f, 0.5f, 10.f}, {0.f, 0.f, 0.f}, Engine::BodyType::Static));
 
        
        
@@ -236,23 +235,25 @@ int main()
 
 
         scene->at(sphere)->getTransform()->scale(0.4f, 0.4f, 0.4f);
-        scene->at(sphere)->setBody(Engine::Physics::Get().CreateBox({0.4f, 0.4f, 0.4f}, {0.f, 0.f, 0.f}, true));
+        scene->at(sphere)->setBody(Engine::Physics::Get().CreateBox({0.4f, 0.4f, 0.4f}, {0.f, 0.f, 0.f}, Engine::BodyType::Kinematic));
+        //scene->at(sphere)->setBody(Engine::Physics::Get().CreateSphere(0.4f, {0.f, 0.f, 0.f}, true));
 
         //scene->at(sphere)->setBody(Engine::Physics::Get().CreateSphere(0.4f, {0.f, 0.f, 0.f}, true));
         scene->at(sphere)->getBody()->serVelocity({10.f, 0.f, 0.f});
 
         scene->at(dado)->getTransform()->scale(0.4f, 0.4f, 0.4f);
-        scene->at(dado)->setBody(Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, true));
+        scene->at(dado)->setBody(Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
 
         scene->at(user)->getTransform()->scale(0.4f, 0.4f, 0.4f);
 
         scene->at(cilindro)->getTransform()->scale(0.4f, 0.4f, 0.8f);
-        scene->at(cilindro)->setBody(Engine::Physics::Get().CreateBox({0.4f, 0.4f, 0.8f}, {0.f, 0.f, 0.f}, true));
+        scene->at(cilindro)->setBody(Engine::Physics::Get().CreateBox({0.4f, 0.4f, 0.8f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
 
         scene->at(dado2)->getTransform()->scale(0.8f, 0.8f, 0.4f);
-        scene->at(dado2)->setBody(Engine::Physics::Get().CreateBox({0.8f, 0.8f, 0.4f}, {0.f, 0.f, 0.f}, true));
+        scene->at(dado2)->setBody(Engine::Physics::Get().CreateBox({0.8f, 0.8f, 0.4f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
 
-        
+        auto body = Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic);
+        scene->at(user)->setBody(body);
 
         obstacles->push_back(sphere);
         obstacles->push_back(dado);
@@ -279,6 +280,7 @@ int main()
         Engine::Listener::Get().Add(scene, Engine::Listener::Event::ContactRemoved, user, ground, onRemove);
 
         auto renderer = std::make_shared<Renderer>();
+        scene->at(sphere)->getMovement()->moveTo(glm::vec3(0.f, 0.f, 10.f), 1.f);
         renderer->debug();
         renderer->init();
         renderer->render(scene);

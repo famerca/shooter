@@ -9,7 +9,7 @@ namespace Engine {
 
 Body::Body(Body&& other) noexcept {
     m_BodyID = other.m_BodyID;
-    m_IsDynamic = other.m_IsDynamic;
+    m_type = other.m_type;
     other.m_BodyID = BodyID(); // invalida el antiguo
     owner = other.owner;
 }
@@ -17,15 +17,15 @@ Body::Body(Body&& other) noexcept {
 Body& Body::operator=(Body&& other) noexcept {
     if (this != &other) {
         m_BodyID = other.m_BodyID;
-        m_IsDynamic = other.m_IsDynamic;
+        m_type = other.m_type;
         other.m_BodyID = BodyID();
         owner = other.owner;
     }
     return *this;
 }
 
-Body::Body(BodyID id, bool isDynamic)
-    : m_BodyID(id), m_IsDynamic(isDynamic), owner{nullptr}
+Body::Body(BodyID id, BodyType type)
+    : m_BodyID(id), m_type(type), owner{nullptr}
     {}
 
 void Body::destroy() {
@@ -70,6 +70,14 @@ void Body::SetPosition(const glm::vec3& inPosition, JPH::EActivation inActivatio
     }
 }
 
+void Body::SetVelocity(const Vec3& velocity)
+{
+    if (IsValid()) {
+        BodyInterface& iface = Physics::Get().GetBodyInterface();
+        iface.SetLinearVelocity(m_BodyID, velocity);
+    }
+}
+
 
 void Body::setRotation(const glm::quat& rotation)
 {
@@ -82,7 +90,7 @@ void Body::setRotation(const glm::quat& rotation)
 
 
 void Body::ApplyImpulse(const Vec3& impulse) {
-    if (m_IsDynamic)
+    if (m_type == BodyType::Dynamic)
     {
         //std::cout << "IMPULSE: " << impulse << std::endl;
         Physics::Get().GetBodyInterface().AddImpulse(m_BodyID, impulse);
@@ -90,13 +98,32 @@ void Body::ApplyImpulse(const Vec3& impulse) {
 }
 
 void Body::serVelocity(const Vec3& velocity) {
-    if (m_IsDynamic)
+    if (m_type == BodyType::Dynamic)
         Physics::Get().GetBodyInterface().SetLinearVelocity(m_BodyID, velocity);
 }
 
 void Body::ApplyForce(const Vec3& force) {
-    if (m_IsDynamic)
+    if (m_type == BodyType::Dynamic)
         Physics::Get().GetBodyInterface().AddForce(m_BodyID, force);
+}
+
+void Body::Move(const Vec3& position, const Quat& rotation, float delta) {
+    if (IsValid() && m_type == BodyType::Kinematic) {
+
+        BodyInterface& iface = Physics::Get().GetBodyInterface();
+
+        iface.MoveKinematic(
+            m_BodyID,
+            position,
+            rotation,
+            delta
+        );
+    
+    
+        iface.ActivateBody(m_BodyID);
+    // Los cuerpos cinemáticos deben estar activos para moverse y colisionar.
+
+    }
 }
 
 RVec3 Body::GetPosition() const {

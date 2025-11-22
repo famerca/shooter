@@ -1,6 +1,7 @@
 #include "Component.hpp"
 #include "TransformComponent.hpp"
 #include "Body.hpp"
+#include "KMovement.hpp"
 #include <vector>
 
 #ifndef GAMEOBJECT_HPP
@@ -19,6 +20,7 @@ private:
     
     std::shared_ptr<TransformComponent> transform;
     std::shared_ptr<Engine::Body> body;
+    std::shared_ptr<Engine::KMovement> movement;
 
     std::vector<std::shared_ptr<Component>> components;
     bool visible;
@@ -35,6 +37,7 @@ public:
 
     void setBody(std::shared_ptr<Engine::Body> body);
     std::shared_ptr<Engine::Body> getBody();
+    std::shared_ptr<Engine::KMovement> getMovement();
 
     void addComponent(std::shared_ptr<Component>);
 

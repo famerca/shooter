@@ -43,7 +43,11 @@ void GameObject::setBody(std::shared_ptr<Engine::Body> body)
     this->body = body;
     body->SetOwner(shared_from_this());
     body->SetPosition(transform->getPosition());
-    body->setRotation(transform->getRotation());
+
+    if(body->getType() == Engine::BodyType::Kinematic)
+    {
+        movement = std::make_shared<Engine::KMovement>(shared_from_this());
+    }
 }
 
 std::shared_ptr<Engine::Body> GameObject::getBody()
@@ -51,10 +55,18 @@ std::shared_ptr<Engine::Body> GameObject::getBody()
     return body;
 }
 
+std::shared_ptr<Engine::KMovement> GameObject::getMovement()
+{
+    return movement;
+}
+
 void GameObject::update(const GLfloat &dt)
 {
     if(body != nullptr)
         body->update();
+
+    if(body->getType() == Engine::BodyType::Kinematic)
+        movement->Update(dt);
 
     transform->update();
 
