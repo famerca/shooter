@@ -184,22 +184,24 @@ int main()
        
         scene->createModel(user)->loadModel("pj/base.fbx");
         auto sphere = scene->createGameObject();
-        scene->createModel(sphere)->loadModel("sphere.fbx");
+        scene->createModel(sphere)->loadModel("ground/base.fbx");
 
         scene->at(sphere)->getTransform()->translate(1.f, 0.f, -1.f);
 
         auto dado = scene->createGameObject();
-        scene->createModel(dado)->loadModel("dado.fbx");
+        scene->createModel(dado)->loadModel("cuteplant/base.fbx");
         scene->at(dado)->getTransform()->translate(-1.f, 0.f, -0.f);
 
         auto cilindro = scene->createGameObject();
-        scene->createModel(cilindro)->loadModel("cilinder.fbx");
+        scene->createModel(cilindro)->loadModel("cofre/base.fbx");
         scene->at(cilindro)->getTransform()->translate(0.f, 0.f, 1.5f);
-        scene->at(cilindro)->getTransform()->rotate(90.f, glm::vec3(0.f, 1.f, 0.f));
+        scene->at(cilindro)->getTransform()->rotate(-90.f, glm::vec3(0.f, 0.f, 0.f));
+        
 
         auto dado2 = scene->createGameObject();
         //scene->createModel(dado2)->loadModel("dado.fbx");
         //scene->createModel(dado2)->loadModel("filthy-prison-toilet-4096px2/source/toilet.fbx");
+        scene->createModel(dado2)->loadModel("casita/base.fbx");
         scene->createModel(dado2)->loadModel("casita/base.fbx");
         scene->at(dado2)->getTransform()->translate(1.f, 0.5f, 3.f);
         scene->at(dado2)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
