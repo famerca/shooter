@@ -27,8 +27,8 @@ public:
     void Step(float deltaTime);
 
     // Creadores de cuerpos
-    std::shared_ptr<Body> CreateBox(const JPH::Vec3& halfExtent, const JPH::RVec3& pos, bool isDynamic);
-    std::shared_ptr<Body> CreateSphere(float radius, const JPH::RVec3& pos, bool isDynamic);
+    std::shared_ptr<Body> CreateBox(const JPH::Vec3& halfExtent, const JPH::RVec3& pos, BodyType type);
+    std::shared_ptr<Body> CreateSphere(float radius, const JPH::RVec3& pos, BodyType type);
 
     // Acceso a interfaces internas
     JPH::PhysicsSystem& GetSystem() { return *m_PhysicsSystem; }

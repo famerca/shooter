@@ -78,6 +78,10 @@
         "__hash_table": "cpp",
         "__node_handle": "cpp",
         "execution": "cpp",
-        "__availability": "cpp"
+        "__availability": "cpp",
+        "csignal": "cpp",
+        "set": "cpp",
+        "unordered_set": "cpp",
+        "shared_mutex": "cpp"
     }
 }

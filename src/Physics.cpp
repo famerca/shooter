@@ -135,11 +135,30 @@ void Physics::Shutdown() {
 }
 
 // --- Creación de cuerpos ---
-std::shared_ptr<Body> Physics::CreateBox(const Vec3& halfExtent, const RVec3& pos, bool isDynamic) {
-    auto& iface = GetBodyInterface();
-    EMotionType motion = isDynamic ? EMotionType::Dynamic : EMotionType::Static;
-    ObjectLayer layer = isDynamic ? Layers::MOVING : Layers::NON_MOVING;
+std::shared_ptr<Body> Physics::CreateBox(const Vec3& halfExtent, const RVec3& pos, BodyType type) {
+    // 1. Mapeo del BodyType a EMotionType de Jolt
+    EMotionType motion;
+    ObjectLayer layer;
+    EActivation activation = EActivation::DontActivate; // Default
 
+    switch (type) {
+        case BodyType::Static:
+            motion = EMotionType::Static;
+            layer = Layers::NON_MOVING;
+            break;
+        case BodyType::Dynamic:
+            motion = EMotionType::Dynamic;
+            layer = Layers::MOVING;
+            activation = EActivation::Activate; // Los cuerpos dinámicos suelen activarse
+            break;
+        case BodyType::Kinematic:
+            motion = EMotionType::Kinematic;
+            layer = Layers::MOVING; // Los cinemáticos interactúan como los dinámicos
+            activation = EActivation::Activate; // Los cinemáticos siempre están "activos"
+            break;
+    }
+    
+    auto& iface = GetBodyInterface();
     BodyCreationSettings settings(
         new BoxShape(halfExtent),
         pos,
@@ -147,16 +166,35 @@ std::shared_ptr<Body> Physics::CreateBox(const Vec3& halfExtent, const RVec3& po
         motion,
         layer
     );
-    BodyID id = iface.CreateAndAddBody(settings, isDynamic ? EActivation::Activate : EActivation::DontActivate);
-    std::shared_ptr<Body> body = std::make_shared<Body>(id, isDynamic);
+    BodyID id = iface.CreateAndAddBody(settings, activation);
+    std::shared_ptr<Body> body = std::make_shared<Body>(id, type);
     m_Bodies.push_back(body);
     return body;
 }
 
-std::shared_ptr<Body> Physics::CreateSphere(float radius, const RVec3& pos, bool isDynamic) {
+std::shared_ptr<Body> Physics::CreateSphere(float radius, const RVec3& pos, BodyType type) {
+    EMotionType motion;
+    ObjectLayer layer;
+    EActivation activation = EActivation::DontActivate; // Default
+
+    switch (type) {
+        case BodyType::Static:
+            motion = EMotionType::Static;
+            layer = Layers::NON_MOVING;
+            break;
+        case BodyType::Dynamic:
+            motion = EMotionType::Dynamic;
+            layer = Layers::MOVING;
+            activation = EActivation::Activate; // Los cuerpos dinámicos suelen activarse
+            break;
+        case BodyType::Kinematic:
+            motion = EMotionType::Kinematic;
+            layer = Layers::MOVING; // Los cinemáticos interactúan como los dinámicos
+            activation = EActivation::Activate; // Los cinemáticos siempre están "activos"
+            break;
+    }
+
     auto& iface = GetBodyInterface();
-    EMotionType motion = isDynamic ? EMotionType::Dynamic : EMotionType::Static;
-    ObjectLayer layer = isDynamic ? Layers::MOVING : Layers::NON_MOVING;
 
     BodyCreationSettings settings(
         new SphereShape(radius),
@@ -165,8 +203,8 @@ std::shared_ptr<Body> Physics::CreateSphere(float radius, const RVec3& pos, bool
         motion,
         layer
     );
-    BodyID id = iface.CreateAndAddBody(settings, isDynamic ? EActivation::Activate : EActivation::DontActivate);
-    std::shared_ptr<Body> body = std::make_shared<Body>(id, isDynamic);
+    BodyID id = iface.CreateAndAddBody(settings, activation);
+    std::shared_ptr<Body> body = std::make_shared<Body>(id, type);
     m_Bodies.push_back(body);
     return body;
 }

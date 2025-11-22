@@ -12,12 +12,20 @@
 class GameObject;
 
 namespace Engine {
+
+
+enum class BodyType {
+    Static,
+    Dynamic,
+    Kinematic // ¡El nuevo tipo!
+};
+
 class Physics;
 
 class Body {
 public:
     Body() = default;
-    explicit Body(JPH::BodyID id, bool isDynamic);
+    explicit Body(JPH::BodyID id, BodyType type);
     ~Body();
 
     // Prohíbe copias, pero permite movimiento
@@ -33,7 +41,12 @@ public:
     void ApplyForce(const JPH::Vec3& force);
     JPH::RVec3 GetPosition() const;
     void SetPosition(const glm::vec3& inPosition, JPH::EActivation inActivation = JPH::EActivation::Activate);
+    void SetVelocity(const JPH::Vec3& velocity);
     void SetOwner(std::shared_ptr<GameObject> gameObject);
+
+    void Move(const JPH::Vec3& position, const JPH::Quat& rotation, float delta);
+
+    const BodyType &getType() const { return m_type; }
 
     void update();
 
@@ -43,7 +56,7 @@ private:
     friend class Physics;
 
     JPH::BodyID m_BodyID;
-    bool m_IsDynamic = false;
+    BodyType m_type = BodyType::Static;
     std::shared_ptr<GameObject> owner;
     
 };
