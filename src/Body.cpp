@@ -88,7 +88,7 @@ void Body::ApplyImpulse(const Vec3& impulse) {
 }
 
 void Body::serVelocity(const Vec3& velocity) {
-    if (m_IsDynamic)
+    if (m_type == BodyType::Dynamic)
         Physics::Get().GetBodyInterface().SetLinearVelocity(m_BodyID, velocity);
 }
 
