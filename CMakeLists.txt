@@ -54,14 +54,23 @@ if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/third_party/stb)
     )
 endif()
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/third_party/BSlogger/src ${CMAKE_CURRENT_BINARY_DIR}/third_party/stb)
+# Descargar miniaudio si no existe
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio)
+if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio/miniaudio.h)
+    execute_process(
+        COMMAND curl -L "https://raw.githubusercontent.com/mackron/miniaudio/master/miniaudio.h" -o miniaudio.h
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio
+        ERROR_QUIET
+    )
+endif()
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/third_party/BSlogger/src ${CMAKE_CURRENT_BINARY_DIR}/third_party/stb ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio)
 
 # --- INICIO CONFIGURACIÓN JOLT ---
 set(VENDOR_DIR ${PROJECT_SOURCE_DIR}/vendor)
 
 # 1. Definir rutas de Jolt
 find_path(JOLT_INCLUDE_DIR Jolt/Jolt.h PATHS ${VENDOR_DIR}/JoltPhysics/include)
-find_path(MINIAUDIO_INCLUDE_DIR miniaudio.h PATHS ${VENDOR_DIR}/miniaudio)
 set(JOLT_LIB_DIR ${VENDOR_DIR}/JoltPhysics/lib)
 
 # 2. Declarar la librería del motor
@@ -81,7 +90,7 @@ target_compile_options(GLSHOOTERLIB PRIVATE -fno-rtti)
 target_include_directories(GLSHOOTERLIB PUBLIC 
     "${PROJECT_SOURCE_DIR}/include" 
     ${JOLT_INCLUDE_DIR}
-    ${MINIAUDIO_INCLUDE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio
 )
 
 # 4. Encontrar y Enlazar Jolt (incluyendo math y threading)

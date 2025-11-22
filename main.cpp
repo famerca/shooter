@@ -2,6 +2,7 @@
 #include <string>
 #include <stdexcept>
 #include <random>
+#include <filesystem>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -318,7 +319,9 @@ int main()
         renderer->debug();
         renderer->init();
         std::cout << "Playing sound" << std::endl;
-        result = ma_engine_play_sound(&engine, "/home/fabian/Documentos/Universidad/computacion grafica/shooter/audios/Lost-Verdania.mp3", NULL);
+        std::filesystem::path audio_path = std::filesystem::path(__FILE__).parent_path() / "audios" / "Lost-Verdania.mp3";
+        std::cout << "Audio path: " << audio_path.string() << std::endl;
+        result = ma_engine_play_sound(&engine, audio_path.string().c_str(), NULL);
         if (result != MA_SUCCESS) {
             printf("Failed to play sound.\n");
             return -1;
