@@ -1,0 +1,42 @@
+<rml>
+<head>
+    <title>Test UI</title>
+    <style>
+        body {
+            font-family: LatoLatin;
+            font-size: 18px;
+            color: #ffffff;
+            background: transparent;
+            padding: 20px;
+        }
+        h1 {
+            color: #4a9eff;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        p {
+            margin: 10px 0;
+            color: #cccccc;
+        }
+        .container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 400px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #4a9eff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RmlUi Integration</h1>
+        <p>¡Hola desde RmlUi!</p>
+        <p>Esta es una interfaz de prueba integrada en el motor.</p>
+        <p>Presiona F8 para abrir el debugger de RmlUi.</p>
+    </div>
+</body>
+</rml>
+

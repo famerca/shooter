@@ -107,7 +107,9 @@ target_compile_definitions(GLSHOOTERLIB PUBLIC
     JPH_OBJECT_STREAM=1
 )
 
-target_compile_options(GLSHOOTERLIB PRIVATE -fno-rtti)
+# RTTI: Jolt fue compilado sin RTTI, pero RmlUi lo requiere
+# Deshabilitar RTTI solo para HitboxRenderer que usa Jolt
+set_source_files_properties(src/HitboxRenderer.cpp PROPERTIES COMPILE_FLAGS "-fno-rtti")
 
 # 3. Incluir headers de tu proyecto y de Jolt
 target_include_directories(GLSHOOTERLIB PUBLIC 
@@ -170,13 +172,23 @@ if(TARGET rmlui_core)
         rmlui_core
         ${FREETYPE_LIBRARIES}
     )
+    # Agregar archivos fuente del backend GLFW_GL3 directamente
+    target_sources(GLSHOOTERLIB PRIVATE
+        ${RMLUI_DIR}/Backends/RmlUi_Platform_GLFW.cpp
+        ${RMLUI_DIR}/Backends/RmlUi_Renderer_GL3.cpp
+    )
+    # En macOS, necesitamos dlopen para el renderer GL3
+    if(UNIX)
+        target_link_libraries(GLSHOOTERLIB PUBLIC ${CMAKE_DL_LIBS})
+    endif()
     # Enlazar rmlui_debugger si está disponible (herramientas de depuración visual)
     if(TARGET rmlui_debugger)
         target_link_libraries(GLSHOOTERLIB PUBLIC rmlui_debugger)
     endif()
     # Agregar includes de RmlUi y FreeType
     target_include_directories(GLSHOOTERLIB PUBLIC 
-        
+        ${RMLUI_DIR}/Include
+        ${RMLUI_DIR}/Backends
         ${FREETYPE_INCLUDE_DIRS}
     )
 endif()

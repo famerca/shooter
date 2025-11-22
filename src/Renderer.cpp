@@ -1,6 +1,7 @@
 #include "Renderer.hpp"
 #include "Input.hpp"
 #include "Physics.hpp"
+#include "RmlUiInterface.hpp"
 
 
 Renderer::Renderer()
@@ -84,6 +85,13 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         }
 
         RenderDebug(scene->activeCamera);
+
+        // Renderizar RmlUi si está disponible (después de todo el renderizado 3D)
+        if (rmlui_interface)
+        {
+            rmlui_interface->Update();
+            rmlui_interface->Render();
+        }
 
         scene->window->swap_buffers();
     }
@@ -171,6 +179,11 @@ void Renderer::clear() noexcept
 GLfloat Renderer::getDeltaTime() const noexcept
 {
     return delta_time;
+}
+
+void Renderer::setRmlUiInterface(std::shared_ptr<RmlUiInterface> rmlui) noexcept
+{
+    rmlui_interface = rmlui;
 }
 
 void Renderer::calcDeltaTime()

@@ -25,6 +25,7 @@
 #include "SkyBox.hpp"
 #include "Physics.hpp"
 #include "Listener.hpp"
+#include "RmlUiInterface.hpp"
 
 class inputManager: public Input
 {
@@ -318,6 +319,26 @@ int main()
         scene->at(sphere)->getMovement()->moveTo(glm::vec3(0.f, 0.f, 10.f), 1.f);
         renderer->debug();
         renderer->init();
+
+        // Inicializar RmlUi
+        auto rmlui = std::make_shared<RmlUiInterface>();
+        if (rmlui->Initialize(main_window))
+        {
+            // Cargar fuente (necesario antes de cargar documentos)
+            // Nota: Necesitas tener una fuente TTF en el proyecto
+            // Por ahora, intentamos cargar el documento sin fuente (puede fallar)
+            
+            // Cargar documento de prueba
+            rmlui->LoadDocument("test.rml");
+            
+            // Conectar RmlUi al renderer
+            renderer->setRmlUiInterface(rmlui);
+            std::cout << "RmlUi integrado correctamente" << std::endl;
+        }
+        else
+        {
+            std::cerr << "Error al inicializar RmlUi, continuando sin interfaz" << std::endl;
+        }
         std::cout << "Playing sound" << std::endl;
         std::filesystem::path audio_path = std::filesystem::path(__FILE__).parent_path() / "audios" / "Lost-Verdania.mp3";
         std::cout << "Audio path: " << audio_path.string() << std::endl;
