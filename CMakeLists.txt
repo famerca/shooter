@@ -100,11 +100,7 @@ set(JOLT_LIB_DIR ${VENDOR_DIR}/JoltPhysics/lib)
 # En Linux, usar STATIC para evitar problemas con libJolt.a que no tiene -fPIC
 # En macOS, usar SHARED como antes
 file(GLOB SRC "${PROJECT_SOURCE_DIR}/src/*.cpp")
-if(APPLE)
-    add_library(GLSHOOTERLIB SHARED ${SRC})
-else()
-    add_library(GLSHOOTERLIB STATIC ${SRC})
-endif()
+add_library(GLSHOOTERLIB SHARED ${SRC})
 
 # 🔑 SINCRONIZACIÓN JOLT: Definiciones requeridas por Jolt en modo Debug
 target_compile_definitions(GLSHOOTERLIB PUBLIC
