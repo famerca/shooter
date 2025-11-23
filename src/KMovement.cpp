@@ -32,7 +32,6 @@ KMovement::KMovement(std::shared_ptr<GameObject> owner)
 }
 
 void KMovement::stop() {
-    std::cout << "-------- STOP --------" << std::endl;
     m_isMoving = false;
     m_velocity = glm::vec3(0.0f);
     m_targetPosition = glm::vec3(NO_TARGET_VALUE); // Restablecer el target
@@ -100,16 +99,12 @@ void KMovement::Update(const float& dt) {
         // O si la distancia al cuadrado al target es menor que la distancia que se mueve en un frame.
         auto dot = glm::dot(startToTarget, newPosToTarget);
 
-        std::cout << "dot: " << dot << std::endl;
-
         if (dot <= 0.0f) {
             // Nos hemos pasado o estamos exactamente en el destino.
             newPos = m_targetPosition; // Asegurar posición final exacta
             _stop = true;
         }
     }
-
-    std::cout << "newPos: " << toJoltRVec3(newPos) << std::endl;
 
     // --- Aplicación del Movimiento Cinemático ---
     // Si stop() fue llamado, el movimiento ya terminó y 'newPos' es igual a 'm_targetPosition'.

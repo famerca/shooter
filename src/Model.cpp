@@ -176,17 +176,19 @@ void Model::clear() noexcept
 
 void Model::load_textures(const aiScene *scene, const std::filesystem::path &model_path) noexcept
 {
+    #ifdef ENGINE_DEBUG_MODE
     std::cout << "Analizando modelo: " << model_path.filename() << std::endl;
     std::cout << "Número de materiales: " << scene->mNumMaterials << std::endl;
     std::cout << "Número de texturas embebidas: " << scene->mNumTextures << std::endl;
-
+    #endif
     // Procesar materiales para cargar texturas embebidas
     for (unsigned int i = 0; i < scene->mNumMaterials; i++)
     {
         aiMaterial *material = scene->mMaterials[i];
         unsigned int diffuse_count = material->GetTextureCount(aiTextureType_DIFFUSE);
+        #ifdef ENGINE_DEBUG_MODE
         std::cout << "Material " << i << " - Texturas difusas referenciadas en el FBX: " << diffuse_count << std::endl;
-
+        #endif
         // Buscar texturas difusas embebidas
         for (unsigned int j = 0; j < material->GetTextureCount(aiTextureType_DIFFUSE); j++)
         {
@@ -205,50 +207,58 @@ void Model::load_textures(const aiScene *scene, const std::filesystem::path &mod
                     // Textura embebida - extraer el índice
                     std::string texture_index_str = str.C_Str() + 1; // Saltar el '*'
                     unsigned int texture_index = std::stoi(texture_index_str);
-
+                    #ifdef ENGINE_DEBUG_MODE
                     std::cout << "  Textura embebida encontrada: " << str.C_Str() << " (índice: " << texture_index << ")" << std::endl;
-
+                    #endif
                     if (texture_index < scene->mNumTextures)
                     {
                         aiTexture *embedded_texture = scene->mTextures[texture_index];
+                        #ifdef ENGINE_DEBUG_MODE
                         std::cout << "  Textura embebida - Ancho: " << embedded_texture->mWidth
                                   << ", Alto: " << embedded_texture->mHeight
                                   << ", Formato: " << embedded_texture->achFormatHint << std::endl;
-
+                        #endif
                         if (embedded_texture->mHeight == 0)
                         {
                             // Textura comprimida (formato común en FBX)
+                            #ifdef ENGINE_DEBUG_MODE
                             std::cout << "Cargando textura embebida comprimida: " << texture_index << std::endl;
-
+                            #endif
                             // Crear textura desde datos comprimidos
                             auto texture = create_texture_from_embedded_data(embedded_texture);
                             if (texture)
                             {
                                 textures.push_back(texture);
+                                #ifdef ENGINE_DEBUG_MODE
                                 std::cout << "Textura embebida cargada exitosamente" << std::endl;
+                                #endif
                             }
                         }
                         else
                         {
                             // Textura no comprimida
+                            #ifdef ENGINE_DEBUG_MODE
                             std::cout << "Cargando textura embebida no comprimida: " << texture_index << std::endl;
-
+                            #endif
                             auto texture = create_texture_from_uncompressed_data(embedded_texture);
                             if (texture)
                             {
                                 textures.push_back(texture);
+                                #ifdef ENGINE_DEBUG_MODE
                                 std::cout << "Textura embebida cargada exitosamente" << std::endl;
+                                #endif
                             }
                         }
                     }
                 }
                 else
                 {
+                    #ifdef ENGINE_DEBUG_MODE
                     // Textura externa - intentar cargar desde archivo o embebida por nombre (.fbm)
                     std::cout << "  Textura externa referenciada: " << str.C_Str() << std::endl;
-
+                    #endif
                     // Intentar obtener textura embebida por nombre (Assimp puede mapear nombres como .fbm)
-#if defined(AI_SCENE_H_INC)
+                #if defined(AI_SCENE_H_INC)
                     if (scene)
                     {
                         const aiTexture *namedEmbedded = scene->GetEmbeddedTexture(str.C_Str());
@@ -272,19 +282,21 @@ void Model::load_textures(const aiScene *scene, const std::filesystem::path &mod
                             }
                         }
                     }
-#endif
+                #endif
 
                     std::filesystem::path model_directory = model_path.parent_path();
                     std::filesystem::path texture_path = model_directory / str.C_Str();
-
+                    #ifdef ENGINE_DEBUG_MODE
                     std::cout << "  Buscando en: " << texture_path << std::endl;
-
+                    #endif
                     std::string extension = texture_path.extension().string();
 
                     if (extension == ".fbm" && scene->mNumTextures > 0)
                     {
                         // Fallback: usar la primera textura embebida si existe
+                        #ifdef ENGINE_DEBUG_MODE
                         std::cout << "  Referencia .fbm detectada, intentando usar textura embebida del FBX" << std::endl;
+                        #endif
                         const aiTexture *embedded_texture = scene->mTextures[0];
                         std::shared_ptr<Texture> texture;
                         if (embedded_texture->mHeight == 0)
@@ -298,7 +310,9 @@ void Model::load_textures(const aiScene *scene, const std::filesystem::path &mod
                         if (texture)
                         {
                             textures.push_back(texture);
+                            #ifdef ENGINE_DEBUG_MODE
                             std::cout << "  Textura embebida (fallback) cargada exitosamente" << std::endl;
+                            #endif
                             continue;
                         }
                     }
@@ -310,16 +324,22 @@ void Model::load_textures(const aiScene *scene, const std::filesystem::path &mod
                         if (texture)
                         {
                             textures.push_back(texture);
+                            #ifdef ENGINE_DEBUG_MODE
                             std::cout << "  Textura externa cargada exitosamente: " << texture_path << std::endl;
+                            #endif
                         }
                         else
                         {
+                            #ifdef ENGINE_DEBUG_MODE
                             std::cout << "  No se pudo cargar la textura externa: " << texture_path << std::endl;
+                            #endif
                         }
                     }
                     else
                     {
+                        #ifdef ENGINE_DEBUG_MODE
                         std::cout << "  Formato de textura no soportado: " << extension << std::endl;
+                        #endif
                     }
                 }
             }
@@ -328,8 +348,10 @@ void Model::load_textures(const aiScene *scene, const std::filesystem::path &mod
 
     // Si no se cargaron texturas embebidas, intentar buscar en la carpeta del modelo
     if (textures.empty())
-    {
+    {   
+        #ifdef ENGINE_DEBUG_MODE
         std::cout << "  No se encontraron texturas referenciadas en el material del FBX, buscando en archivos..." << std::endl;
+        #endif
         std::filesystem::path model_directory = model_path.parent_path();
         std::vector<std::filesystem::path> search_dirs;
         std::filesystem::path textures_dir = model_directory / "textures";
@@ -378,7 +400,9 @@ void Model::load_textures(const aiScene *scene, const std::filesystem::path &mod
                                 if (texture)
                                 {
                                     textures.push_back(texture);
+                                    #ifdef ENGINE_DEBUG_MODE
                                     std::cout << "  ✓ Textura encontrada y cargada desde archivo: " << entry.path().filename() << std::endl;
+                                    #endif
                                     found_texture = true;
                                     break;
                                 }
@@ -393,18 +417,24 @@ void Model::load_textures(const aiScene *scene, const std::filesystem::path &mod
         // Si aún no se encontraron texturas, crear una textura por defecto
         if (textures.empty())
         {
+            #ifdef ENGINE_DEBUG_MODE
             std::cout << "  ✗ No se encontraron archivos de textura, usando textura por defecto" << std::endl;
+            #endif
             create_default_texture();
         }
+        #ifdef ENGINE_DEBUG_MODE
         else
         {
             std::cout << "  ✓ Texturas cargadas exitosamente desde archivos (no estaban embebidas en el FBX)" << std::endl;
         }
+        #endif
     }
+    #ifdef ENGINE_DEBUG_MODE
     else
     {
         std::cout << "  ✓ Texturas embebidas cargadas exitosamente desde el FBX" << std::endl;
     }
+    #endif
 }
 
 void Model::create_default_texture() noexcept
