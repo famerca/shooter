@@ -31,6 +31,7 @@
 
 using namespace Engine;
 
+// Definir inputManager antes de las funciones helper
 class inputManager: public Input
 {
     // Atributos del Jugador
@@ -171,6 +172,69 @@ public:
 
     ~inputManager() {}
 };
+
+// Estructura para almacenar el estado inicial del juego
+struct GameInitialState {
+    unsigned user_id;
+    unsigned sphere_id;
+    unsigned dado_id;
+    unsigned cilindro_id;
+    unsigned dado2_id;
+    
+    // Posiciones iniciales
+    glm::vec3 user_initial_pos{0.f, 0.f, 0.f};
+    glm::vec3 sphere_initial_pos{1.f, 0.f, -1.f};
+    glm::vec3 dado_initial_pos{-1.f, 0.f, 0.f};
+    glm::vec3 cilindro_initial_pos{0.f, 0.f, 1.5f};
+    glm::vec3 dado2_initial_pos{1.f, 0.5f, 3.f};
+    
+    // Velocidades iniciales
+    glm::vec3 sphere_initial_velocity{10.f, 0.f, 0.f};
+};
+
+// Función helper para resetear un GameObject a su posición inicial
+void ResetGameObject(std::shared_ptr<Scene> scene, unsigned object_id, 
+                     const glm::vec3& initial_pos, const glm::vec3& initial_velocity = glm::vec3(0.f))
+{
+    auto obj = scene->at(object_id);
+    if (!obj) return;
+    
+    // Resetear transform (usando translate para establecer posición absoluta)
+    auto current_pos = obj->getTransform()->getPosition();
+    obj->getTransform()->translate(initial_pos - current_pos);
+    
+    // Resetear física si tiene body
+    if (obj->getBody()) {
+        obj->getBody()->SetPosition({initial_pos.x, initial_pos.y, initial_pos.z});
+        obj->getBody()->SetVelocity({initial_velocity.x, initial_velocity.y, initial_velocity.z});
+    }
+}
+
+// Función principal para reiniciar el juego
+void ResetGameState(std::shared_ptr<Scene> scene, 
+                    const GameInitialState& initial_state,
+                    std::shared_ptr<inputManager> input)
+{
+    std::cout << "Reiniciando juego..." << std::endl;
+    
+    // Resetear usuario
+    ResetGameObject(scene, initial_state.user_id, initial_state.user_initial_pos);
+    
+    // Resetear obstáculos
+    ResetGameObject(scene, initial_state.sphere_id, 
+                    initial_state.sphere_initial_pos, 
+                    initial_state.sphere_initial_velocity);
+    ResetGameObject(scene, initial_state.dado_id, initial_state.dado_initial_pos);
+    ResetGameObject(scene, initial_state.cilindro_id, initial_state.cilindro_initial_pos);
+    ResetGameObject(scene, initial_state.dado2_id, initial_state.dado2_initial_pos);
+    
+    // Resetear estado del input
+    if (input) {
+        input->is_jumping = false;
+    }
+    
+    std::cout << "Juego reiniciado" << std::endl;
+}
 
 int main()
 {
@@ -334,48 +398,17 @@ int main()
                 std::cout << "Juego reanudado desde el menú" << std::endl;
             });
             
-            // Configurar callback para reiniciar el juego
-            rmlui->SetOnRestartCallback([scene, user, sphere, dado, cilindro, dado2, input]() {
-                std::cout << "Reiniciando juego..." << std::endl;
-                
-                // Resetear posición del usuario
-                scene->at(user)->getTransform()->translate(glm::vec3(0.f, 0.f, 0.f));
-                if (scene->at(user)->getBody()) {
-                    scene->at(user)->getBody()->SetPosition({0.f, 0.f, 0.f});
-                    scene->at(user)->getBody()->SetVelocity({0.f, 0.f, 0.f});
-                }
-                
-                // Resetear posición de los obstáculos
-                scene->at(sphere)->getTransform()->translate(glm::vec3(1.f, 0.f, -1.f));
-                if (scene->at(sphere)->getBody()) {
-                    scene->at(sphere)->getBody()->SetPosition({1.f, 0.f, -1.f});
-                    scene->at(sphere)->getBody()->SetVelocity({10.f, 0.f, 0.f});
-                }
-                
-                scene->at(dado)->getTransform()->translate(glm::vec3(-1.f, 0.f, 0.f));
-                if (scene->at(dado)->getBody()) {
-                    scene->at(dado)->getBody()->SetPosition({-1.f, 0.f, 0.f});
-                    scene->at(dado)->getBody()->SetVelocity({0.f, 0.f, 0.f});
-                }
-                
-                scene->at(cilindro)->getTransform()->translate(glm::vec3(0.f, 0.f, 1.5f));
-                if (scene->at(cilindro)->getBody()) {
-                    scene->at(cilindro)->getBody()->SetPosition({0.f, 0.f, 1.5f});
-                    scene->at(cilindro)->getBody()->SetVelocity({0.f, 0.f, 0.f});
-                }
-                
-                scene->at(dado2)->getTransform()->translate(glm::vec3(1.f, 0.5f, 3.f));
-                if (scene->at(dado2)->getBody()) {
-                    scene->at(dado2)->getBody()->SetPosition({1.f, 0.5f, 3.f});
-                    scene->at(dado2)->getBody()->SetVelocity({0.f, 0.f, 0.f});
-                }
-                
-                // Resetear estado del input
-                if (input) {
-                    input->is_jumping = false;
-                }
-                
-                std::cout << "Juego reiniciado" << std::endl;
+            // Crear estructura con el estado inicial del juego
+            GameInitialState initial_state;
+            initial_state.user_id = user;
+            initial_state.sphere_id = sphere;
+            initial_state.dado_id = dado;
+            initial_state.cilindro_id = cilindro;
+            initial_state.dado2_id = dado2;
+            
+            // Configurar callback para reiniciar el juego (ahora más encapsulado)
+            rmlui->SetOnRestartCallback([scene, initial_state, input]() {
+                ResetGameState(scene, initial_state, input);
             });
             
             // Conectar RmlUi al renderer
