@@ -11,166 +11,27 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <Window.hpp>
-#include "Scene.hpp"
-#include "GameObject.hpp"
-#include "ModelComponent.hpp"
-#include "TransformComponent.hpp"
-#include "DirectionalLight.hpp"
-#include "Renderer.hpp"
-#include "Input.hpp"
-#include "SkyBox.hpp"
-#include "Physics.hpp"
-#include "Listener.hpp"
-#include "AudioManager.hpp"
-#include "AudioPlayer.hpp"
-#include "AudioListenerComponent.hpp"
-#include "AudioSourceComponent.hpp"
-#include "Path.hpp"
+#include <GLS/Window.hpp>
+#include "GLS/Scene.hpp"
+#include "GLS/GameObject.hpp"
+#include "GLS/ModelComponent.hpp"
+#include "GLS/TransformComponent.hpp"
+#include "GLS/DirectionalLight.hpp"
+#include "GLS/Renderer.hpp"
+#include "GLS/Input.hpp"
+#include "GLS/SkyBox.hpp"
+#include "GLS/Physics.hpp"
+#include "GLS/Listener.hpp"
+#include "GLS/AudioManager.hpp"
+#include "GLS/AudioPlayer.hpp"
+#include "GLS/AudioListenerComponent.hpp"
+#include "GLS/AudioSourceComponent.hpp"
+#include "GLS/Path.hpp"
+
+#include "inputManager.hpp"
 
 
 using namespace Engine;
-
-class inputManager: public Input
-{
-    // Atributos del Jugador
-    std::shared_ptr<GameObject> object{nullptr};
-    std::shared_ptr<Scene> scene{nullptr};
-    float sensitivity{1.f};
-    float speed{3.f}; // Velocidad de movimiento horizontal
-
-    // Atributos de Salto
-    float jump_velocity{10.f}; 
-    float gravity{-20.f};     
-    float current_y_velocity{0.f}; 
-     
-    float initial_y{0.f};     
-
-    // Atributos de Obstáculos
-    // Lista de IDs de los obstáculos (Compartida desde main)
-    std::shared_ptr<std::vector<unsigned>> obstacles_list{nullptr}; 
-    const float OBSTACLE_SPEED = 3.0f; // Velocidad con la que avanzan los obstáculos
-    const float Z_RESET = 5.0f;        // Posición Z a la que reaparecen
-    const float Z_LIMIT = -6.0f;       // Límite Z para reiniciar
-    
-    // Generador de números aleatorios para la posición X del obstáculo
-    std::mt19937 gen;
-    std::uniform_real_distribution<> distrib_x;
-
-public:
-    bool is_jumping {false};
-
-    inputManager() : Input() 
-    {
-        // Inicialización del generador aleatorio en el constructor
-        std::random_device rd;
-        gen = std::mt19937(rd());
-        // Rango para X aleatoria entre -1.0 y 1.0
-        distrib_x = std::uniform_real_distribution<>(-1.0, 1.0);
-    }
-
-    void init(std::shared_ptr<Scene> scene, 
-              std::shared_ptr<GameObject> object, 
-              std::shared_ptr<std::vector<unsigned>> obstacles)
-    {
-        this->object = object;
-        this->scene = scene;
-        this->obstacles_list = obstacles; // Guarda la lista de IDs de obstáculos
-    }
-
-    void update(const float &dt) noexcept {
-        glm::vec3 pos = object->getTransform()->getPosition();
-
-        // 1. --- Lógica del Salto del Jugador (Y) ---
-        if (is_key_pressed(GLFW_KEY_SPACE) && !is_jumping)
-        {
-            object->getBody()->ApplyImpulse({0.f, 1000.f, 0.f});
-            is_jumping = true;
-        }
-
-
-        if(is_key_pressed(GLFW_KEY_LEFT_SHIFT))
-        {
-            object->getBody()->ApplyImpulse({0.f, -10.f, 0.f});
-        }
-
-        if(is_key_pressed(GLFW_KEY_LEFT))
-        {
-            scene->getCamera()->rotate(-50.f, 0.f);
-        }
-
-        if(is_key_pressed(GLFW_KEY_RIGHT))
-        {
-            scene->getCamera()->rotate(50.f, 0.f);
-        }
-
-        if(is_key_pressed(GLFW_KEY_UP))
-        {
-            scene->getCamera()->rotate(0.f, 50.f);
-        }
-
-        if(is_key_pressed(GLFW_KEY_DOWN))
-        {
-            scene->getCamera()->rotate(0.f, -50.f);
-        }
-
-        
-        // 2. --- Lógica de Movimiento Horizontal del Jugador (X/Z) ---
-        // Nota: Solo se usa translate para el movimiento horizontal.
-        
-        if(is_key_pressed(GLFW_KEY_A))
-        {
-            // Mover en X positivo (asumiendo que 'A' es para ir a la derecha en el plano XZ)
-            object->getBody()->ApplyImpulse({30.f, 0.f, 0.f});
-        }
-
-        if(is_key_pressed(GLFW_KEY_D))
-        {
-            // Mover en X negativo (asumiendo que 'D' es para ir a la izquierda)
-            object->getBody()->ApplyImpulse({-30.f, 0.f, 0.f});
-        }
-        
-        if(is_key_pressed(GLFW_KEY_W))
-        {
-            object->getBody()->ApplyImpulse({0.f, 0.f, 40.f});
-        }
-
-        if(is_key_pressed(GLFW_KEY_S))
-        {
-            object->getBody()->ApplyImpulse({0.f, 0.f, -40.f});
-        }
-        
-        // 3. --- Lógica de Movimiento y Reaparición de Obstáculos ---
-        // if (obstacles_list && scene) 
-        // {
-        //     for (unsigned id : *obstacles_list) 
-        //     {
-        //         std::shared_ptr<GameObject> obstacle = scene->at(id);
-        //         glm::vec3 obs_pos = obstacle->getTransform()->getPosition();
-
-        //         // Mover el obstáculo hacia el usuario (Z negativa)
-        //         obs_pos.z -= OBSTACLE_SPEED * dt;
-                
-        //         // Verificar si el obstáculo alcanzó el límite de reaparición
-        //         if (obs_pos.z < Z_LIMIT) 
-        //         {
-        //             // Reiniciar la posición Z y asignar una X aleatoria (-1.0 a 1.0)
-        //             obs_pos.z = Z_RESET;
-        //             obs_pos.x = distrib_x(gen); 
-        //         }
-
-        //         // Aplicar la nueva posición
-        //         obstacle->getTransform()->translate(obs_pos);
-        //     }
-        // }
-        // -------------------------------------------------------------
-        
-        //std::cout << "delta: " << dt <<  ", FPS: " << 1.f / dt << std::endl;
-
-    }
-
-    ~inputManager() {}
-};
 
 int main()
 {

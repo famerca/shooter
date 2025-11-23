@@ -8,8 +8,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 cd "$SCRIPT_DIR"
 
 # 3. (Opcional) Verificar si el ejecutable existe antes de intentar correrlo
-if [ ! -f "./build/GLSX" ]; then
-    echo "❌ Error: No se encontró el ejecutable en ./build/GLSX"
+if [ ! -f "./build/Game" ]; then
+    echo "❌ Error: No se encontró el ejecutable en ./build/Game"
     echo "   Asegúrate de haber compilado el proyecto."
     exit 1
 fi
@@ -21,4 +21,4 @@ echo "----------------------------------------"
 
 # 5. Ejecutar el juego
 # "$@" pasa cualquier argumento extra que le des al script (ej: ./run.sh -windowed)
-./build/GLSX "$@"
+./build/Game "$@"

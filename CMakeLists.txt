@@ -1,146 +1,66 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.10)
+project(Game)
 
-# Project name
-project(GLSX LANGUAGES CXX)
+# --- 1. PREPARACIÓN DE DEPENDENCIAS (Motor y Jolt) ---
 
-# Set C++ Required version
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_EXTENSIONS OFF) # Use -std=c++XX instead of -std=gnu++XX
+# Buscar la librería del Motor (GLS)
+find_library(GLS_LIB
+    NAMES GLS 
+    PATHS ${PROJECT_SOURCE_DIR}/GLS/lib
+    NO_DEFAULT_PATH
+)
 
-# --- Configuración de Compilación ---
-# Establecer el modo Debug para que funcione con la librería Jolt Debug.
-set(CMAKE_BUILD_TYPE Debug) 
-add_compile_options(-Wall -Wextra -Wpedantic -g) # Unificado las opciones aquí
+# Buscar la librería de Físicas (Jolt)
+find_library(JOLT_LIBRARY
+    NAMES Jolt 
+    PATHS ${PROJECT_SOURCE_DIR}/GLS/lib
+    NO_DEFAULT_PATH
+)
 
-# Set dependencies (OpenGL, GLEW, etc.)
-find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
-find_package(glfw3 REQUIRED)
-
-# macOS specific: Find frameworks
-if(APPLE)
-    find_library(OPENGL_LIBRARY OpenGL)
-    find_library(COCOA_LIBRARY Cocoa)
-    find_library(IOKIT_LIBRARY IOKit)
-    find_library(COREVIDEO_LIBRARY CoreVideo)
-    
-    # Set GLEW/Assimp paths for macOS (Asumiendo Homebrew)
-    find_library(GLEW_LIBRARY GLEW PATHS "/opt/homebrew/lib" NO_DEFAULT_PATH)
-    find_path(GLEW_INCLUDE_DIR GL/glew.h PATHS "/opt/homebrew/include" NO_DEFAULT_PATH)
-    find_library(ASSIMP_LIBRARY assimp PATHS "/opt/homebrew/lib" NO_DEFAULT_PATH)
-    find_path(ASSIMP_INCLUDE_DIR assimp/ai_assert.h PATHS "/opt/homebrew/include" NO_DEFAULT_PATH)
-    
-    # Set GLEW_LIBRARIES if not set by find_package
-    if(NOT GLEW_LIBRARIES AND GLEW_LIBRARY)
-        set(GLEW_LIBRARIES ${GLEW_LIBRARY})
-    endif()
+if(NOT GLS_LIB OR NOT JOLT_LIBRARY)
+    message(FATAL_ERROR "Faltan librerías: GLS=${GLS_LIB}, Jolt=${JOLT_LIBRARY}")
 endif()
 
-# --- Terceros ---
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party)
-if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/third_party/BSlogger)
-    execute_process(
-        COMMAND git clone "https://github.com/bschiffthaler/BSlogger.git" BSlogger
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party
-        ERROR_QUIET
-    )
-endif()
-if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/third_party/stb)
-    execute_process(
-        COMMAND git clone "https://github.com/nothings/stb.git" stb
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party
-        ERROR_QUIET
-    )
-endif()
+# --- 2. CREACIÓN DE TU LIBRERÍA DE JUEGO (GameLib) ---
 
-# Descargar miniaudio si no existe
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio)
-if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio/miniaudio.h)
-    execute_process(
-        COMMAND curl -L "https://raw.githubusercontent.com/mackron/miniaudio/master/miniaudio.h" -o miniaudio.h
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio
-        ERROR_QUIET
-    )
-endif()
+# A. Recolectar todos los archivos .cpp dentro de la carpeta /src
+file(GLOB_RECURSE GAMELIB_SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/third_party/BSlogger/src ${CMAKE_CURRENT_BINARY_DIR}/third_party/stb ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio)
+# B. Crear la librería estática con esos fuentes
+add_library(GameLib STATIC ${GAMELIB_SOURCES})
 
-# --- INICIO CONFIGURACIÓN JOLT ---
-set(VENDOR_DIR ${PROJECT_SOURCE_DIR}/vendor)
+# C. Configurar dónde están los .hpp (Includes)
+# PUBLIC significa: "Yo (GameLib) los uso, y quien me use a mí (Game) también puede verlos"
+target_include_directories(GameLib PUBLIC
+    ${PROJECT_SOURCE_DIR}/include      # Tus cabeceras propias (inputManager.hpp, etc.)
+    ${PROJECT_SOURCE_DIR}/GLS/include  # Las cabeceras del motor
+)
 
-# 1. Definir rutas de Jolt
-find_path(JOLT_INCLUDE_DIR Jolt/Jolt.h PATHS ${VENDOR_DIR}/JoltPhysics/include)
-set(JOLT_LIB_DIR ${VENDOR_DIR}/JoltPhysics/lib)
-
-# 2. Declarar la librería del motor
-file(GLOB SRC "${PROJECT_SOURCE_DIR}/src/*.cpp")
-add_library(GLS ${SRC})
-
-# 🔑 SINCRONIZACIÓN JOLT: Definiciones requeridas por Jolt en modo Debug
-target_compile_definitions(GLS PUBLIC
+# D. Definiciones de Preprocesador (Jolt)
+# Las movemos aquí como PUBLIC para que apliquen tanto a la librería como al main
+target_compile_definitions(GameLib PUBLIC
     JPH_PROFILE_ENABLED=1
     JPH_DEBUG_RENDERER=1
     JPH_OBJECT_STREAM=1
 )
 
-target_compile_options(GLS PRIVATE -fno-rtti)
+# --- 3. CREACIÓN DEL EJECUTABLE (Main) ---
 
-# 3. Incluir headers de tu proyecto y de Jolt
-target_include_directories(GLS PUBLIC 
-    "${PROJECT_SOURCE_DIR}/include" 
-    ${JOLT_INCLUDE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio
+add_executable(Game main.cpp)
+
+# --- 4. LINKEO FINAL ---
+
+# El ejecutable necesita tu lógica (GameLib), el motor (GLS) y las dependencias externas
+target_link_libraries(Game PRIVATE
+    GameLib             # <--- Tu nueva librería con inputManager, etc.
+    ${GLS_LIB}          # El Motor
+    ${JOLT_LIBRARY}     # Físicas
+    GL 
+    GLEW 
+    glfw 
+    assimp 
+    m 
+    pthread
 )
 
-# 4. Encontrar y Enlazar Jolt (incluyendo math y threading)
-# CRUCIAL: Busca tanto "Jolt" como "Jolt_d" (Debug)
-find_library(JOLT_LIBRARY NAMES Jolt Jolt_d PATHS ${JOLT_LIB_DIR})
-
-if(NOT JOLT_LIBRARY)
-    message(FATAL_ERROR "No se pudo encontrar la librería Jolt en ${JOLT_LIB_DIR}")
-endif()
-
-# Enlazar dependencias
-if(APPLE)
-    target_link_libraries(GLS PUBLIC 
-        ${OPENGL_LIBRARY} 
-        ${COCOA_LIBRARY} 
-        ${IOKIT_LIBRARY} 
-        ${COREVIDEO_LIBRARY} 
-        ${GLEW_LIBRARIES} 
-        glfw 
-        ${ASSIMP_LIBRARY} 
-        ${JOLT_LIBRARY} 
-        m 
-        pthread
-    )
-    target_include_directories(GLS PUBLIC ${ASSIMP_INCLUDE_DIR})
-    if(GLEW_INCLUDE_DIR)
-        target_include_directories(GLS PUBLIC ${GLEW_INCLUDE_DIR})
-    endif()
-else()
-    # Dependencias de Linux/Unix
-    target_link_libraries(GLS PUBLIC 
-        GL 
-        GLEW 
-        glfw 
-        assimp 
-        ${JOLT_LIBRARY} 
-        m 
-        pthread
-    )
-endif()
-
-# --- DECLARACIÓN Y ENLAZADO DEL EJECUTABLE ---
-
-# 5. Declarar el ejecutable
-add_executable(GLSX main.cpp)
-
-#target_compile_options(GLSX PRIVATE -fno-rtti)
-
-# 6. Enlazar el ejecutable a la librería principal
-target_link_libraries(GLSX
-    PRIVATE
-        GLS
-)
+message(STATUS "Configuración completada. GameLib sources: ${GAMELIB_SOURCES}")
