@@ -10,11 +10,13 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Mesh.hpp"
-#include "Context.hpp"
 #include "Texture.hpp"
 
 #ifndef MODEL_HPP
 #define MODEL_HPP
+
+namespace Engine
+{
 
 class Model
 {
@@ -70,4 +72,5 @@ private:
     std::vector<std::shared_ptr<Texture>> textures;
 };
 
+}
 #endif // MODEL_HPP

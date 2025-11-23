@@ -1,6 +1,9 @@
 #include "Scene.hpp"
 #include "AudioManager.hpp"
 
+namespace Engine
+{
+
 Scene::Scene(std::shared_ptr<Window> window)
 {
     this->window = window;
@@ -158,4 +161,6 @@ std::shared_ptr<SkyBox> Scene::getSkyBox()
 void Scene::onReseze(int width, int height)
 {
     activeCamera->setAspectRation(width / height);
+}
+
 }

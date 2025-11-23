@@ -6,6 +6,8 @@
 #ifndef RENDER_HPP
 #define RENDER_HPP
 
+namespace Engine
+{
 
 class Renderer
 {
@@ -61,6 +63,7 @@ private:
     GLdouble last_frame_time{0.0}; // Tiempo al final del frame anterior (usamos GLdouble por la precisión de glfwGetTime)
     GLfloat delta_time{0.f};       // Almacenamos el delta time en float para su uso en OpenGL/física
 
-};  
-
+};
+  
+}
 #endif // RENDER_HPP

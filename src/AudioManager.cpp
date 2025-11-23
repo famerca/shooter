@@ -7,6 +7,7 @@
 #include "GameObject.hpp"
 #include "AudioSourceComponent.hpp"
 #include "AudioPlayer.hpp"
+#include "Path.hpp"
 
 namespace Engine {
 
@@ -14,7 +15,8 @@ namespace Engine {
 
     AudioManager::AudioManager() {
         // Configurar ruta base (ajusta los parent_path según la ubicación de este .cpp)
-        rootPath = std::filesystem::path(__FILE__).parent_path().parent_path() / "audios";
+        rootPath = AUDIOS_PATH;
+        std::cout << "[AudioManager] Root path: " << rootPath.string() << std::endl;
         engine = new ma_engine();
     }
 

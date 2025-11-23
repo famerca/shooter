@@ -4,6 +4,8 @@
 #ifndef COMPONENT_HPP
 #define COMPONENT_HPP
 
+namespace Engine
+{
 
 class GameObject;
 using Owner = std::shared_ptr<GameObject>;
@@ -44,4 +46,5 @@ private:
     const Type type;
 };
 
+}
 #endif

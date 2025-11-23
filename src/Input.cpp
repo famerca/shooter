@@ -1,6 +1,9 @@
 #include <Input.hpp>
 #include <Window.hpp>
 
+namespace Engine
+{
+
 std::shared_ptr<Input> Input::create()
 {
     #ifdef DEBUG
@@ -141,4 +144,6 @@ void Input::poll(const float &dt) noexcept
 
     x_change = 0.f;
     y_change = 0.f;
+}
+
 }

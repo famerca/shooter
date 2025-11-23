@@ -1,14 +1,17 @@
 #include "Renderer.hpp"
 #include "Input.hpp"
 #include "Physics.hpp"
+#include "Path.hpp"
 
+namespace Engine
+{
 
 Renderer::Renderer()
 {
-    fs::path path =  fs::path{__FILE__}.parent_path().parent_path() / "shaders";
+    
 
-    shaders.push_back(Shader::create_from_files(path / "shader.vert", path / "shader.frag"));
-    shaders.push_back(Shader::create_from_files(path / "skybox.vert", path / "skybox.frag"));
+    shaders.push_back(Shader::create_from_files(SHADERS_PATH / "shader.vert", SHADERS_PATH / "shader.frag"));
+    shaders.push_back(Shader::create_from_files(SHADERS_PATH / "skybox.vert", SHADERS_PATH / "skybox.frag"));
     hitboxRenderer = nullptr;
 
     currentShader = nullptr;
@@ -22,8 +25,8 @@ Renderer::~Renderer()
 void Renderer::debug()
 {
     #ifdef JPH_DEBUG_RENDERER
-        fs::path path =  fs::path{__FILE__}.parent_path().parent_path() / "shaders";
-        hitboxRenderer = std::make_shared<Engine::HitboxRenderer>(Shader::create_from_files(path / "line.vert", path / "line.frag"));
+        
+        hitboxRenderer = std::make_shared<Engine::HitboxRenderer>(Shader::create_from_files(SHADERS_PATH / "line.vert", SHADERS_PATH / "line.frag"));
         JPH::BodyManager::DrawSettings bodyDrawSettings;
         // 1. Dibuja las formas de colisión (hitbox)
         bodyDrawSettings.mDrawShape = true; 
@@ -203,5 +206,7 @@ void Renderer::renderSkyBox(std::shared_ptr<SkyBox>  sky_box, std::shared_ptr<Ca
         glDepthMask(GL_TRUE);
 
     }
+
+}
 
 }

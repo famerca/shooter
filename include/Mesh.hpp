@@ -10,6 +10,8 @@
 #ifndef MESH_HPP
 #define MESH_HPP
 
+namespace Engine
+{
 
 class Texture;
 class Shader;
@@ -64,4 +66,5 @@ private:
     std::vector<std::shared_ptr<Texture>> textures;
 };
 
+}
 #endif // MESH_HPP

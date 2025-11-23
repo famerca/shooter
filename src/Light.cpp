@@ -1,4 +1,6 @@
 #include <Light.hpp>
+namespace Engine
+{
 
 Light::Light(GLfloat red, GLfloat green, GLfloat blue, GLfloat intensity)
 {
@@ -31,5 +33,5 @@ void Light::setIntensity(GLfloat intensity)
     this->intensity = intensity;
 }
 
-
+}
 

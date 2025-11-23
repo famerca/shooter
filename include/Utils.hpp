@@ -3,7 +3,8 @@
 #include <iostream>
 #include <iomanip>
 #include <glm/glm.hpp>
-
+namespace Engine
+{
 class Utils
 {
 public:
@@ -32,6 +33,7 @@ public:
 
         std::cout << "------------------------------------------\n";
     }
-};  
+};
 
+}
 #endif // UTILS_HPP

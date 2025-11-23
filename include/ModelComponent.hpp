@@ -4,6 +4,8 @@
 #ifndef MODEL_COMPONENT_HPP
 #define MODEL_COMPONENT_HPP
 
+namespace Engine
+{
 
 class ModelComponent : public Component
 {
@@ -44,4 +46,5 @@ public:
     }
 };
 
+}
 #endif

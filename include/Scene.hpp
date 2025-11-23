@@ -15,6 +15,8 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 
+namespace Engine
+{
 
 class Scene: public std::enable_shared_from_this<Scene>
 {
@@ -64,5 +66,6 @@ public:
     
 };
 
+}
 #endif // SCENE_HPP
 

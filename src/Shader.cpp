@@ -2,6 +2,9 @@
 
 #include <Shader.hpp>
 
+namespace Engine
+{
+
 Shader::~Shader()
 {
     clear();
@@ -153,4 +156,6 @@ std::string Shader::read_file(const std::filesystem::path& shader_path) noexcept
     in_stream.close();
 
     return contents;
+}
+
 }

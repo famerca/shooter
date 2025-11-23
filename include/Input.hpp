@@ -8,6 +8,8 @@
 #define INPUT_HPP
 
 //#define DEBUG 1
+namespace Engine
+{
 
 struct MousePair
 {
@@ -64,4 +66,5 @@ private:
     static void handle_mouse_button_input(GLFWwindow* window, int button, int action, int mods) noexcept;
 };  
 
+}
 #endif // INPUT_HPP

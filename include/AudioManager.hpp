@@ -13,10 +13,10 @@
 // Forward declaration de miniaudio para no ensuciar el header
 struct ma_engine;
 struct ma_sound;
-class GameObject;
 
 namespace Engine {
 
+    class GameObject;
     class AudioPlayer;
     class AudioSourceComponent;
 

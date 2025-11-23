@@ -10,6 +10,8 @@
 
 #ifndef WINDOW_HPP  
 #define WINDOW_HPP
+namespace Engine
+{
 
 class Input;
 class Scene;
@@ -62,4 +64,5 @@ private:
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 };
 
+}
 #endif // WINDOW_HPP

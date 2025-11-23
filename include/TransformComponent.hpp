@@ -6,6 +6,8 @@
 
 #ifndef TRANSFORM_COMPONENT_HPP
 #define TRANSFORM_COMPONENT_HPP
+namespace Engine
+{
 
 class TransformComponent : Component
 {
@@ -44,5 +46,7 @@ public:
 
     
 };
+
+}
 
 #endif // TRANSFORM_COMPONENT_HPP

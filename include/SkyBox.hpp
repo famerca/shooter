@@ -12,15 +12,17 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <stb_image.h>
-
 #include <Mesh.hpp>
+
+namespace Engine
+{
 
 class SkyBox
 {
 public:
     SkyBox() = default;
 
-    SkyBox(const std::filesystem::path& root_path, const std::vector<std::filesystem::path>& face_filenames) noexcept;
+    SkyBox(const std::string& dir, const std::vector<std::filesystem::path>& face_filenames) noexcept;
 
     void set_view(const glm::mat4& view) noexcept;
 
@@ -37,3 +39,5 @@ private:
     
     GLuint texture_id{0};
 };
+
+}

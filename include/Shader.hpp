@@ -11,6 +11,8 @@
 #ifndef SHADER_HPP
 #define SHADER_HPP
 
+namespace Engine
+{
 
 struct DirectionalLightUniforms
 {
@@ -79,4 +81,5 @@ private:
     DirectionalLightUniforms uniform_directional_light;
 };
 
+}
 #endif // SHADER_HPP

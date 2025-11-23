@@ -1,4 +1,6 @@
 #include <DirectionalLight.hpp>
+namespace Engine
+{
 
 DirectionalLight::DirectionalLight(GLfloat red, GLfloat green, GLfloat blue, GLfloat intensity,
                                    GLfloat x_dir, GLfloat y_dir, GLfloat z_dir) noexcept
@@ -33,3 +35,4 @@ std::tuple<GLfloat, glm::vec3, glm::vec3> DirectionalLight::renderData() noexcep
     return std::make_tuple(intensity, color, direction);
 }
 
+}

@@ -26,6 +26,10 @@
 #include "AudioPlayer.hpp"
 #include "AudioListenerComponent.hpp"
 #include "AudioSourceComponent.hpp"
+#include "Path.hpp"
+
+
+using namespace Engine;
 
 class inputManager: public Input
 {
@@ -251,7 +255,7 @@ int main()
 
 
         std::shared_ptr<SkyBox> sky_box = std::make_shared<SkyBox>(
-            fs::path{__FILE__}.parent_path(),
+            "skybox",
             std::vector<fs::path>{{
                 "cupertin-lake_rt.tga",
                 "cupertin-lake_lf.tga",

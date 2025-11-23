@@ -1,7 +1,11 @@
 #include <SkyBox.hpp>
 #include <BSlogger.hpp>
+#include "Path.hpp"
 
-SkyBox::SkyBox(const std::filesystem::path& root_path, const std::vector<std::filesystem::path>& face_filenames) noexcept
+namespace Engine
+{
+
+SkyBox::SkyBox(const std::string& dir, const std::vector<std::filesystem::path>& face_filenames) noexcept
 {
     // Texture setup
     glGenTextures(1, &texture_id);
@@ -13,7 +17,7 @@ SkyBox::SkyBox(const std::filesystem::path& root_path, const std::vector<std::fi
 
     for (size_t i = 0; i < face_filenames.size(); ++i)
     {
-        auto file_path = root_path / "textures" / "skybox" / face_filenames[i];
+        auto file_path = TEXTURES_PATH / dir / face_filenames[i];
         unsigned char* tex_data = stbi_load(file_path.c_str(), &width, &height, &bit_depth, 0);
 
         if (!tex_data)
@@ -99,4 +103,6 @@ void SkyBox::set_view(const glm::mat4& view) noexcept
 {
     // Removing translation
     skybox_view = glm::mat4(glm::mat3(view));
+}
+
 }

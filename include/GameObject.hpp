@@ -7,13 +7,12 @@
 #ifndef GAMEOBJECT_HPP
 #define GAMEOBJECT_HPP
 
-class CameraComponent;
-
 namespace Engine {
+
+class CameraComponent;
 
 class Listener;
 
-}
 class GameObject: public std::enable_shared_from_this<GameObject>
 {
 private:
@@ -54,6 +53,8 @@ public:
 
     void change();
 };
+
+}
 
 
 

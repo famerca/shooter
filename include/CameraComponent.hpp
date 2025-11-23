@@ -6,6 +6,9 @@
 #ifndef CAMERA_COMPONENT_HPP
 #define CAMERA_COMPONENT_HPP
 
+namespace Engine
+{
+
 class Scene;
 
 class CameraComponent : public Component, public std::enable_shared_from_this<CameraComponent>
@@ -79,5 +82,7 @@ public:
 
     void activate();
 };
+
+}
 
 #endif // CAMERA_COMPONENT_HPP

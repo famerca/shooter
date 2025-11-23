@@ -5,6 +5,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+namespace Engine
+{
 
 Texture::~Texture()
 {
@@ -75,3 +77,5 @@ void Texture::clear() noexcept
         texture_id = 0;
     }
 } 
+
+}

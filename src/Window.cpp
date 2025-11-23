@@ -2,6 +2,9 @@
 #include <Input.hpp> 
 #include <Scene.hpp>
 
+namespace Engine
+{
+
 Window::~Window()
 {
     glfwDestroyWindow(window);
@@ -123,4 +126,6 @@ void Window::framebuffer_size_callback(GLFWwindow* window, int width, int height
 
     if(window_ptr->scene != nullptr)
         window_ptr->scene->onReseze(width, height);
+}
+
 }

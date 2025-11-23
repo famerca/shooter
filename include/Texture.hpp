@@ -10,6 +10,8 @@
 
 #ifndef TEXTURE_HPP
 #define TEXTURE_HPP
+namespace Engine
+{
 
 class Model; // Forward declaration
 
@@ -54,4 +56,5 @@ private:
     
 };
 
+}
 #endif // TEXTURE_HPP 

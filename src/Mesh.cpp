@@ -1,5 +1,8 @@
 #include <Mesh.hpp>
 
+namespace Engine
+{
+
 std::shared_ptr<Mesh> Mesh::create(const std::vector<Vertex>& vertices, std::vector<unsigned int>& indices) noexcept
 {
     return create(vertices, indices, std::vector<std::shared_ptr<Texture>>());
@@ -76,4 +79,6 @@ void Mesh::clear() noexcept
         glDeleteVertexArrays(1, &VAO_id);
         VAO_id = 0;
     }
+}
+
 }

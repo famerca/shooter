@@ -1,10 +1,15 @@
 #include "Model.hpp"
 #include <stb_image.h>
+#include <iostream>
+#include "Path.hpp"
+
+namespace Engine
+{
 
 Model::Model(const std::string &model_name, const float& scale_factor)
 {
 
-    std::filesystem::path model_path{std::filesystem::path{__FILE__}.parent_path().parent_path() / "models" / model_name};
+    std::filesystem::path model_path{MODELS_PATH / model_name};
 
     if (!std::filesystem::exists(model_path))
     {
@@ -832,4 +837,6 @@ std::vector<std::shared_ptr<Texture>> Model::loadMaterialTextures(aiMaterial* ma
     }
     
     return textures;
+}
+
 }

@@ -1,4 +1,6 @@
 #include "Component.hpp"
+namespace Engine
+{
 
 Component::Component(Owner _owner, Type _type): type(_type)
 {
@@ -34,4 +36,6 @@ void Component::change()
 bool Component::isRenderd()
 {
     return renderd;
+}
+
 }

@@ -9,10 +9,10 @@
 #ifndef BODY_H
 #define BODY_H
 
-class GameObject;
 
 namespace Engine {
-
+    
+class GameObject;
 
 enum class BodyType {
     Static,

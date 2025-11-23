@@ -4,6 +4,9 @@
 #ifndef DIRECTIONAL_LIGHT_HPP
 #define DIRECTIONAL_LIGHT_HPP
 
+namespace Engine
+{
+
 class DirectionalLight : Light
 {
 
@@ -31,5 +34,7 @@ private:
     glm::vec3 direction{0.f, -1.f, 0.f};
     bool changed;
 };
+
+}
 
 #endif // DIRECTIONAL_LIGHT_HPP

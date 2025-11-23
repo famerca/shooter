@@ -2,6 +2,9 @@
 #include "Scene.hpp"
 #include "AudioManager.hpp"
 
+namespace Engine
+{
+
 CameraComponent::CameraComponent(Owner owner, std::shared_ptr<Scene> scene): Component(owner, Component::Type::Camera), scene(scene)
 {
     position = glm::vec3(0.f, 0.f, 0.f);
@@ -243,4 +246,6 @@ glm::mat4 CameraComponent::getProjectionMatrix()
 void CameraComponent::activate()
 {
     scene->setCamera(self());
+}
+
 }

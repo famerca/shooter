@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 # Project name
-project(GLShooter LANGUAGES CXX)
+project(GLS LANGUAGES CXX)
 
 # Set C++ Required version
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -75,19 +75,19 @@ set(JOLT_LIB_DIR ${VENDOR_DIR}/JoltPhysics/lib)
 
 # 2. Declarar la librería del motor
 file(GLOB SRC "${PROJECT_SOURCE_DIR}/src/*.cpp")
-add_library(GLSHOOTERLIB ${SRC})
+add_library(GLSLIB ${SRC})
 
 # 🔑 SINCRONIZACIÓN JOLT: Definiciones requeridas por Jolt en modo Debug
-target_compile_definitions(GLSHOOTERLIB PUBLIC
+target_compile_definitions(GLSLIB PUBLIC
     JPH_PROFILE_ENABLED=1
     JPH_DEBUG_RENDERER=1
     JPH_OBJECT_STREAM=1
 )
 
-target_compile_options(GLSHOOTERLIB PRIVATE -fno-rtti)
+target_compile_options(GLSLIB PRIVATE -fno-rtti)
 
 # 3. Incluir headers de tu proyecto y de Jolt
-target_include_directories(GLSHOOTERLIB PUBLIC 
+target_include_directories(GLSLIB PUBLIC 
     "${PROJECT_SOURCE_DIR}/include" 
     ${JOLT_INCLUDE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio
@@ -103,7 +103,7 @@ endif()
 
 # Enlazar dependencias
 if(APPLE)
-    target_link_libraries(GLSHOOTERLIB PUBLIC 
+    target_link_libraries(GLSLIB PUBLIC 
         ${OPENGL_LIBRARY} 
         ${COCOA_LIBRARY} 
         ${IOKIT_LIBRARY} 
@@ -115,13 +115,13 @@ if(APPLE)
         m 
         pthread
     )
-    target_include_directories(GLSHOOTERLIB PUBLIC ${ASSIMP_INCLUDE_DIR})
+    target_include_directories(GLSLIB PUBLIC ${ASSIMP_INCLUDE_DIR})
     if(GLEW_INCLUDE_DIR)
-        target_include_directories(GLSHOOTERLIB PUBLIC ${GLEW_INCLUDE_DIR})
+        target_include_directories(GLSLIB PUBLIC ${GLEW_INCLUDE_DIR})
     endif()
 else()
     # Dependencias de Linux/Unix
-    target_link_libraries(GLSHOOTERLIB PUBLIC 
+    target_link_libraries(GLSLIB PUBLIC 
         GL 
         GLEW 
         glfw 
@@ -135,12 +135,12 @@ endif()
 # --- DECLARACIÓN Y ENLAZADO DEL EJECUTABLE ---
 
 # 5. Declarar el ejecutable
-add_executable(GLShooter main.cpp)
+add_executable(GLS main.cpp)
 
-#target_compile_options(GLShooter PRIVATE -fno-rtti)
+#target_compile_options(GLS PRIVATE -fno-rtti)
 
 # 6. Enlazar el ejecutable a la librería principal
-target_link_libraries(GLShooter
+target_link_libraries(GLS
     PRIVATE
-        GLSHOOTERLIB
+        GLSLIB
 )

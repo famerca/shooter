@@ -1,6 +1,9 @@
 #include "TransformComponent.hpp"
 #include "GameObject.hpp"
 
+namespace Engine
+{
+
 TransformComponent::TransformComponent(Owner _owner): Component(_owner, Component::Type::Transform)
 {
   
@@ -110,4 +113,4 @@ void TransformComponent::scale(glm::vec3 scale)
     changed = true;
 }
 
-
+}

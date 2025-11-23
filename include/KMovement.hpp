@@ -6,10 +6,10 @@
 #ifndef KMOVEMENT_HPP
 #define KMOVEMENT_HPP
 
-class GameObject; 
 
 namespace Engine {
-
+    
+class GameObject; 
 class Body; 
 
 class KMovement {

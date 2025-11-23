@@ -1,4 +1,6 @@
 #include "GameObject.hpp"
+namespace Engine
+{
 
 GameObject::GameObject(): components(), visible(true), transform{nullptr}, body{nullptr}
 {
@@ -88,3 +90,5 @@ void GameObject::change()
         component->change();
     }
 }
+
+} // namespace Engine

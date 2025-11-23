@@ -1,6 +1,10 @@
 #include "ModelComponent.hpp"
 #include "Utils.hpp"
-ModelComponent::ModelComponent( std::shared_ptr<GameObject> _owner) : Component(_owner, Component::Type::Model)
+
+namespace Engine
+{
+
+ModelComponent::ModelComponent( Owner _owner) : Component(_owner, Component::Type::Model)
 {
     model = nullptr;
     sp_shader = "";
@@ -66,3 +70,4 @@ void ModelComponent::start()
     
 }
 
+}
