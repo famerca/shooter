@@ -14,21 +14,38 @@ SkyBox::SkyBox(const std::string& dir, const std::vector<std::filesystem::path>&
 
     int width{0};
     int height{0};
-    int bit_depth{0};
+    int channels{0};
+
+    // Para cubemaps, no debemos voltear verticalmente las texturas
+    stbi_set_flip_vertically_on_load(false);
 
     for (size_t i = 0; i < face_filenames.size(); ++i)
     {
         auto file_path = TEXTURES_PATH / dir / face_filenames[i];
-        unsigned char* tex_data = stbi_load(file_path.c_str(), &width, &height, &bit_depth, 0);
+        unsigned char* tex_data = stbi_load(file_path.c_str(), &width, &height, &channels, 0);
 
         if (!tex_data)
         {
             LOG_INIT_CERR();
-            log(LOG_ERR) << "Failed to find: " << file_path << "\n";
-            return;
+            log(LOG_ERR) << "Failed to load skybox texture: " << file_path << "\n";
+            continue; // Continuar con la siguiente textura en lugar de retornar
         }
 
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex_data);
+        // Determinar el formato basado en el número de canales
+        GLenum format = GL_RGB;
+        GLenum internal_format = GL_RGB;
+        if (channels == 4)
+        {
+            format = GL_RGBA;
+            internal_format = GL_RGBA;
+        }
+        else if (channels == 1)
+        {
+            format = GL_RED;
+            internal_format = GL_RED;
+        }
+
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internal_format, width, height, 0, format, GL_UNSIGNED_BYTE, tex_data);
 
         stbi_image_free(tex_data);
     }

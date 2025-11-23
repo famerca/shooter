@@ -56,6 +56,8 @@ public:
 
     GLuint get_uniform_line_color_id() const noexcept { return uniform_line_color_id; }
 
+    GLuint get_uniform_skybox_id() const noexcept { return uniform_skybox_id; }
+
     void use() const noexcept;
 
     DirectionalLightUniforms get_uniform_directional_light() const noexcept { return uniform_directional_light; }
@@ -77,6 +79,7 @@ private:
     GLuint uniform_model_id{0};
     GLuint uniform_diffuse_texture_id{0};
     GLuint uniform_line_color_id{0};
+    GLuint uniform_skybox_id{0};
 
     DirectionalLightUniforms uniform_directional_light;
 };

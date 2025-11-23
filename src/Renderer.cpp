@@ -301,12 +301,17 @@ void Renderer::calcDeltaTime()
 
 void Renderer::renderSkyBox(std::shared_ptr<SkyBox>  sky_box, std::shared_ptr<CameraComponent> camera)
 {
-    if(sky_box != nullptr)
+    if(sky_box != nullptr && camera != nullptr)
     {
         if(!camera->isRenderd())
             sky_box->set_view(camera->getViewMatrix());
+        
+        // Guardar el estado del depth function
+        GLint depth_func_was;
+        glGetIntegerv(GL_DEPTH_FUNC, &depth_func_was);
             
         glDepthMask(GL_FALSE);
+        glDepthFunc(GL_LEQUAL); // Cambiar la función de profundidad para que el skybox siempre se dibuje detrás
     
         this->useShader(Shader::LIST::SKYBOX);
 
@@ -316,10 +321,24 @@ void Renderer::renderSkyBox(std::shared_ptr<SkyBox>  sky_box, std::shared_ptr<Ca
         glUniformMatrix4fv(this->currentShader->get_uniform_view_id(), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(this->currentShader->get_uniform_projection_id(), 1, GL_FALSE, glm::value_ptr(projection));
 
+        // Establecer el uniform del samplerCube skybox ANTES de vincular la textura
+        GLuint skybox_uniform = this->currentShader->get_uniform_skybox_id();
+        if (skybox_uniform != static_cast<GLuint>(-1))
+        {
+            glUniform1i(skybox_uniform, 0); // 0 corresponde a GL_TEXTURE0
+        }
+        
+        // Asegurarse de que GL_TEXTURE0 esté activo antes de renderizar
+        glActiveTexture(GL_TEXTURE0);
+
         sky_box->render();
     
+        // Restaurar el estado del depth mask y la función de profundidad
         glDepthMask(GL_TRUE);
-
+        glDepthFunc(depth_func_was); // Restaurar la función de profundidad anterior
+        
+        // Desbindear el cubemap para no interferir con otras texturas
+        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     }
 
 }
