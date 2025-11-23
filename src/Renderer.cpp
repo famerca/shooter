@@ -303,8 +303,9 @@ void Renderer::renderSkyBox(std::shared_ptr<SkyBox>  sky_box, std::shared_ptr<Ca
 {
     if(sky_box != nullptr && camera != nullptr)
     {
-        if(!camera->isRenderd())
-            sky_box->set_view(camera->getViewMatrix());
+        // Siempre actualizar la vista del skybox con la matriz de la cámara (sin traslación)
+        // Esto permite que el skybox rote con la cámara
+        sky_box->set_view(camera->getViewMatrix());
         
         // Guardar el estado del depth function
         GLint depth_func_was;
