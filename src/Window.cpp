@@ -1,6 +1,7 @@
 #include <Window.hpp>
 #include <Input.hpp> 
 #include <Scene.hpp>
+#include <BSlogger.hpp>
 
 namespace Engine
 {

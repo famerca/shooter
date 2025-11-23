@@ -6,8 +6,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <BSlogger.hpp>
-
 #ifndef WINDOW_HPP  
 #define WINDOW_HPP
 namespace Engine

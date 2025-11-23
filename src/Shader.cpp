@@ -1,5 +1,5 @@
 #include <fstream>
-
+#include <BSlogger.hpp>
 #include <Shader.hpp>
 
 namespace Engine

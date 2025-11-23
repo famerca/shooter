@@ -6,7 +6,7 @@
 #include <string_view>
 
 #include <GL/glew.h>
-#include <BSlogger.hpp>
+
 
 #ifndef SHADER_HPP
 #define SHADER_HPP

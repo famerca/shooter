@@ -1,5 +1,6 @@
 #include <SkyBox.hpp>
 #include <BSlogger.hpp>
+#include <stb_image.h>
 #include "Path.hpp"
 
 namespace Engine
