@@ -2,6 +2,8 @@
 #include <RmlUi/Core/Context.h>
 #include <RmlUi/Core/Input.h>
 #include <RmlUi/Core/FileInterface.h>
+#include <RmlUi/Core/ElementDocument.h>
+#include <RmlUi/Core/Element.h>
 #include <filesystem>
 #include <iostream>
 
@@ -14,6 +16,9 @@ RmlUiInterface::RmlUiInterface()
     , initialized(false)
     , window_width(0)
     , window_height(0)
+    , main_menu_document(nullptr)
+    , main_menu_visible(false)
+    , start_button_listener(std::make_unique<StartButtonListener>(this))
 {
 }
 
@@ -231,7 +236,102 @@ bool RmlUiInterface::LoadDocument(const std::string& document_path)
     }
 
     document->Show();
+    main_menu_document = document;
+    main_menu_visible = true;
+    
+    // Buscar el botón "START GAME" y asignar el listener
+    Rml::Element* start_button = document->GetElementById("start-button");
+    
+    std::cout << "RmlUiInterface: Buscando botón START GAME..." << std::endl;
+    
+    if (!start_button)
+    {
+        std::cout << "RmlUiInterface: No se encontró por ID, buscando por texto..." << std::endl;
+        // Si no tiene id, buscar por texto (menos confiable pero funciona)
+        Rml::ElementList buttons;
+        document->GetElementsByTagName(buttons, "button");
+        std::cout << "RmlUiInterface: Encontrados " << buttons.size() << " botones" << std::endl;
+        
+        for (Rml::Element* button : buttons)
+        {
+            Rml::String text = button->GetInnerRML();
+            std::cout << "RmlUiInterface: Botón encontrado con texto: '" << text.c_str() << "'" << std::endl;
+            if (text.find("START GAME") != Rml::String::npos)
+            {
+                start_button = button;
+                std::cout << "RmlUiInterface: Botón START GAME encontrado por texto" << std::endl;
+                break;
+            }
+        }
+    }
+    else
+    {
+        std::cout << "RmlUiInterface: Botón START GAME encontrado por ID" << std::endl;
+    }
+    
+    if (start_button)
+    {
+        std::cout << "RmlUiInterface: Botón encontrado, ID: '" 
+                  << (start_button->GetId().empty() ? "sin ID" : start_button->GetId().c_str()) 
+                  << "', Tag: '" << start_button->GetTagName().c_str() << "'" << std::endl;
+        
+        if (start_button_listener)
+        {
+            // Agregar el listener
+            start_button->AddEventListener(Rml::EventId::Click, start_button_listener.get());
+            start_button->AddEventListener(Rml::EventId::Mousedown, start_button_listener.get());
+            
+            std::cout << "RmlUiInterface: Listener asignado al botón START GAME (Click y Mousedown)" << std::endl;
+            
+            // Verificar que el elemento está visible y puede recibir eventos
+            std::cout << "RmlUiInterface: Botón visible: " << (start_button->IsVisible() ? "Sí" : "No") << std::endl;
+            std::cout << "RmlUiInterface: Botón posición: (" << start_button->GetAbsoluteLeft() 
+                      << ", " << start_button->GetAbsoluteTop() << ")" << std::endl;
+            std::cout << "RmlUiInterface: Botón tamaño: " << start_button->GetClientWidth() 
+                      << "x" << start_button->GetClientHeight() << std::endl;
+        }
+        else
+        {
+            std::cerr << "RmlUiInterface: ERROR: start_button_listener es nullptr" << std::endl;
+        }
+    }
+    else
+    {
+        std::cerr << "RmlUiInterface: ERROR: No se encontró el botón START GAME" << std::endl;
+    }
+    
     std::cout << "RmlUiInterface: Documento cargado: " << path << std::endl;
     return true;
+}
+
+void RmlUiInterface::ShowMainMenu()
+{
+    if (main_menu_document && !main_menu_visible)
+    {
+        main_menu_document->Show();
+        main_menu_visible = true;
+        std::cout << "RmlUiInterface: Menú principal mostrado" << std::endl;
+    }
+}
+
+void RmlUiInterface::HideMainMenu()
+{
+    if (main_menu_document && main_menu_visible)
+    {
+        main_menu_document->Hide();
+        main_menu_visible = false;
+        std::cout << "RmlUiInterface: Menú principal ocultado" << std::endl;
+        
+        // Ejecutar callback si está definido
+        if (on_menu_hidden_callback)
+        {
+            on_menu_hidden_callback();
+        }
+    }
+}
+
+void RmlUiInterface::SetOnMenuHiddenCallback(std::function<void()> callback)
+{
+    on_menu_hidden_callback = callback;
 }
 

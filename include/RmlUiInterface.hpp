@@ -6,6 +6,8 @@
 #include <GLFW/glfw3.h>
 #include <RmlUi/Core.h>
 #include <RmlUi/Debugger.h>
+#include <RmlUi/Core/EventListener.h>
+#include <functional>
 #include "Window.hpp"
 
 // Forward declarations
@@ -13,6 +15,7 @@ namespace Rml {
     class Context;
     class RenderInterface;
     class SystemInterface;
+    class ElementDocument;
 }
 
 // RmlUi backend includes (paths relativos desde Backends/)
@@ -80,6 +83,26 @@ public:
     bool LoadDocument(const std::string& document_path);
 
     /**
+     * Muestra el menú principal (pausa el juego).
+     */
+    void ShowMainMenu();
+
+    /**
+     * Oculta el menú principal (reanuda el juego).
+     */
+    void HideMainMenu();
+
+    /**
+     * Verifica si el menú principal está visible.
+     */
+    bool IsMainMenuVisible() const { return main_menu_visible; }
+
+    /**
+     * Establece un callback que se ejecuta cuando el menú se oculta.
+     */
+    void SetOnMenuHiddenCallback(std::function<void()> callback);
+
+    /**
      * Obtiene el contexto de RmlUi (para uso avanzado).
      */
     Rml::Context* GetContext() const { return context; }
@@ -90,6 +113,48 @@ public:
     bool IsInitialized() const { return initialized; }
 
 private:
+    /**
+     * EventListener para el botón "START GAME".
+     */
+    class StartButtonListener : public Rml::EventListener {
+    public:
+        StartButtonListener(RmlUiInterface* interface) : rmlui_interface(interface) {}
+        
+        void ProcessEvent(Rml::Event& event) override {
+            std::cout << "RmlUiInterface::StartButtonListener: ProcessEvent llamado!" << std::endl;
+            std::cout << "RmlUiInterface::StartButtonListener: Tipo de evento: " << static_cast<int>(event.GetId()) << std::endl;
+            std::cout << "RmlUiInterface::StartButtonListener: Elemento objetivo: " << event.GetTargetElement()->GetTagName().c_str() << std::endl;
+            
+            if (event.GetId() == Rml::EventId::Click || event.GetId() == Rml::EventId::Mousedown) {
+                std::cout << "RmlUiInterface::StartButtonListener: Botón START GAME presionado!" << std::endl;
+                if (rmlui_interface) {
+                    std::cout << "RmlUiInterface::StartButtonListener: Ocultando menú principal..." << std::endl;
+                    rmlui_interface->HideMainMenu();
+                    std::cout << "RmlUiInterface::StartButtonListener: Menú ocultado correctamente" << std::endl;
+                } else {
+                    std::cerr << "RmlUiInterface::StartButtonListener: ERROR: rmlui_interface es nullptr" << std::endl;
+                }
+            } else {
+                std::cout << "RmlUiInterface::StartButtonListener: Evento recibido pero no es Click/Mousedown (tipo: " 
+                          << static_cast<int>(event.GetId()) << ")" << std::endl;
+            }
+        }
+        
+        void OnAttach(Rml::Element* element) override {
+            std::cout << "RmlUiInterface::StartButtonListener: OnAttach llamado para elemento: " 
+                      << element->GetTagName().c_str() << std::endl;
+        }
+        
+        void OnDetach(Rml::Element* element) override {
+            std::cout << "RmlUiInterface::StartButtonListener: OnDetach llamado para elemento: " 
+                      << element->GetTagName().c_str() << std::endl;
+        }
+
+    private:
+        RmlUiInterface* rmlui_interface;
+    };
+
+private:
     std::shared_ptr<Window> window;
     Rml::Context* context;
     std::unique_ptr<RenderInterface_GL3> render_interface;
@@ -97,6 +162,12 @@ private:
     bool initialized;
     int window_width;
     int window_height;
+    
+    // Menú principal
+    Rml::ElementDocument* main_menu_document{nullptr};
+    bool main_menu_visible{false};
+    std::unique_ptr<StartButtonListener> start_button_listener;
+    std::function<void()> on_menu_hidden_callback;
 };
 
 #endif // RMLUI_INTERFACE_HPP

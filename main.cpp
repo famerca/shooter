@@ -324,16 +324,17 @@ int main()
         auto rmlui = std::make_shared<RmlUiInterface>();
         if (rmlui->Initialize(main_window))
         {
-            // Cargar fuente (necesario antes de cargar documentos)
-            // Nota: Necesitas tener una fuente TTF en el proyecto
-            // Por ahora, intentamos cargar el documento sin fuente (puede fallar)
-            
             // Cargar documento de prueba
             rmlui->LoadDocument("test.rml");
             
+            // Configurar callback para cuando el menú se oculta (reanudar juego)
+            rmlui->SetOnMenuHiddenCallback([renderer]() {
+                std::cout << "Juego reanudado desde el menú" << std::endl;
+            });
+            
             // Conectar RmlUi al renderer
             renderer->setRmlUiInterface(rmlui);
-            std::cout << "RmlUi integrado correctamente" << std::endl;
+            std::cout << "RmlUi integrado correctamente. El juego está pausado hasta presionar START GAME." << std::endl;
         }
         else
         {

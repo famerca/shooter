@@ -140,7 +140,7 @@
             <div class="dash-element last"></div>
         </div>
         
-        <button class="geometry-button" type="button">START GAME</button>
+        <button id="start-button" class="geometry-button" type="button">START GAME</button>
         <button class="geometry-button" type="button">LEVEL SELECT</button>
         <button class="geometry-button" type="button">OPTIONS</button>
         
