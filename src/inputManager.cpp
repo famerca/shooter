@@ -24,12 +24,10 @@ inputManager::~inputManager()
 }
 
 void inputManager::init(std::shared_ptr<Scene> scene_ptr, 
-                        std::shared_ptr<GameObject> object_ptr, 
-                        std::shared_ptr<std::vector<unsigned>> obstacles)
+                        std::shared_ptr<GameObject> object_ptr)
 {
     this->object = object_ptr;
     this->scene = scene_ptr;
-    this->obstacles_list = obstacles;
 }
 
 void inputManager::update(const float &dt) noexcept 
@@ -70,31 +68,4 @@ void inputManager::update(const float &dt) noexcept
         if(is_key_pressed(GLFW_KEY_W)) body->ApplyImpulse({0.f, 0.f, 40.f});
         if(is_key_pressed(GLFW_KEY_S)) body->ApplyImpulse({0.f, 0.f, -40.f});
     }
-    
-    // 3. --- Lógica de Obstáculos (Comentada tal cual el original) ---
-    /*
-    if (obstacles_list && scene) 
-    {
-         for (unsigned id : *obstacles_list) 
-         {
-             std::shared_ptr<GameObject> obstacle = scene->at(id);
-             if (!obstacle) continue;
-
-             auto transform = obstacle->getTransform();
-             glm::vec3 obs_pos = transform->getPosition();
-
-             // Mover hacia el usuario
-             obs_pos.z -= OBSTACLE_SPEED * dt;
-            
-             // Reinicio
-             if (obs_pos.z < Z_LIMIT) 
-             {
-                 obs_pos.z = Z_RESET;
-                 obs_pos.x = distrib_x(gen); 
-             }
-
-             transform->translate(obs_pos); // Nota: translate suele ser relativo, revisa si necesitas setPosition
-         }
-    }
-    */
 }
