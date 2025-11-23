@@ -73,6 +73,44 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         {
             scene->window->getInput()->poll(delta_time);
         }
+        
+        // Procesar input de RmlUi (debe hacerse antes de Update())
+        if (rmlui_interface && rmlui_interface->IsInitialized())
+        {
+            auto input = scene->window->getInput();
+            if (input)
+            {
+                auto mouse_pos = input->get_mouse_position();
+                
+                // Procesar movimiento del mouse en RmlUi
+                rmlui_interface->GetContext()->ProcessMouseMove(
+                    static_cast<int>(mouse_pos.x), 
+                    static_cast<int>(mouse_pos.y), 
+                    0  // key_modifier_state (0 = sin modificadores)
+                );
+                
+                // Procesar clicks del mouse en RmlUi
+                static bool last_mouse_state = false;
+                bool current_mouse_state = input->is_mouse_button_pressed(0); // 0 = GLFW_MOUSE_BUTTON_LEFT
+                
+                if (current_mouse_state && !last_mouse_state)
+                {
+                    // Botón presionado
+                    rmlui_interface->GetContext()->ProcessMouseButtonDown(0, 0);
+                }
+                else if (!current_mouse_state && last_mouse_state)
+                {
+                    // Botón liberado
+                    rmlui_interface->GetContext()->ProcessMouseButtonUp(0, 0);
+                }
+                
+                last_mouse_state = current_mouse_state;
+            }
+            
+            // Actualizar RmlUi después de procesar input (según documentación)
+            rmlui_interface->Update();
+        }
+        
         //render Direction Light
         this->renderDirLight(scene->DirLight);
         //render active camera
@@ -87,9 +125,9 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         RenderDebug(scene->activeCamera);
 
         // Renderizar RmlUi si está disponible (después de todo el renderizado 3D)
-        if (rmlui_interface)
+        // Update ya se llamó antes, solo renderizar
+        if (rmlui_interface && rmlui_interface->IsInitialized())
         {
-            rmlui_interface->Update();
             rmlui_interface->Render();
         }
 

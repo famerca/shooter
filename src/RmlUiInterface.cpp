@@ -156,6 +156,21 @@ void RmlUiInterface::Update()
     if (!initialized || !context)
         return;
 
+    // Actualizar el tamaño del viewport si la ventana cambió de tamaño
+    if (window && window->getGLFWWindow())
+    {
+        int current_width, current_height;
+        glfwGetFramebufferSize(window->getGLFWWindow(), &current_width, &current_height);
+        
+        if (current_width != window_width || current_height != window_height)
+        {
+            window_width = current_width;
+            window_height = current_height;
+            render_interface->SetViewport(window_width, window_height);
+            context->SetDimensions(Rml::Vector2i(window_width, window_height));
+        }
+    }
+
     // Actualizar el contexto (procesa animaciones, eventos, etc.)
     context->Update();
 }
