@@ -19,6 +19,10 @@ RmlUiInterface::RmlUiInterface()
     , main_menu_document(nullptr)
     , main_menu_visible(false)
     , start_button_listener(std::make_unique<StartButtonListener>(this))
+    , pause_menu_document(nullptr)
+    , pause_menu_visible(false)
+    , continue_button_listener(std::make_unique<ContinueButtonListener>(this))
+    , restart_button_listener(std::make_unique<RestartButtonListener>(this))
 {
 }
 
@@ -333,5 +337,92 @@ void RmlUiInterface::HideMainMenu()
 void RmlUiInterface::SetOnMenuHiddenCallback(std::function<void()> callback)
 {
     on_menu_hidden_callback = callback;
+}
+
+void RmlUiInterface::SetOnRestartCallback(std::function<void()> callback)
+{
+    on_restart_callback = callback;
+}
+
+bool RmlUiInterface::LoadPauseMenu()
+{
+    if (!initialized || !context)
+    {
+        std::cerr << "RmlUiInterface: No inicializado para cargar menú de pausa" << std::endl;
+        return false;
+    }
+
+    // Convertir a path absoluto si es relativo
+    fs::path path = "pause_menu.rml";
+    if (path.is_relative())
+    {
+        fs::path project_root = fs::path(__FILE__).parent_path().parent_path();
+        path = project_root / "ui" / "pause_menu.rml";
+    }
+
+    if (!fs::exists(path))
+    {
+        std::cerr << "RmlUiInterface: Menú de pausa no encontrado: " << path << std::endl;
+        return false;
+    }
+
+    Rml::ElementDocument* document = context->LoadDocument(path.string());
+    if (!document)
+    {
+        std::cerr << "RmlUiInterface: Error al cargar menú de pausa: " << path << std::endl;
+        return false;
+    }
+
+    // No mostrar el documento todavía, solo cargarlo
+    pause_menu_document = document;
+    
+    // Buscar y asignar listeners a los botones
+    Rml::Element* continue_button = document->GetElementById("continue-button");
+    Rml::Element* restart_button = document->GetElementById("restart-button");
+    
+    if (continue_button && continue_button_listener)
+    {
+        continue_button->AddEventListener(Rml::EventId::Click, continue_button_listener.get());
+        std::cout << "RmlUiInterface: Listener asignado al botón CONTINUAR" << std::endl;
+    }
+    
+    if (restart_button && restart_button_listener)
+    {
+        restart_button->AddEventListener(Rml::EventId::Click, restart_button_listener.get());
+        std::cout << "RmlUiInterface: Listener asignado al botón REINICIAR" << std::endl;
+    }
+    
+    std::cout << "RmlUiInterface: Menú de pausa cargado: " << path << std::endl;
+    return true;
+}
+
+void RmlUiInterface::ShowPauseMenu()
+{
+    // Cargar el menú de pausa si no está cargado
+    if (!pause_menu_document)
+    {
+        if (!LoadPauseMenu())
+        {
+            std::cerr << "RmlUiInterface: No se pudo cargar el menú de pausa" << std::endl;
+            return;
+        }
+    }
+    
+    if (pause_menu_document && !pause_menu_visible)
+    {
+        pause_menu_document->Show();
+        pause_menu_visible = true;
+        std::cout << "RmlUiInterface: Menú de pausa mostrado" << std::endl;
+    }
+}
+
+void RmlUiInterface::HidePauseMenu()
+{
+    if (pause_menu_document && pause_menu_visible)
+    {
+        pause_menu_document->Hide();
+        pause_menu_visible = false;
+        std::cout << "RmlUiInterface: Menú de pausa ocultado" << std::endl;
+    }
 }
 

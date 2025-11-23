@@ -98,9 +98,29 @@ public:
     bool IsMainMenuVisible() const { return main_menu_visible; }
 
     /**
+     * Muestra el menú de pausa (pausa el juego).
+     */
+    void ShowPauseMenu();
+
+    /**
+     * Oculta el menú de pausa (reanuda el juego).
+     */
+    void HidePauseMenu();
+
+    /**
+     * Verifica si el menú de pausa está visible.
+     */
+    bool IsPauseMenuVisible() const { return pause_menu_visible; }
+
+    /**
      * Establece un callback que se ejecuta cuando el menú se oculta.
      */
     void SetOnMenuHiddenCallback(std::function<void()> callback);
+
+    /**
+     * Establece un callback que se ejecuta cuando se solicita reiniciar el juego.
+     */
+    void SetOnRestartCallback(std::function<void()> callback);
 
     /**
      * Obtiene el contexto de RmlUi (para uso avanzado).
@@ -154,6 +174,49 @@ private:
         RmlUiInterface* rmlui_interface;
     };
 
+    /**
+     * EventListener para el botón "CONTINUAR" del menú de pausa.
+     */
+    class ContinueButtonListener : public Rml::EventListener {
+    public:
+        ContinueButtonListener(RmlUiInterface* interface) : rmlui_interface(interface) {}
+        
+        void ProcessEvent(Rml::Event& event) override {
+            if (event.GetId() == Rml::EventId::Click) {
+                std::cout << "RmlUiInterface: Botón CONTINUAR presionado" << std::endl;
+                if (rmlui_interface) {
+                    rmlui_interface->HidePauseMenu();
+                }
+            }
+        }
+
+    private:
+        RmlUiInterface* rmlui_interface;
+    };
+
+    /**
+     * EventListener para el botón "REINICIAR JUEGO" del menú de pausa.
+     */
+    class RestartButtonListener : public Rml::EventListener {
+    public:
+        RestartButtonListener(RmlUiInterface* interface) : rmlui_interface(interface) {}
+        
+        void ProcessEvent(Rml::Event& event) override {
+            if (event.GetId() == Rml::EventId::Click) {
+                std::cout << "RmlUiInterface: Botón REINICIAR JUEGO presionado" << std::endl;
+                if (rmlui_interface) {
+                    rmlui_interface->HidePauseMenu();
+                    if (rmlui_interface->on_restart_callback) {
+                        rmlui_interface->on_restart_callback();
+                    }
+                }
+            }
+        }
+
+    private:
+        RmlUiInterface* rmlui_interface;
+    };
+
 private:
     std::shared_ptr<Window> window;
     Rml::Context* context;
@@ -168,6 +231,16 @@ private:
     bool main_menu_visible{false};
     std::unique_ptr<StartButtonListener> start_button_listener;
     std::function<void()> on_menu_hidden_callback;
+    
+    // Menú de pausa
+    Rml::ElementDocument* pause_menu_document{nullptr};
+    bool pause_menu_visible{false};
+    std::unique_ptr<ContinueButtonListener> continue_button_listener;
+    std::unique_ptr<RestartButtonListener> restart_button_listener;
+    std::function<void()> on_restart_callback;
+    
+    // Método helper para cargar el menú de pausa
+    bool LoadPauseMenu();
 };
 
 #endif // RMLUI_INTERFACE_HPP

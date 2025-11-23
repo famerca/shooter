@@ -332,6 +332,50 @@ int main()
                 std::cout << "Juego reanudado desde el menú" << std::endl;
             });
             
+            // Configurar callback para reiniciar el juego
+            rmlui->SetOnRestartCallback([scene, user, sphere, dado, cilindro, dado2, input]() {
+                std::cout << "Reiniciando juego..." << std::endl;
+                
+                // Resetear posición del usuario
+                scene->at(user)->getTransform()->translate(glm::vec3(0.f, 0.f, 0.f));
+                if (scene->at(user)->getBody()) {
+                    scene->at(user)->getBody()->SetPosition({0.f, 0.f, 0.f});
+                    scene->at(user)->getBody()->SetVelocity({0.f, 0.f, 0.f});
+                }
+                
+                // Resetear posición de los obstáculos
+                scene->at(sphere)->getTransform()->translate(glm::vec3(1.f, 0.f, -1.f));
+                if (scene->at(sphere)->getBody()) {
+                    scene->at(sphere)->getBody()->SetPosition({1.f, 0.f, -1.f});
+                    scene->at(sphere)->getBody()->SetVelocity({10.f, 0.f, 0.f});
+                }
+                
+                scene->at(dado)->getTransform()->translate(glm::vec3(-1.f, 0.f, 0.f));
+                if (scene->at(dado)->getBody()) {
+                    scene->at(dado)->getBody()->SetPosition({-1.f, 0.f, 0.f});
+                    scene->at(dado)->getBody()->SetVelocity({0.f, 0.f, 0.f});
+                }
+                
+                scene->at(cilindro)->getTransform()->translate(glm::vec3(0.f, 0.f, 1.5f));
+                if (scene->at(cilindro)->getBody()) {
+                    scene->at(cilindro)->getBody()->SetPosition({0.f, 0.f, 1.5f});
+                    scene->at(cilindro)->getBody()->SetVelocity({0.f, 0.f, 0.f});
+                }
+                
+                scene->at(dado2)->getTransform()->translate(glm::vec3(1.f, 0.5f, 3.f));
+                if (scene->at(dado2)->getBody()) {
+                    scene->at(dado2)->getBody()->SetPosition({1.f, 0.5f, 3.f});
+                    scene->at(dado2)->getBody()->SetVelocity({0.f, 0.f, 0.f});
+                }
+                
+                // Resetear estado del input
+                if (input) {
+                    input->is_jumping = false;
+                }
+                
+                std::cout << "Juego reiniciado" << std::endl;
+            });
+            
             // Conectar RmlUi al renderer
             renderer->setRmlUiInterface(rmlui);
             std::cout << "RmlUi integrado correctamente. El juego está pausado hasta presionar START GAME." << std::endl;

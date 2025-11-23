@@ -62,8 +62,44 @@ void Renderer::render(std::shared_ptr<Scene> scene)
 
         calcDeltaTime();
 
-        // Pausar física y actualización de escena si el menú está visible
-        bool game_paused = (rmlui_interface && rmlui_interface->IsInitialized() && rmlui_interface->IsMainMenuVisible());
+        // Procesar input antes de verificar pausa (para detectar ESC)
+        if(scene->window->getInput() != nullptr)
+        {
+            scene->window->getInput()->poll(delta_time);
+            
+            // Detectar tecla ESC para pausar/reanudar
+            if (rmlui_interface && rmlui_interface->IsInitialized())
+            {
+                auto input = scene->window->getInput();
+                static bool last_esc_state = false;
+                bool current_esc_state = input->is_key_pressed(GLFW_KEY_ESCAPE);
+                
+                // Detectar transición de false a true (tecla presionada)
+                if (current_esc_state && !last_esc_state)
+                {
+                    // Si el menú principal está visible, no hacer nada (ya está pausado)
+                    if (!rmlui_interface->IsMainMenuVisible())
+                    {
+                        // Si el menú de pausa está visible, ocultarlo (reanudar)
+                        if (rmlui_interface->IsPauseMenuVisible())
+                        {
+                            rmlui_interface->HidePauseMenu();
+                        }
+                        // Si no está visible, mostrarlo (pausar)
+                        else
+                        {
+                            rmlui_interface->ShowPauseMenu();
+                        }
+                    }
+                }
+                
+                last_esc_state = current_esc_state;
+            }
+        }
+
+        // Pausar física y actualización de escena si algún menú está visible
+        bool game_paused = (rmlui_interface && rmlui_interface->IsInitialized() && 
+                           (rmlui_interface->IsMainMenuVisible() || rmlui_interface->IsPauseMenuVisible()));
         
         if (!game_paused)
         {
@@ -74,11 +110,6 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         }
 
         this->useShader(Shader::LIST::BASE);
-
-        if(scene->window->getInput() != nullptr)
-        {
-            scene->window->getInput()->poll(delta_time);
-        }
         
         // Procesar input de RmlUi (debe hacerse antes de Update())
         if (rmlui_interface && rmlui_interface->IsInitialized())
