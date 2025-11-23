@@ -38,6 +38,11 @@ public:
 
     // RmlUi integration (opcional)
     void setRmlUiInterface(std::shared_ptr<class RmlUiInterface> rmlui) noexcept;
+    
+    // Control del juego
+    void pause() noexcept { game_paused = true; }
+    void resume() noexcept { game_paused = false; }
+    bool isPaused() const noexcept { return game_paused; }
 
 private:
     std::vector<std::shared_ptr<Shader>> shaders;
@@ -64,6 +69,9 @@ private:
 
     // RmlUi interface (opcional)
     std::shared_ptr<class RmlUiInterface> rmlui_interface{nullptr};
+    
+    // Estado del juego
+    bool game_paused{false};
 
 };  
 

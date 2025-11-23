@@ -62,16 +62,57 @@ void Renderer::render(std::shared_ptr<Scene> scene)
 
         calcDeltaTime();
 
-        if(Engine::Physics::Get().IsInitialized())
-            Engine::Physics::Get().Step(delta_time);
-            
-        scene->update(delta_time);
+        // Solo actualizar física y escena si el juego no está pausado
+        if (!game_paused)
+        {
+            if(Engine::Physics::Get().IsInitialized())
+                Engine::Physics::Get().Step(delta_time);
+                
+            scene->update(delta_time);
+        }
 
         this->useShader(Shader::LIST::BASE);
 
+        // Procesar input del motor (siempre, para que RmlUi pueda recibir eventos)
         if(scene->window->getInput() != nullptr)
         {
             scene->window->getInput()->poll(delta_time);
+        }
+        
+        // Procesar input de RmlUi (necesario para que los clicks funcionen)
+        if (rmlui_interface && rmlui_interface->IsInitialized())
+        {
+            // Obtener posición del mouse y procesar eventos
+            auto input = scene->window->getInput();
+            if (input)
+            {
+                auto mouse_pos = input->get_mouse_position();
+                auto mouse_buttons = input->is_mouse_button_pressed(0); // 0 = GLFW_MOUSE_BUTTON_LEFT
+                
+                // Procesar movimiento del mouse en RmlUi
+                rmlui_interface->GetContext()->ProcessMouseMove(
+                    static_cast<int>(mouse_pos.x), 
+                    static_cast<int>(mouse_pos.y), 
+                    0
+                );
+                
+                // Procesar clicks del mouse en RmlUi
+                static bool last_mouse_state = false;
+                bool current_mouse_state = mouse_buttons;
+                
+                if (current_mouse_state && !last_mouse_state)
+                {
+                    // Botón presionado
+                    rmlui_interface->GetContext()->ProcessMouseButtonDown(0, 0);
+                }
+                else if (!current_mouse_state && last_mouse_state)
+                {
+                    // Botón liberado
+                    rmlui_interface->GetContext()->ProcessMouseButtonUp(0, 0);
+                }
+                
+                last_mouse_state = current_mouse_state;
+            }
         }
         //render Direction Light
         this->renderDirLight(scene->DirLight);
@@ -91,6 +132,12 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         {
             rmlui_interface->Update();
             rmlui_interface->Render();
+            
+            // Si el menú se ocultó, reanudar el juego
+            if (game_paused && !rmlui_interface->IsMainMenuVisible())
+            {
+                game_paused = false;
+            }
         }
 
         scene->window->swap_buffers();

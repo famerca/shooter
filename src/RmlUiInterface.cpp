@@ -2,10 +2,32 @@
 #include <RmlUi/Core/Context.h>
 #include <RmlUi/Core/Input.h>
 #include <RmlUi/Core/FileInterface.h>
+#include <RmlUi/Core/Element.h>
+#include <RmlUi/Core/ElementDocument.h>
+#include <RmlUi/Core/EventListener.h>
+#include <RmlUi/Core/Event.h>
 #include <filesystem>
 #include <iostream>
 
 namespace fs = std::filesystem;
+
+// Clase listener para el botón de empezar
+class RmlUiInterface::StartButtonListener : public Rml::EventListener {
+public:
+    StartButtonListener(RmlUiInterface* interface) : rmlui_interface(interface) {}
+    
+    void ProcessEvent(Rml::Event& event) override {
+        if (event.GetId() == Rml::EventId::Click) {
+            if (rmlui_interface) {
+                rmlui_interface->HideMainMenu();
+                std::cout << "RmlUiInterface: Botón empezar presionado" << std::endl;
+            }
+        }
+    }
+    
+private:
+    RmlUiInterface* rmlui_interface;
+};
 
 RmlUiInterface::RmlUiInterface()
     : context(nullptr)
@@ -14,6 +36,9 @@ RmlUiInterface::RmlUiInterface()
     , initialized(false)
     , window_width(0)
     , window_height(0)
+    , main_menu_visible(false)
+    , main_menu_document(nullptr)
+    , start_button_listener(nullptr)
 {
 }
 
@@ -138,6 +163,16 @@ void RmlUiInterface::Shutdown()
         Rml::Debugger::Shutdown();
         // El contexto se destruye automáticamente cuando se llama a Rml::Shutdown()
         // o se puede destruir explícitamente con Rml::RemoveContext()
+        if (main_menu_document)
+        {
+            Rml::Element* start_button = main_menu_document->GetElementById("start-button");
+            if (start_button && start_button_listener)
+            {
+                start_button->RemoveEventListener(Rml::EventId::Click, start_button_listener.get());
+            }
+        }
+        main_menu_document = nullptr;
+        start_button_listener.reset();
         Rml::RemoveContext("main");
         context = nullptr;
     }
@@ -175,14 +210,14 @@ void RmlUiInterface::Render()
     render_interface->EndFrame();
 }
 
-void RmlUiInterface::ProcessInput(GLFWwindow* /*glfw_window*/)
+void RmlUiInterface::ProcessInput(GLFWwindow* glfw_window)
 {
-    if (!initialized || !context)
+    if (!initialized || !context || !glfw_window)
         return;
 
-    // Esta función debe ser llamada desde los callbacks de GLFW
-    // Por ahora, la dejamos vacía ya que el Input del motor ya maneja los eventos
-    // Se puede expandir más adelante para integrar mejor con RmlUi
+    // Procesar eventos de mouse para RmlUi
+    // Esto se hace automáticamente si usamos los callbacks de GLFW
+    // Por ahora, procesamos manualmente desde el Input del motor
 }
 
 bool RmlUiInterface::LoadDocument(const std::string& document_path)
@@ -217,6 +252,58 @@ bool RmlUiInterface::LoadDocument(const std::string& document_path)
 
     document->Show();
     std::cout << "RmlUiInterface: Documento cargado: " << path << std::endl;
+    
+    // Si es el menú principal, guardar referencia y configurar eventos
+    if (document_path.find("test.rml") != std::string::npos)
+    {
+        main_menu_document = document;
+        main_menu_visible = true;
+        SetupStartButtonListener();
+    }
+    
     return true;
+}
+
+void RmlUiInterface::ShowMainMenu()
+{
+    if (!initialized || !context)
+        return;
+    
+    if (!main_menu_document)
+    {
+        // Cargar el menú si no está cargado
+        LoadDocument("test.rml");
+    }
+    else
+    {
+        main_menu_document->Show();
+        main_menu_visible = true;
+    }
+}
+
+void RmlUiInterface::HideMainMenu()
+{
+    if (!initialized || !main_menu_document)
+        return;
+    
+    main_menu_document->Hide();
+    main_menu_visible = false;
+    
+    // Notificar que el juego debe reanudarse
+    // Esto se manejará desde el renderer
+}
+
+void RmlUiInterface::SetupStartButtonListener()
+{
+    if (!main_menu_document)
+        return;
+    
+    // Crear y configurar el listener para el botón de empezar
+    start_button_listener = std::make_unique<StartButtonListener>(this);
+    Rml::Element* start_button = main_menu_document->GetElementById("start-button");
+    if (start_button)
+    {
+        start_button->AddEventListener(Rml::EventId::Click, start_button_listener.get());
+    }
 }
 
