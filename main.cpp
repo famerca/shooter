@@ -411,6 +411,9 @@ int main()
                 ResetGameState(scene, initial_state, input);
             });
             
+            // Cargar el contador de vidas (se mostrará cuando empiece el juego)
+            rmlui->UpdateLives(3); // Inicializar con 3 vidas
+            
             // Conectar RmlUi al renderer
             renderer->setRmlUiInterface(rmlui);
             std::cout << "RmlUi integrado correctamente. El juego está pausado hasta presionar START GAME." << std::endl;

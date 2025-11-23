@@ -128,6 +128,22 @@ public:
     void SetOnRestartCallback(std::function<void()> callback);
 
     /**
+     * Muestra el contador de vidas.
+     */
+    void ShowLivesCounter();
+
+    /**
+     * Oculta el contador de vidas.
+     */
+    void HideLivesCounter();
+
+    /**
+     * Actualiza el número de vidas mostrado en el contador.
+     * @param lives Número de vidas a mostrar
+     */
+    void UpdateLives(int lives);
+
+    /**
      * Obtiene el contexto de RmlUi (para uso avanzado).
      */
     Rml::Context* GetContext() const { return context; }
@@ -244,8 +260,15 @@ private:
     std::unique_ptr<RestartButtonListener> restart_button_listener;
     std::function<void()> on_restart_callback;
     
+    // Contador de vidas
+    Rml::ElementDocument* lives_counter_document{nullptr};
+    bool lives_counter_visible{false};
+    
     // Método helper para cargar el menú de pausa
     bool LoadPauseMenu();
+    
+    // Método helper para cargar el contador de vidas
+    bool LoadLivesCounter();
 };
 
 #endif // RMLUI_INTERFACE_HPP

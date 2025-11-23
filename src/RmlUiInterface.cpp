@@ -24,6 +24,8 @@ RmlUiInterface::RmlUiInterface()
     , pause_menu_visible(false)
     , continue_button_listener(std::make_unique<ContinueButtonListener>(this))
     , restart_button_listener(std::make_unique<RestartButtonListener>(this))
+    , lives_counter_document(nullptr)
+    , lives_counter_visible(false)
 {
 }
 
@@ -315,6 +317,8 @@ void RmlUiInterface::ShowMainMenu()
     {
         main_menu_document->Show();
         main_menu_visible = true;
+        // Ocultar el contador de vidas cuando se muestra el menú principal
+        HideLivesCounter();
         std::cout << "RmlUiInterface: Menú principal mostrado" << std::endl;
     }
 }
@@ -326,6 +330,9 @@ void RmlUiInterface::HideMainMenu()
         main_menu_document->Hide();
         main_menu_visible = false;
         std::cout << "RmlUiInterface: Menú principal ocultado" << std::endl;
+        
+        // Mostrar el contador de vidas cuando empieza el juego
+        ShowLivesCounter();
         
         // Ejecutar callback si está definido
         if (on_menu_hidden_callback)
@@ -343,6 +350,100 @@ void RmlUiInterface::SetOnMenuHiddenCallback(std::function<void()> callback)
 void RmlUiInterface::SetOnRestartCallback(std::function<void()> callback)
 {
     on_restart_callback = callback;
+}
+
+void RmlUiInterface::ShowLivesCounter()
+{
+    // Cargar el contador de vidas si no está cargado
+    if (!lives_counter_document)
+    {
+        if (!LoadLivesCounter())
+        {
+            std::cerr << "RmlUiInterface: No se pudo cargar el contador de vidas" << std::endl;
+            return;
+        }
+    }
+    
+    if (lives_counter_document && !lives_counter_visible)
+    {
+        lives_counter_document->Show();
+        lives_counter_visible = true;
+        std::cout << "RmlUiInterface: Contador de vidas mostrado" << std::endl;
+    }
+}
+
+void RmlUiInterface::HideLivesCounter()
+{
+    if (lives_counter_document && lives_counter_visible)
+    {
+        lives_counter_document->Hide();
+        lives_counter_visible = false;
+        std::cout << "RmlUiInterface: Contador de vidas ocultado" << std::endl;
+    }
+}
+
+void RmlUiInterface::UpdateLives(int lives)
+{
+    if (!lives_counter_document)
+    {
+        // Si no está cargado, cargarlo primero
+        if (!LoadLivesCounter())
+        {
+            std::cerr << "RmlUiInterface: No se pudo cargar el contador de vidas para actualizar" << std::endl;
+            return;
+        }
+    }
+    
+    if (lives_counter_document)
+    {
+        Rml::Element* lives_count_element = lives_counter_document->GetElementById("lives-count");
+        if (lives_count_element)
+        {
+            lives_count_element->SetInnerRML(std::to_string(lives));
+            std::cout << "RmlUiInterface: Vidas actualizadas a " << lives << std::endl;
+        }
+        else
+        {
+            std::cerr << "RmlUiInterface: No se encontró el elemento 'lives-count' en el contador" << std::endl;
+        }
+    }
+}
+
+bool RmlUiInterface::LoadLivesCounter()
+{
+    if (!initialized || !context)
+    {
+        std::cerr << "RmlUiInterface: No inicializado" << std::endl;
+        return false;
+    }
+
+    // Convertir a path absoluto si es relativo
+    fs::path path = "lives_counter.rml";
+    if (path.is_relative())
+    {
+        fs::path project_root = fs::path(__FILE__).parent_path().parent_path();
+        path = project_root / "ui" / "lives_counter.rml";
+    }
+
+    if (!fs::exists(path))
+    {
+        std::cerr << "RmlUiInterface: Documento no encontrado: " << path << std::endl;
+        return false;
+    }
+
+    Rml::ElementDocument* document = context->LoadDocument(path.string());
+    if (!document)
+    {
+        std::cerr << "RmlUiInterface: Error al cargar documento: " << path << std::endl;
+        return false;
+    }
+
+    lives_counter_document = document;
+    lives_counter_visible = false; // No mostrarlo todavía, se mostrará cuando empiece el juego
+    document->Hide(); // Ocultarlo inicialmente
+    
+    std::cout << "RmlUiInterface: Contador de vidas cargado correctamente" << std::endl;
+    return true;
 }
 
 bool RmlUiInterface::LoadPauseMenu()
