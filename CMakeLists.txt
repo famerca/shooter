@@ -84,6 +84,11 @@ target_compile_definitions(GLS PUBLIC
     JPH_OBJECT_STREAM=1
 )
 
+# Definir ENGINE_DEBUG_MODE cuando está en modo Debug para resolver rutas correctamente
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(GLS PUBLIC ENGINE_DEBUG_MODE)
+endif()
+
 target_compile_options(GLS PRIVATE -fno-rtti)
 
 # 3. Incluir headers de tu proyecto y de Jolt
@@ -136,6 +141,11 @@ endif()
 
 # 5. Declarar el ejecutable
 add_executable(GLSX main.cpp)
+
+# Definir ENGINE_DEBUG_MODE para el ejecutable también
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(GLSX PRIVATE ENGINE_DEBUG_MODE)
+endif()
 
 #target_compile_options(GLSX PRIVATE -fno-rtti)
 
