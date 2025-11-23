@@ -328,11 +328,8 @@ int main()
             // Nota: Necesitas tener una fuente TTF en el proyecto
             // Por ahora, intentamos cargar el documento sin fuente (puede fallar)
             
-            // Cargar menú de inicio (se mostrará automáticamente)
+            // Cargar documento de prueba
             rmlui->LoadDocument("test.rml");
-            
-            // Pausar el juego al inicio (mostrar menú)
-            renderer->pause();
             
             // Conectar RmlUi al renderer
             renderer->setRmlUiInterface(rmlui);

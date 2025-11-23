@@ -13,8 +13,6 @@ namespace Rml {
     class Context;
     class RenderInterface;
     class SystemInterface;
-    class Event;
-    class EventListener;
 }
 
 // RmlUi backend includes (paths relativos desde Backends/)
@@ -91,21 +89,6 @@ public:
      */
     bool IsInitialized() const { return initialized; }
 
-    /**
-     * Muestra el menú de inicio (pausa el juego).
-     */
-    void ShowMainMenu();
-
-    /**
-     * Oculta el menú de inicio (reanuda el juego).
-     */
-    void HideMainMenu();
-
-    /**
-     * Verifica si el menú está visible.
-     */
-    bool IsMainMenuVisible() const { return main_menu_visible; }
-
 private:
     std::shared_ptr<Window> window;
     Rml::Context* context;
@@ -114,15 +97,6 @@ private:
     bool initialized;
     int window_width;
     int window_height;
-    bool main_menu_visible;
-    Rml::ElementDocument* main_menu_document;
-    
-    // Event listener para el botón de empezar (definido en .cpp)
-    class StartButtonListener;
-    std::unique_ptr<StartButtonListener> start_button_listener;
-    
-    // Función helper para crear el listener (implementada en .cpp)
-    void SetupStartButtonListener();
 };
 
 #endif // RMLUI_INTERFACE_HPP
