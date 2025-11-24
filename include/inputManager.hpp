@@ -17,7 +17,7 @@ class inputManager : public Engine::Input
 {
 private:
     // Atributos del Jugador
-    std::shared_ptr<Engine::GameObject> object{nullptr};
+    std::shared_ptr<Engine::GameObject> user{nullptr};
     std::shared_ptr<Engine::Scene> scene{nullptr};
     float sensitivity{1.f};
   

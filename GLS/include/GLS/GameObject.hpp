@@ -52,7 +52,6 @@ public:
 
     std::shared_ptr<TransformComponent> getTransform();
     void update(const GLfloat &);
-
     void change();
 };
 

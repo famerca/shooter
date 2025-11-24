@@ -14,6 +14,7 @@
 #include <GLS/Window.hpp>
 #include "GLS/Physics.hpp"
 #include "GLS/AudioManager.hpp"
+#include "GLS/Path.hpp"
 
 #include "Game.hpp"
 
@@ -33,15 +34,21 @@ int main()
         constexpr GLint HEIGHT = 720;
 
 
-        auto main_window = Window::create(WIDTH, HEIGHT, "Cubo y piramide");
+        auto main_window = Window::create(WIDTH, HEIGHT, "Game");
 
         if (main_window == nullptr)
         {
             return EXIT_FAILURE;
         }
 
+
+        std::cout << "ROOT: " << ROOT_PATH << std::endl;
+        std::cout << "Carpeta de recursos: " << ASSETS_PATH << std::endl;
+
         Game game(main_window);
         game.init();
+
+        game.Level1();
         
         game.render();
 

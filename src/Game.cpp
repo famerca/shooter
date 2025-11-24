@@ -1,5 +1,6 @@
 #include "Game.hpp"
 #include "inputManager.hpp"
+#include "Level.hpp"
 #include <GLS/DirectionalLight.hpp>
 #include <GLS/Physics.hpp>
 #include <GLS/SkyBox.hpp>
@@ -53,13 +54,14 @@ void Game::initUser()
     
     m_camera->activate();
     m_user->getTransform()->translate(0.f, 0.f, 0.f);
+    m_user->getTransform()->scale(0.8f, 0.8f, 0.8f);
     m_scene->createAudioListener(m_user_index);
 
     auto pj_model = m_scene->createModel(m_user_index);
-    pj_model->loadModel("pj/base.fbx");
-    pj_model->setRelativeModel(glm::vec3(0.f, -1.f, 0.f));
+    pj_model->loadModel("girl.fbx");
+    pj_model->setRelativeModel(glm::vec3(0.f, -0.72f, 0.f));
 
-    m_user->setBody(Engine::Physics::Get().CreateBox({0.2f, 0.4f, 0.2f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
+    m_user->setBody(Engine::Physics::Get().CreateBox({0.2f, 0.6f, 0.2f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
 
 }
 
@@ -94,6 +96,16 @@ void Game::initSkyBox()
     );
 
     m_scene->setSkyBox(sky_box);
+}
+
+
+void Game::Level1()
+{
+    Level level1 = {
+        {"casita/base.fbx", "deco", {2.f, 0.f, 0.f}, {1.f, 1.f, 1.f}},
+    };
+
+    level1.init(m_scene);
 }
 
 void Game::render()

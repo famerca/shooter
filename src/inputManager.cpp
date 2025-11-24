@@ -24,23 +24,21 @@ inputManager::~inputManager()
 }
 
 void inputManager::init(std::shared_ptr<Scene> scene_ptr, 
-                        std::shared_ptr<GameObject> object_ptr)
+                        std::shared_ptr<GameObject> usr)
 {
-    this->object = object_ptr;
+    this->user = usr;
     this->scene = scene_ptr;
 }
 
 void inputManager::update(const float &dt) noexcept 
 {
     // Protección básica: si no hay objeto o escena, no hacemos nada
-    if (!object || !scene) return;
-
-    // glm::vec3 pos = object->getTransform()->getPosition(); // (Variable no usada en el snippet original, pero la dejo por si acaso)
+    if (!user || !scene) return;
 
     // 1. --- Lógica del Salto del Jugador (Y) ---
     if (is_key_pressed(GLFW_KEY_SPACE) && !is_jumping)
     {
-        if (auto body = object->getBody()) {
+        if (auto body = user->getBody()) {
             body->ApplyImpulse({0.f, 1000.f, 0.f});
             is_jumping = true;
         }
@@ -48,7 +46,7 @@ void inputManager::update(const float &dt) noexcept
 
     if(is_key_pressed(GLFW_KEY_LEFT_SHIFT))
     {
-        if (auto body = object->getBody()) {
+        if (auto body = user->getBody()) {
             body->ApplyImpulse({0.f, -10.f, 0.f});
         }
     }
@@ -62,7 +60,7 @@ void inputManager::update(const float &dt) noexcept
     }
 
     // 2. --- Lógica de Movimiento Horizontal del Jugador (X/Z) ---
-    if (auto body = object->getBody()) {
+    if (auto body = user->getBody()) {
         if(is_key_pressed(GLFW_KEY_A)) body->ApplyImpulse({30.f, 0.f, 0.f});
         if(is_key_pressed(GLFW_KEY_D)) body->ApplyImpulse({-30.f, 0.f, 0.f});
         if(is_key_pressed(GLFW_KEY_W)) body->ApplyImpulse({0.f, 0.f, 40.f});

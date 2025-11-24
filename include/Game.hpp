@@ -16,6 +16,9 @@ public:
     ~Game();
 
     void init();
+
+    void Level1();
+
     void render();
 
 private:
