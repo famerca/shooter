@@ -62,12 +62,29 @@ set(RMLUI_VENDOR_DIR ${VENDOR_DIR}/RmlUi)
 set(RMLUI_INCLUDE_DIR ${RMLUI_VENDOR_DIR}/Include)
 set(RMLUI_LIB_DIR ${RMLUI_VENDOR_DIR})
 
-set(RMLUI_REQUIRED_LIBS librmlui.a librmlui_debugger.a)
-foreach(LIB ${RMLUI_REQUIRED_LIBS})
-    if(NOT EXISTS ${RMLUI_LIB_DIR}/${LIB})
-        message(FATAL_ERROR "No se encontró ${LIB} en ${RMLUI_LIB_DIR}")
-    endif()
-endforeach()
+# BUSCAR LIBRERÍA CORE
+find_library(RMLUI_LIBRARY 
+    NAMES rmlui RmlCore 
+    PATHS ${RMLUI_LIB_DIR}
+    NO_DEFAULT_PATH
+)
+
+# BUSCAR LIBRERÍA DEBUGGER
+find_library(RMLUI_DEBUGGER_LIBRARY 
+    NAMES rmlui_debugger RmlDebugger 
+    PATHS ${RMLUI_LIB_DIR}
+    NO_DEFAULT_PATH
+)
+
+if(NOT RMLUI_LIBRARY)
+    message(FATAL_ERROR "No se pudo encontrar la librería rmlui en ${RMLUI_LIB_DIR}")
+endif()
+
+if(NOT RMLUI_DEBUGGER_LIBRARY)
+    message(FATAL_ERROR "No se pudo encontrar la librería rmlui debugger en ${RMLUI_LIB_DIR}")
+endif()
+
+
 
 set(RMLUI_BACKEND_DIR ${CMAKE_CURRENT_BINARY_DIR}/third_party/RmlUi_Backends)
 file(MAKE_DIRECTORY ${RMLUI_BACKEND_DIR})
@@ -153,6 +170,9 @@ if(APPLE)
         glfw 
         ${ASSIMP_LIBRARY} 
         ${JOLT_LIBRARY} 
+        ${RMLUI_LIBRARY}
+        ${RMLUI_DEBUGGER_LIBRARY}
+        Freetype::Freetype
         m 
         pthread
     )
@@ -166,15 +186,16 @@ else()
         GLEW 
         glfw 
         assimp 
-        ${JOLT_LIBRARY} 
+        ${JOLT_LIBRARY}
+        ${RMLUI_DEBUGGER_LIBRARY}
+        ${RMLUI_LIBRARY} 
+        Freetype::Freetype
         m 
         pthread
     )
 endif()
 
-# RMLUI
-set(RMLUI_LIBRARY ${RMLUI_LIB_DIR}/librmlui.a)
-set(RMLUI_DEBUGGER_LIBRARY ${RMLUI_LIB_DIR}/librmlui_debugger.a)
+
 
 target_sources(GLSHOOTERLIB PRIVATE
     ${RMLUI_BACKEND_DIR}/RmlUi_Platform_GLFW.cpp
@@ -184,14 +205,9 @@ target_sources(GLSHOOTERLIB PRIVATE
 target_include_directories(GLSHOOTERLIB PUBLIC 
     ${RMLUI_INCLUDE_DIR}
     ${RMLUI_BACKEND_DIR}
-    ${FREETYPE_INCLUDE_DIRS}
+    #${FREETYPE_INCLUDE_DIRS}
 )
 
-target_link_libraries(GLSHOOTERLIB PUBLIC 
-    ${RMLUI_LIBRARY}
-    ${RMLUI_DEBUGGER_LIBRARY}
-    ${FREETYPE_LIBRARIES}
-)
 
 if(UNIX)
     target_link_libraries(GLSHOOTERLIB PUBLIC ${CMAKE_DL_LIBS})

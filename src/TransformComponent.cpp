@@ -14,6 +14,18 @@ TransformComponent::TransformComponent(Owner _owner): Component(_owner, Componen
    changed = false;
 }
 
+TransformComponent::TransformComponent(Owner _owner,  const TransformComponent& other)
+    // Inicializa la base si es necesario, asumiendo que Component tiene un constructor de copia o por defecto adecuado
+    : Component(_owner, Component::Type::Transform)
+{
+    // Copia todos los miembros de GLM
+    _scale = other._scale;
+    model = other.model;
+    rotation = other.rotation;
+    position = other.position;
+}
+
+
 glm::vec3 TransformComponent::getPosition()
 {
     return position;

@@ -175,6 +175,33 @@ std::shared_ptr<Body> Physics::CreateBox(const Vec3& halfExtent, const RVec3& po
     return body;
 }
 
+std::shared_ptr<Body> Physics::CloneBody(std::shared_ptr<Body> body)
+{
+    auto &iface = GetBodyInterface();
+    auto &lockI = m_PhysicsSystem->GetBodyLockInterface();
+    JPH::BodyCreationSettings settings;
+    BodyID id;
+
+    {
+        JPH::BodyLockRead lock(lockI, body->m_BodyID);
+        if(!lock.Succeeded())
+            return nullptr;
+
+        const JPH::Body* originalBody = &lock.GetBody();
+        settings = originalBody->GetBodyCreationSettings();
+
+    }
+
+    if(body->m_type == BodyType::Static)
+        id = iface.CreateAndAddBody(settings, EActivation::DontActivate);
+    else
+        id = iface.CreateAndAddBody(settings, EActivation::Activate);
+
+    std::shared_ptr<Body> new_body = std::make_shared<Engine::Body>(id, body->m_type);
+    m_Bodies.push_back(new_body);
+    return new_body;
+}
+
 std::shared_ptr<Body> Physics::CreateSphere(float radius, const RVec3& pos, BodyType type) {
     EMotionType motion;
     ObjectLayer layer;

@@ -8,6 +8,13 @@ Component::Component(Owner _owner, Type _type): type(_type)
     changed = true;
 }
 
+Component::Component(const Component& other): type(other.type)
+{
+    owner = other.owner;
+    changed = other.changed;
+    renderd = other.renderd;
+}
+
 Component::~Component()
 {
     owner = nullptr;

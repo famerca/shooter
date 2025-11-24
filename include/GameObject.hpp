@@ -33,6 +33,8 @@ public:
     ~GameObject();
     std::shared_ptr<GameObject> self();
 
+    std::shared_ptr<Engine::GameObject> clone();
+
     bool isVisible();
     void setVisible(bool);
 

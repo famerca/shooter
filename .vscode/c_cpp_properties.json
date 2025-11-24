@@ -7,8 +7,7 @@
                 "${workspaceFolder}/build/third_party/BSlogger/src",
                 "${workspaceFolder}/build/third_party/stb",
                 "${workspaceFolder}/vendor/JoltPhysics/include",
-                "${workspaceFolder}/vendor",
-                "${workspaceFolder}/vendor/miniaudio"
+                "${workspaceFolder}/vendor/RmlUi/Include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

@@ -3,6 +3,7 @@
 #include "Physics.hpp"
 #include "Path.hpp"
 #include "UIManager.hpp"
+#include "Utils.hpp"
 #include <iostream>
 
 namespace Engine
@@ -184,8 +185,14 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         this->renderCamera(scene->activeCamera);
 
         //render objects
+        #ifdef ENGINE_DEBUG_MODE
+        int i = 0;
+        #endif
         for (std::shared_ptr<GameObject> object : scene->Objects)
         {
+            #ifdef ENGINE_DEBUG_MODE
+            std::cout << "Rendering object " << i++ << std::endl;
+            #endif
             this->renderObject(object);
         }
 
@@ -253,6 +260,11 @@ void Renderer::renderObject(std::shared_ptr<GameObject> object)
     if(object != nullptr && object->isVisible())
     {
         auto model = object->getTransform()->getModelMatrix();
+        #ifdef ENGINE_DEBUG_MODE
+        std::cout << "Body Postion: " << object->getBody()->GetPosition() << std::endl;
+        Utils::printMat4(model);
+        #endif
+
         for (std::shared_ptr<Component> component : object->getComponents())
         {
             if(component->getType() == Component::Type::Model)
@@ -265,8 +277,13 @@ void Renderer::renderObject(std::shared_ptr<GameObject> object)
 
 void Renderer::renderModel(std::shared_ptr<ModelComponent> model,  glm::mat4 m)
 {
+    if(model->getModel() == nullptr)
+        return;
+
     if(model->isRelative())
+    {
         m = m * model->getModelMatrix(); 
+    }
 
     glUniformMatrix4fv(currentShader->get_uniform_model_id(), 1, GL_FALSE, glm::value_ptr(m));
     model->getModel()->render(currentShader->get_uniform_diffuse_texture_id());

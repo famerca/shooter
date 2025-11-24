@@ -71,6 +71,19 @@ unsigned Scene::createGameObject()
     return Objects.size() - 1;
 }
 
+unsigned Scene::cloneGameObject(unsigned index)
+{
+    Objects.push_back(Objects[index]->clone());
+    return Objects.size() - 1;
+}
+
+std::shared_ptr<GameObject> Scene::cloneGameObject(std::shared_ptr<GameObject> object)
+{
+    auto clone = object->clone();
+    Objects.push_back(clone);
+    return clone;
+}
+
 std::shared_ptr<ModelComponent> Scene::createModel(unsigned index)
 {
     if(index >= Objects.size())
