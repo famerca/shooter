@@ -1,10 +1,16 @@
 #include "Shader.hpp"
 #include "Scene.hpp"
 #include "HitboxRenderer.hpp"
+
+#ifdef JPH_DEBUG_RENDERER
 #include <Jolt/Physics/Body/BodyManager.h>
+#endif
 
 #ifndef RENDER_HPP
 #define RENDER_HPP
+
+// Forward declaration para evitar dependencia circular
+class RmlUiInterface;
 
 namespace Engine
 {
@@ -38,7 +44,8 @@ public:
 
     GLfloat getDeltaTime() const noexcept;
 
-   
+    // RmlUi integration (opcional)
+    void setRmlUiInterface(std::shared_ptr<::RmlUiInterface> rmlui) noexcept;
 
 private:
     std::vector<std::shared_ptr<Shader>> shaders;
@@ -63,7 +70,10 @@ private:
     GLdouble last_frame_time{0.0}; // Tiempo al final del frame anterior (usamos GLdouble por la precisión de glfwGetTime)
     GLfloat delta_time{0.f};       // Almacenamos el delta time en float para su uso en OpenGL/física
 
+    // RmlUi interface (opcional)
+    std::shared_ptr<::RmlUiInterface> rmlui_interface{nullptr};
 };
   
 }
+
 #endif // RENDER_HPP

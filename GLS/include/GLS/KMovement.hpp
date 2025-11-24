@@ -15,6 +15,7 @@ class Body;
 class KMovement {
 public:
     KMovement(std::shared_ptr<GameObject> owner);
+    KMovement(std::shared_ptr<GameObject> owner, const KMovement& other);
 
     void Update(const float& dt);
 

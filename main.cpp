@@ -12,21 +12,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <GLS/Window.hpp>
-#include "GLS/Scene.hpp"
-#include "GLS/GameObject.hpp"
-#include "GLS/ModelComponent.hpp"
-#include "GLS/TransformComponent.hpp"
-#include "GLS/DirectionalLight.hpp"
-#include "GLS/Renderer.hpp"
-#include "GLS/Input.hpp"
-#include "GLS/SkyBox.hpp"
 #include "GLS/Physics.hpp"
-#include "GLS/Listener.hpp"
 #include "GLS/AudioManager.hpp"
-#include "GLS/AudioPlayer.hpp"
-#include "GLS/AudioListenerComponent.hpp"
-#include "GLS/AudioSourceComponent.hpp"
-#include "GLS/Path.hpp"
 
 #include "Game.hpp"
 

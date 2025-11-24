@@ -22,7 +22,10 @@ private:
 
     /* data */
 public:
+
     TransformComponent(Owner);
+    TransformComponent(Owner, const TransformComponent& other);
+    
     ~TransformComponent();
 
     void translate(float x , float y, float z);

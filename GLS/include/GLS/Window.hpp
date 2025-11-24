@@ -49,6 +49,8 @@ public:
 
     std::shared_ptr<Input> getInput() noexcept;
 
+    GLFWwindow* getGLFWWindow() const noexcept { return window; }
+
 
 private:
     GLFWwindow* window{nullptr};
