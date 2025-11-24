@@ -185,10 +185,14 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         this->renderCamera(scene->activeCamera);
 
         //render objects
+        #ifdef ENGINE_DEBUG_MODE
         int i = 0;
+        #endif
         for (std::shared_ptr<GameObject> object : scene->Objects)
         {
+            #ifdef ENGINE_DEBUG_MODE
             std::cout << "Rendering object " << i++ << std::endl;
+            #endif
             this->renderObject(object);
         }
 
@@ -256,8 +260,10 @@ void Renderer::renderObject(std::shared_ptr<GameObject> object)
     if(object != nullptr && object->isVisible())
     {
         auto model = object->getTransform()->getModelMatrix();
+        #ifdef ENGINE_DEBUG_MODE
         std::cout << "Body Postion: " << object->getBody()->GetPosition() << std::endl;
         Utils::printMat4(model);
+        #endif
 
         for (std::shared_ptr<Component> component : object->getComponents())
         {
