@@ -90,10 +90,12 @@ std::shared_ptr<Engine::KMovement> GameObject::getMovement()
 void GameObject::update(const GLfloat &dt)
 {
     if(body != nullptr)
+    {
         body->update();
 
-    if(body->getType() == Engine::BodyType::Kinematic)
-        movement->Update(dt);
+        if(body->getType() == Engine::BodyType::Kinematic)
+            movement->Update(dt);
+    }
 
     transform->update();
 
