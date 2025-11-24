@@ -3,6 +3,8 @@
 #include "GameObject.hpp"
 #include <iostream>
 
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+
 using namespace JPH;
 
 namespace Engine {
@@ -52,8 +54,7 @@ void Body::update()
     {
         JPH::RVec3 pos = Physics::Get().GetBodyInterface().GetCenterOfMassPosition(m_BodyID);
         JPH::Quat jolt_rot = Physics::Get().GetBodyInterface().GetRotation(m_BodyID);
-
-        //std::cout << pos << std::endl;
+    
         owner->getTransform()->rotate( jolt_rot.GetW(), jolt_rot.GetX(), jolt_rot.GetY(), jolt_rot.GetZ());
         owner->getTransform()->translate(pos.GetX(), pos.GetY(), pos.GetZ());
     }
@@ -88,6 +89,15 @@ void Body::setRotation(const glm::quat& rotation)
     }
 }
 
+void Body::SetShape(const JPH::Vec3& halfExtent)
+{
+    if (IsValid())
+    {
+        auto& iface = Physics::Get().GetBodyInterface();
+        JPH::BoxShapeSettings boxSettings(halfExtent);
+        JPH::ShapeSettings::ShapeResult result = boxSettings.Create();
+    }
+}
 
 void Body::ApplyImpulse(const Vec3& impulse) {
     if (m_type == BodyType::Dynamic)

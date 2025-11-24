@@ -24,6 +24,7 @@ public:
     };
 
     Component(Owner, Type);
+    Component(const Component& other);
     virtual ~Component();
 
     virtual void update(const GLfloat &) {};

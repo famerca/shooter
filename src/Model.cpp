@@ -138,11 +138,13 @@ void Model::render(GLuint texture_id) noexcept
     {
         create_default_texture();
     }
+
     std::shared_ptr<Texture> defaultTexture = textures[0];
 
     for (size_t i = 0; i < meshes.size(); i++)
     {
         auto &mesh = meshes[i];
+        
         if (!mesh)
             continue;
 

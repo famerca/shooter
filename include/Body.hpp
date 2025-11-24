@@ -46,6 +46,8 @@ public:
     void SetOwner(std::shared_ptr<GameObject> gameObject);
     void setRotation(const glm::quat& rotation);
 
+    void SetShape(const JPH::Vec3& halfExtent);
+
     void Move(const JPH::Vec3& position, const JPH::Quat& rotation, float delta);
 
     const BodyType &getType() const { return m_type; }
