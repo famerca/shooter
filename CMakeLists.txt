@@ -134,22 +134,22 @@ find_path(JOLT_INCLUDE_DIR Jolt/Jolt.h PATHS ${VENDOR_DIR}/JoltPhysics/include)
 set(JOLT_LIB_DIR ${VENDOR_DIR}/JoltPhysics/lib)
 
 file(GLOB SRC "${PROJECT_SOURCE_DIR}/src/*.cpp")
-add_library(GLSHOOTERLIB STATIC ${SRC})
+add_library(GLS STATIC ${SRC})
 
-target_compile_definitions(GLSHOOTERLIB PUBLIC
+target_compile_definitions(GLS PUBLIC
     JPH_PROFILE_ENABLED=1
     JPH_DEBUG_RENDERER=1
     JPH_OBJECT_STREAM=1
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_definitions(GLSHOOTERLIB PUBLIC ENGINE_DEBUG_MODE)
+    target_compile_definitions(GLS PUBLIC ENGINE_DEBUG_MODE)
 endif()
 
 # Jolt fue compilado sin RTTI, pero RmlUi lo requiere
 set_source_files_properties(src/HitboxRenderer.cpp PROPERTIES COMPILE_FLAGS "-fno-rtti")
 
-target_include_directories(GLSHOOTERLIB PUBLIC 
+target_include_directories(GLS PUBLIC 
     "${PROJECT_SOURCE_DIR}/include" 
     ${JOLT_INCLUDE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}/third_party/miniaudio
@@ -161,7 +161,7 @@ if(NOT JOLT_LIBRARY)
 endif()
 
 if(APPLE)
-    target_link_libraries(GLSHOOTERLIB PUBLIC 
+    target_link_libraries(GLS PUBLIC 
         ${OPENGL_LIBRARY} 
         ${COCOA_LIBRARY} 
         ${IOKIT_LIBRARY} 
@@ -176,12 +176,12 @@ if(APPLE)
         m 
         pthread
     )
-    target_include_directories(GLSHOOTERLIB PUBLIC ${ASSIMP_INCLUDE_DIR})
+    target_include_directories(GLS PUBLIC ${ASSIMP_INCLUDE_DIR})
     if(GLEW_INCLUDE_DIR)
-        target_include_directories(GLSHOOTERLIB PUBLIC ${GLEW_INCLUDE_DIR})
+        target_include_directories(GLS PUBLIC ${GLEW_INCLUDE_DIR})
     endif()
 else()
-    target_link_libraries(GLSHOOTERLIB PUBLIC 
+    target_link_libraries(GLS PUBLIC 
         GL 
         GLEW 
         glfw 
@@ -197,12 +197,12 @@ endif()
 
 
 
-target_sources(GLSHOOTERLIB PRIVATE
+target_sources(GLS PRIVATE
     ${RMLUI_BACKEND_DIR}/RmlUi_Platform_GLFW.cpp
     ${RMLUI_BACKEND_DIR}/RmlUi_Renderer_GL3.cpp
 )
 
-target_include_directories(GLSHOOTERLIB PUBLIC 
+target_include_directories(GLS PUBLIC 
     ${RMLUI_INCLUDE_DIR}
     ${RMLUI_BACKEND_DIR}
     #${FREETYPE_INCLUDE_DIRS}
@@ -210,7 +210,7 @@ target_include_directories(GLSHOOTERLIB PUBLIC
 
 
 if(UNIX)
-    target_link_libraries(GLSHOOTERLIB PUBLIC ${CMAKE_DL_LIBS})
+    target_link_libraries(GLS PUBLIC ${CMAKE_DL_LIBS})
 endif()
 
 # EJECUTABLE
@@ -220,4 +220,4 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(GLSX PRIVATE ENGINE_DEBUG_MODE)
 endif()
 
-target_link_libraries(GLSX PRIVATE GLSHOOTERLIB)
+target_link_libraries(GLSX PRIVATE GLS)
