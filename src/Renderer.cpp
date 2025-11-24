@@ -110,7 +110,7 @@ void Renderer::render(std::shared_ptr<Scene> scene)
         {
             if(Engine::Physics::Get().IsInitialized())
                 Engine::Physics::Get().Step(delta_time);
-                
+            
             scene->update(delta_time);
         }
 
@@ -261,7 +261,8 @@ void Renderer::renderObject(std::shared_ptr<GameObject> object)
     {
         auto model = object->getTransform()->getModelMatrix();
         #ifdef ENGINE_DEBUG_MODE
-        std::cout << "Body Postion: " << object->getBody()->GetPosition() << std::endl;
+        if(object->getBody() != nullptr)
+            std::cout << "Body Postion: " << object->getBody()->GetPosition() << std::endl;
         Utils::printMat4(model);
         #endif
 

@@ -339,7 +339,7 @@ int main()
         auto player = scene->createAudioSource(sphere, "Lost-Verdania.mp3", true, 1.0f, 1.0f, 20.0f);
 
         scene->at(dado)->getTransform()->scale(0.4f, 0.4f, 0.4f);
-        scene->at(dado)->setBody(Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
+        //scene->at(dado)->setBody(Engine::Physics::Get().CreateBox({0.5f, 0.5f, 0.5f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
 
         scene->at(user)->getTransform()->scale(0.4f, 0.4f, 0.4f);
 
