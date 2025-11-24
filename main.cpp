@@ -27,7 +27,7 @@
 #include "AudioListenerComponent.hpp"
 #include "AudioSourceComponent.hpp"
 #include "Path.hpp"
-#include "RmlUiInterface.hpp"
+#include "UIManager.hpp"
 
 using namespace Engine;
 
@@ -386,17 +386,14 @@ int main()
         renderer->debug();
         renderer->init();
 
-        // Inicializar RmlUi
-        auto rmlui = std::make_shared<RmlUiInterface>();
-        if (rmlui->Initialize(main_window))
+        // Inicializar UIManager (sistema genérico de UI)
+        auto ui_manager = std::make_shared<UIManager>();
+        if (ui_manager->Initialize(main_window, "ui"))
         {
-            // Cargar documento de prueba
-            rmlui->LoadDocument("test.rml");
-            
-            // Configurar callback para cuando el menú se oculta (reanudar juego)
-            rmlui->SetOnMenuHiddenCallback([renderer]() {
-                std::cout << "Juego reanudado desde el menú" << std::endl;
-            });
+            // Cargar plantillas
+            ui_manager->LoadTemplate("main_menu", "test.rml", true); // Mostrar automáticamente
+            ui_manager->LoadTemplate("pause_menu", "pause_menu.rml", false); // Cargar pero no mostrar
+            ui_manager->LoadTemplate("lives_counter", "lives_counter.rml", false); // Cargar pero no mostrar
             
             // Crear estructura con el estado inicial del juego
             GameInitialState initial_state;
@@ -406,21 +403,41 @@ int main()
             initial_state.cilindro_id = cilindro;
             initial_state.dado2_id = dado2;
             
-            // Configurar callback para reiniciar el juego (ahora más encapsulado)
-            rmlui->SetOnRestartCallback([scene, initial_state, input]() {
-                ResetGameState(scene, initial_state, input);
-            });
+            // Registrar eventos con lambdas (sistema genérico)
+            // Evento del botón START GAME
+            ui_manager->RegisterEvent("main_menu", "start-button", Rml::EventId::Click, 
+                [ui_manager, renderer](Rml::Element*, Rml::EventId) {
+                    std::cout << "Botón START GAME presionado" << std::endl;
+                    ui_manager->HideTemplate("main_menu");
+                    ui_manager->ShowTemplate("lives_counter");
+                    std::cout << "Juego reanudado desde el menú" << std::endl;
+                });
             
-            // Cargar el contador de vidas (se mostrará cuando empiece el juego)
-            rmlui->UpdateLives(3); // Inicializar con 3 vidas
+            // Evento del botón CONTINUAR
+            ui_manager->RegisterEvent("pause_menu", "continue-button", Rml::EventId::Click,
+                [ui_manager](Rml::Element*, Rml::EventId) {
+                    std::cout << "Botón CONTINUAR presionado" << std::endl;
+                    ui_manager->HideTemplate("pause_menu");
+                });
             
-            // Conectar RmlUi al renderer
-            renderer->setRmlUiInterface(rmlui);
-            std::cout << "RmlUi integrado correctamente. El juego está pausado hasta presionar START GAME." << std::endl;
+            // Evento del botón REINICIAR JUEGO
+            ui_manager->RegisterEvent("pause_menu", "restart-button", Rml::EventId::Click,
+                [ui_manager, scene, initial_state, input](Rml::Element*, Rml::EventId) {
+                    std::cout << "Botón REINICIAR JUEGO presionado" << std::endl;
+                    ui_manager->HideTemplate("pause_menu");
+                    ResetGameState(scene, initial_state, input);
+                });
+            
+            // Inicializar contador de vidas
+            ui_manager->UpdateElementText("lives_counter", "lives-count", "3");
+            
+            // Conectar UIManager al renderer
+            renderer->setUIManager(ui_manager);
+            std::cout << "UIManager integrado correctamente. El juego está pausado hasta presionar START GAME." << std::endl;
         }
         else
         {
-            std::cerr << "Error al inicializar RmlUi, continuando sin interfaz" << std::endl;
+            std::cerr << "Error al inicializar UIManager, continuando sin interfaz" << std::endl;
         }
         std::cout << "Playing sound" << std::endl;
         std::filesystem::path audio_path = std::filesystem::path(__FILE__).parent_path() / "audios" / "Lost-Verdania.mp3";

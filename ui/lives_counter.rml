@@ -62,7 +62,7 @@
     <div class="lives-container">
         <div class="lives-icon">❤</div>
         <div class="lives-label">VIDAS:</div>
-        <div id="lives-count" class="lives-count">3</div>
+        <div id="lives-count" class="lives-count">2</div>
     </div>
 </body>
 </rml>
