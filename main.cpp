@@ -300,12 +300,7 @@ int main()
         scene->at(cilindro)->getTransform()->translate(0.f, 0.f, 1.5f);
         scene->at(cilindro)->getTransform()->rotate(90.f, glm::vec3(0.f, 1.f, 0.f));
 
-        auto dado2 = scene->createGameObject();
-        //scene->createModel(dado2)->loadModel("dado.fbx");
-        //scene->createModel(dado2)->loadModel("filthy-prison-toilet-4096px2/source/toilet.fbx");
-        scene->createModel(dado2)->loadModel("casita/base.fbx");
-        scene->at(dado2)->getTransform()->translate(1.f, 0.5f, 3.f);
-        scene->at(dado2)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
+
 
         auto ground = scene->createGameObject();
         scene->createModel(ground)->loadModel("ground/base.fbx");
@@ -351,12 +346,25 @@ int main()
         scene->at(cilindro)->getTransform()->scale(0.4f, 0.4f, 0.8f);
         scene->at(cilindro)->setBody(Engine::Physics::Get().CreateBox({0.4f, 0.4f, 0.8f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
 
+        auto dado2 = scene->createGameObject();;
+        scene->createModel(dado2)->loadModel("casita/base.fbx");
+        scene->at(dado2)->getTransform()->translate(1.f, 0.5f, 3.f);
+        scene->at(dado2)->getTransform()->rotate(-90.f, glm::vec3(1.f, 0.f, 0.f));
+       
         scene->at(dado2)->getTransform()->scale(0.8f, 0.8f, 0.4f);
         scene->at(dado2)->setBody(Engine::Physics::Get().CreateBox({0.8f, 0.8f, 0.4f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
 
         auto body = Engine::Physics::Get().CreateBox({0.2f, 0.4f, 0.2f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic);
         scene->at(user)->setBody(body);
 
+        std::cout << " Cloning " << std::endl;
+
+        auto casita = scene->cloneGameObject(dado2);
+
+
+        std::cout << " Setting position " << std::endl;
+        scene->at(casita)->getBody()->SetPosition({3.f, 0.f, 0.f});
+        
         obstacles->push_back(sphere);
         obstacles->push_back(dado);
         obstacles->push_back(cilindro);
@@ -427,7 +435,8 @@ int main()
         std::cout << "Audio path: " << audio_path.string() << std::endl;
         
         player->play();
-        
+
+        std::cout << " Rendering " << std::endl;
         renderer->render(scene);
 
         Engine::Physics::Get().Shutdown();

@@ -44,7 +44,12 @@ public:
     std::shared_ptr<GameObject> operator[](unsigned index) noexcept;
     std::shared_ptr<GameObject> at(unsigned index) noexcept;
 
+    unsigned cloneGameObject(unsigned index);
+
+    std::shared_ptr<GameObject> cloneGameObject(std::shared_ptr<GameObject> object);
+
     unsigned createGameObject();
+
     std::shared_ptr<ModelComponent> createModel(unsigned);
     std::shared_ptr<CameraComponent> createCamera(unsigned);
     std::shared_ptr<Engine::AudioListenerComponent> createAudioListener(unsigned);

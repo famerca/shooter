@@ -31,6 +31,15 @@ KMovement::KMovement(std::shared_ptr<GameObject> owner)
     m_targetPosition = glm::vec3(NO_TARGET_VALUE);
 }
 
+KMovement::KMovement(std::shared_ptr<GameObject> owner, const KMovement& other)
+    : m_owner(owner)
+{
+    m_velocity = other.m_velocity;
+    m_targetPosition = other.m_targetPosition;
+    m_isMoving = other.m_isMoving;
+}
+
+
 void KMovement::stop() {
     m_isMoving = false;
     m_velocity = glm::vec3(0.0f);

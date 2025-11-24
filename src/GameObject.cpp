@@ -1,4 +1,7 @@
 #include "GameObject.hpp"
+#include "Physics.hpp"
+#include <iostream>
+
 namespace Engine
 {
 
@@ -11,6 +14,28 @@ std::shared_ptr<GameObject> GameObject::create()
     auto go = std::make_shared<GameObject>();
 
     go->transform = std::make_shared<TransformComponent>(go);
+
+    return go;
+
+}
+
+std::shared_ptr<GameObject> GameObject::clone()
+{
+    auto go = std::make_shared<GameObject>();
+
+    go->transform = std::make_shared<TransformComponent>(go, *this->transform);
+   
+    if(this->body != nullptr)
+    {
+        go->body = Physics::Get().CloneBody(this->body);
+        go->body->SetOwner(go);
+    }
+
+    if(this->movement != nullptr)
+        go->movement = std::make_shared<KMovement>(go, *this->movement);
+
+    go->components = this->components;
+    go->visible = this->visible;
 
     return go;
 
