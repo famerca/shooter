@@ -4,6 +4,7 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/BodyID.h>
 #include <Jolt/Physics/EActivation.h>
+#include <Jolt/Physics/Constraints/TwoBodyConstraint.h>
 #include <glm/glm.hpp>
 
 #ifndef BODY_H
@@ -56,13 +57,20 @@ public:
 
     bool IsValid() const { return ! m_BodyID.IsInvalid(); }
 
+
+    void constraintRotation(std::shared_ptr<Body> static_world_body_ref);
+
 private:
     friend class Physics;
     friend class Listener;
 
+    //static JPH::Body* getBody(JPH::BodyID ID);
+
     JPH::BodyID m_BodyID;
+    JPH::TwoBodyConstraint* m_constraint;
     BodyType m_type = BodyType::Static;
     std::shared_ptr<GameObject> owner;
+
     
 };
 
