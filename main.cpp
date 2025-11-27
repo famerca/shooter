@@ -357,6 +357,8 @@ int main()
         auto body = Engine::Physics::Get().CreateBox({0.2f, 0.4f, 0.2f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic);
         scene->at(user)->setBody(body);
 
+        scene->at(user)->getBody()->constraintRotation(scene->at(ground)->getBody());
+
         std::cout << " Cloning " << std::endl;
 
         auto casita = scene->cloneGameObject(dado2);

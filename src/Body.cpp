@@ -28,7 +28,9 @@ Body& Body::operator=(Body&& other) noexcept {
 
 Body::Body(BodyID id, BodyType type)
     : m_BodyID(id), m_type(type), owner{nullptr}
-    {}
+    {
+        m_constraint = nullptr;
+    }
 
 void Body::destroy() {
     if (IsValid()) {
@@ -135,5 +137,69 @@ RVec3 Body::GetPosition() const {
     if (!IsValid()) return RVec3::sZero();
     return Physics::Get().GetBodyInterface().GetCenterOfMassPosition(m_BodyID);
 }
+
+
+void Body::constraintRotation(std::shared_ptr<Body> static_world_body_ref)
+{
+    if (IsValid())
+    {
+        auto &system = Physics::Get().GetSystem();
+        auto &body_interface = Physics::Get().GetBodyInterface();
+        Vec3 position = Physics::Get().GetBodyInterface().GetCenterOfMassPosition(m_BodyID);
+        SixDOFConstraintSettings settings;
+        // 1. Establecer el Espacio de Restricción
+        // El modo más sencillo para este caso es usar el espacio global (WorldSpace)
+        // para que los ejes X, Y, Z de la restricción coincidan con los ejes globales.
+        settings.mSpace = EConstraintSpace::WorldSpace;
+
+        // 2. Definir la Traslación (T-D.O.F.) - Dejar libre
+        // Usando la función de utilidad MakeFreeAxis()
+
+        settings.MakeFreeAxis(SixDOFConstraintSettings::TranslationX);
+        settings.MakeFreeAxis(SixDOFConstraintSettings::TranslationY);
+        settings.MakeFreeAxis(SixDOFConstraintSettings::TranslationZ);
+
+        // 3. Definir la Rotación (R-D.O.F.) - Restringir a Y
+        // Usando la función de utilidad MakeFixedAxis() y MakeFreeAxis()
+
+        // Bloquear rotación alrededor de X y Z (Impide inclinación y balanceo)
+        settings.MakeFixedAxis(SixDOFConstraintSettings::RotationX);
+        settings.MakeFixedAxis(SixDOFConstraintSettings::RotationZ);
+        settings.MakeFixedAxis(SixDOFConstraintSettings::RotationY);
+
+        // 4. (Opcional) Definir la Posición del Pivote
+        // Aunque la traslación es libre, la posición de la restricción debe definirse.
+        // Al usar WorldSpace, las posiciones 1 y 2 son las coordenadas del pivote.
+        // Colocaremos el pivote en la posición inicial del cuerpo, aunque esto solo
+        // define el origen del marco de referencia (los límites de traslación están libres).
+        settings.mPosition1 = position;
+        settings.mPosition2 = position; // Ambos deben coincidir en WorldSpace
+
+        m_constraint = body_interface.CreateConstraint(
+            &settings,
+            static_world_body_ref->m_BodyID, // BodyID 1: El mundo estático
+            m_BodyID    // BodyID 2: Tu objeto dinámico
+        );
+
+        if (m_constraint == nullptr)
+        {
+            std::cerr << "Error: No se pudo crear la restricción." << std::endl;
+            return;
+        }
+
+        //5. añadir la restricción al sistema de restricciones
+        system.AddConstraint(m_constraint);
+
+        //6. Activar la restricción
+        body_interface.ActivateConstraint(m_constraint);
+            
+    }
+}
+
+
+// JPH::Body* Body::getBody(JPH::BodyID ID)
+// {
+
+// }
 
 } // namespace Engine
