@@ -5,6 +5,7 @@
 #include <GLS/Scene.hpp>
 #include <GLS/Renderer.hpp>
 #include <GLS/GameObject.hpp>
+#include <GLS/Listener.hpp>
 
 
 class inputManager;
@@ -29,6 +30,8 @@ private:
     std::shared_ptr<Engine::GameObject> m_user;
     std::shared_ptr<Engine::CameraComponent> m_camera;
 
+    Engine:: Listener::Callback ground_collition;
+
     unsigned m_user_index;
 
     void initScene();
@@ -37,6 +40,7 @@ private:
     void initInput();
     void initRenderer();
     void initGround();
+    void initCollitions();
 };
 
 

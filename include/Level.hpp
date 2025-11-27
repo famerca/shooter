@@ -4,6 +4,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+#include <GLS/Listener.hpp>
 #include <GLS/Scene.hpp>
 
 
@@ -13,6 +14,9 @@ struct Obstacle
     std::string type;
     glm::vec3 pos;
     glm::vec3 scale;
+    glm::vec3 axis;
+    float angle;
+    unsigned index{0};
 };
 
 class Level
@@ -26,6 +30,12 @@ class Level
         ~Level();
 
         void init(std::shared_ptr<Engine::Scene> scene);
+
+        void setGroundCollision(
+            std::shared_ptr<Engine::Scene> scene, 
+            Engine::Listener::Callback callback,
+            unsigned user_index
+        );
 };
 
 

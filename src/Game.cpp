@@ -24,8 +24,9 @@ void Game::init()
     initSkyBox();
     initUser();
     initRenderer();
-    initGround();
+    //initGround();
     initInput();
+    initCollitions();
 }
 
 void Game::initScene()
@@ -61,7 +62,7 @@ void Game::initUser()
     pj_model->loadModel("girl.fbx");
     pj_model->setRelativeModel(glm::vec3(0.f, -0.72f, 0.f));
 
-    m_user->setBody(Engine::Physics::Get().CreateBox({0.2f, 0.6f, 0.2f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
+    m_user->setBody(Engine::Physics::Get().CreateBox({0.25f, 0.6f, 0.25f}, {0.f, 0.0f, 0.f}, Engine::BodyType::Dynamic));
 
 }
 
@@ -102,13 +103,25 @@ void Game::initSkyBox()
 void Game::Level1()
 {
     Level level1 = {
-        {"casita/base.fbx", "deco", {2.f, 0.f, 0.f}, {1.f, 1.f, 1.f}},
+        {"casita/base.fbx", "deco", {2.f, 0.f, 0.f}, {3.f, 3.f, 3.f}, {0.f, 1.f, 0.f}, -90.f}, 
+        {"ground/base.fbx", "ground", {0.f, -0.5f, 0.f}, {5.f, 1.f, 5.f}, {0.f, 1.f, 0.f}, 0.f},
     };
 
     level1.init(m_scene);
+    level1.setGroundCollision(m_scene, ground_collition, m_user_index);
 }
 
 void Game::render()
 {
     m_renderer->render(m_scene);
+}
+
+void Game::initCollitions()
+{
+    ground_collition = [this]() {
+        std::cout << "Inicio de colisión"  << std::endl;
+        // Aquí puedes ejecutar lógica como aplicar daño o activar efectos
+        m_input->setJumping(false);
+    };
+
 }

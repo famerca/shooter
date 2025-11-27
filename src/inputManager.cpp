@@ -67,3 +67,8 @@ void inputManager::update(const float &dt) noexcept
         if(is_key_pressed(GLFW_KEY_S)) body->ApplyImpulse({0.f, 0.f, -40.f});
     }
 }
+
+void inputManager::setJumping(bool jumping) noexcept
+{
+    is_jumping = jumping;
+}

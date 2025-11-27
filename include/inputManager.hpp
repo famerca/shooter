@@ -20,6 +20,7 @@ private:
     std::shared_ptr<Engine::GameObject> user{nullptr};
     std::shared_ptr<Engine::Scene> scene{nullptr};
     float sensitivity{1.f};
+    bool is_jumping {false};
   
 
     // Atributos de Obstáculos
@@ -29,7 +30,7 @@ private:
     std::uniform_real_distribution<> distrib_x;
 
 public:
-    bool is_jumping {false};
+    
 
     // Constructor y Destructor
     inputManager();
@@ -41,4 +42,6 @@ public:
 
     // Loop principal
     void update(const float &dt) noexcept;
+
+    void setJumping(bool) noexcept;
 };
