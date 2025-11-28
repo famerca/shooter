@@ -8,7 +8,7 @@
 #include "Level.hpp"
 
 
-Level::Level(const init_list& list): obstacles(list)
+Level::Level(std::shared_ptr<Engine::Scene> scene, unsigned user_index): scene(scene), user_index(user_index)
 {
 
 }
@@ -18,37 +18,15 @@ Level::~Level()
 
 }
 
-void Level::init(std::shared_ptr<Engine::Scene> scene)
+void Level::init(const init_list& list)
 {
-    for (auto& obstacle : obstacles)
+    for (auto& obs : list)
     {
-        std::cout << "Obstacle: " << obstacle.filename << std::endl;
-        auto obs = scene->createGameObject();
-        scene->createModel(obs)->loadModel(obstacle.filename);
-        std::cout << "Trasladado: " << obstacle.pos << std::endl;
-        scene->at(obs)->getTransform()->translate(obstacle.pos);
-        std::cout << "Escalado: " << obstacle.scale << std::endl;
-        scene->at(obs)->getTransform()->scale(obstacle.scale);
-        std::cout << "Modelo cargado: " << obstacle.filename << std::endl;
-        scene->at(obs)->getTransform()->rotate(obstacle.angle, obstacle.axis);
-        obstacle.index = obs;
-
-        if(obstacle.type == "ground")
-            scene->at(obs)->setBody(Engine::Physics::Get().CreateBox({5.f, 0.5f, 5.f}, {0.f, 0.f, 0.f}, Engine::BodyType::Static));
-
+        auto obstacle = std::make_shared<Obstacle>(scene, obs.filename, obs.tag, obs.pos, obs.settings);
+        obstacles.push_back(obstacle);
     }
+
+    scene->at(user_index)->getBody()->constraintRotation(obstacles[0]->m_object->getBody());
 }
 
 
-void Level::setGroundCollision(
-    std::shared_ptr<Engine::Scene> scene, 
-    Engine::Listener::Callback callback,
-    unsigned user_index
-)
-{
-   for (const Obstacle& obstacle : obstacles)
-   {
-       if(obstacle.type == "ground")
-            Engine::Listener::Get().Add(scene, Engine::Listener::Event::ContactAdded, user_index, obstacle.index, callback);
-   }
-}

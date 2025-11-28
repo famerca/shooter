@@ -15,11 +15,14 @@ class Level;
 struct ObstacleSettings
 {
     JPH::Vec3 box_shape = JPH::Vec3::sZero();
-    JPH::Vec3 rel_pos = JPH::Vec3::sZero();
+    glm::vec3 rel_pos = {0.f, 0.f, 0.f};
+    glm::vec3 rel_scale = {1.f, 1.f, 1.f};
+    glm::vec3 rel_axis = {0.f, 1.f, 0.f};
+    float rel_angle = 0.f;
     Engine::BodyType body_type = Engine::BodyType::Dynamic;
-    JPH::Vec3 rel_scale = JPH::Vec3::sZero();
-    const Engine::Listener::Callback &onContactStart = nullptr;
-    const Engine::Listener::Callback &onContactEnd = nullptr;
+    Engine::Listener::Callback onContactStart = nullptr;
+    Engine::Listener::Callback onContactEnd = nullptr;
+    unsigned user_index{0};
     glm::vec3 scale = {1.f, 1.f, 1.f};
     glm::vec3 axis = {0.f, 1.f, 0.f};
     float angle = 0.f;
@@ -27,56 +30,31 @@ struct ObstacleSettings
 
 class Obstacle: public std::enable_shared_from_this<Obstacle>
 {
-
-    Obstacle(
-        const std::shared_ptr<Engine::Scene> scene,
-        const std::string& filename,
-        const std::string& type,
-        const glm::vec3& pos
-    ): filename(filename), type(type), pos(pos), scale(1.f,1.f,1.f), axis(0.f, 1.f, 0.f), angle(0.f)
-    {
-        index = scene->createGameObject();
-        m_object = scene->at(index);
-        m_scene = scene;
-
-        m_object->getTransform()->translate(pos);
-        m_object->getTransform()->scale(scale);
-        m_object->getTransform()->rotate(angle, axis);
-    }
-
-        Obstacle(
-        const std::shared_ptr<Engine::Scene> scene,
-        const std::string& filename,
-        const std::string& type,
-        const glm::vec3& pos,
-        ObstacleSettings settings
-
-    ): filename(filename), type(type), pos(pos), scale(1.f,1.f,1.f), axis(0.f, 1.f, 0.f), angle(0.f)
-    {
-        index = scene->createGameObject();
-        m_object = scene->at(index);
-        m_scene = scene;
-
-        m_object->getTransform()->translate(pos);
-        m_object->getTransform()->scale(scale);
-        m_object->getTransform()->rotate(angle, axis);
-    }
-
-
-
-
-
     private:
         friend class Level;
         std::string filename;
-        std::string type;
-        glm::vec3 pos;
-        glm::vec3 scale;
-        glm::vec3 axis;
-        float angle;
+        std::string tag;
         unsigned index;
         std::shared_ptr<Engine::Scene> m_scene;
         std::shared_ptr<Engine::GameObject> m_object;
+
+    public:
+
+    Obstacle(
+        const std::shared_ptr<Engine::Scene>& scene,
+        const std::string& filename,
+        const std::string& tag,
+        const glm::vec3& pos
+    );
+
+    Obstacle(
+        const std::shared_ptr<Engine::Scene>& scene,
+        const std::string& filename,
+        const std::string& tag,
+        const glm::vec3& pos,
+        ObstacleSettings settings
+
+    );
 
 };
 

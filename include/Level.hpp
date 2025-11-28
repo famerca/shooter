@@ -7,35 +7,30 @@
 #include <GLS/Listener.hpp>
 #include <GLS/Scene.hpp>
 
+#include "Obstacle.hpp"
 
-struct Obstacle
+
+struct ObstacleInit
 {
     std::string filename;
-    std::string type;
+    std::string tag;
     glm::vec3 pos;
-    glm::vec3 scale;
-    glm::vec3 axis;
-    float angle;
-    unsigned index{0};
+    ObstacleSettings settings;
 };
 
 class Level
 {
     private:
-        std::vector<Obstacle> obstacles;
+        std::vector<std::shared_ptr<Obstacle>> obstacles;
+        std::shared_ptr<Engine::Scene> scene;
+        unsigned user_index;
     
     public:
-        using init_list = std::initializer_list<Obstacle>;
-        Level(const init_list& list);
+        using init_list = std::initializer_list<ObstacleInit>;
+        Level(std::shared_ptr<Engine::Scene> scene, unsigned user_index);
         ~Level();
 
-        void init(std::shared_ptr<Engine::Scene> scene);
-
-        void setGroundCollision(
-            std::shared_ptr<Engine::Scene> scene, 
-            Engine::Listener::Callback callback,
-            unsigned user_index
-        );
+        void init(const init_list& list);
 };
 
 

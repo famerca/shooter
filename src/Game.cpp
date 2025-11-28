@@ -48,22 +48,23 @@ void Game::initUser()
     m_camera = m_scene->createCamera(m_user_index);
     m_camera->setClamp(70.0f, 70.0f);
     m_camera->setOrbiting(true);
-    m_camera->setFront(-20.f, 90.f);
+    m_camera->setFront(-20.f, 0.f);
     m_camera->setUp(glm::vec3(0.f, 1.f, 0.f));
 
     m_camera->init(glm::vec3(0.f, 1.5f, -2.5f), m_window->get_aspect_ratio(), 45.f, 0.1f, 100.f, true);
     
     m_camera->activate();
-    m_user->getTransform()->translate(0.f, 0.f, 0.f);
+    m_user->getTransform()->translate(-2.f, 0.f, 0.f);
     m_user->getTransform()->scale(0.8f, 0.8f, 0.8f);
     m_scene->createAudioListener(m_user_index);
+
+
 
     auto pj_model = m_scene->createModel(m_user_index);
     pj_model->loadModel("girl.fbx");
     pj_model->setRelativeModel(glm::vec3(0.f, -0.72f, 0.f));
 
     m_user->setBody(Engine::Physics::Get().CreateBox({0.25f, 0.6f, 0.25f}, {0.f, 0.0f, 0.f}, Engine::BodyType::Dynamic));
-
 }
 
 void Game::initGround()
@@ -102,13 +103,46 @@ void Game::initSkyBox()
 
 void Game::Level1()
 {
-    Level level1 = {
-        {"casita/base.fbx", "deco", {2.f, 0.f, 0.f}, {3.f, 3.f, 3.f}, {0.f, 1.f, 0.f}, -90.f}, 
-        {"ground/base.fbx", "ground", {0.f, -0.5f, 0.f}, {5.f, 1.f, 5.f}, {0.f, 1.f, 0.f}, 0.f},
-    };
+    Level level1(m_scene, m_user_index);
 
-    level1.init(m_scene);
-    level1.setGroundCollision(m_scene, ground_collition, m_user_index);
+    ObstacleSettings s_ground;;
+
+    s_ground.box_shape = {5.f, 0.5f, 5.f};
+    s_ground.body_type = Engine::BodyType::Static;
+    s_ground.onContactStart = ground_collition;
+    s_ground.user_index = m_user_index;
+    s_ground.scale = {5.f, 1.f, 5.f};
+
+
+    ObstacleSettings s_casita = {};
+
+    s_casita.scale = {3.f, 3.f, 3.f};
+    s_casita.box_shape = {2.f, 1.5f, 2.f};
+    s_casita.rel_pos = {0.f, -0.75f, 0.f};
+    s_casita.body_type = Engine::BodyType::Static;
+
+    ObstacleSettings s_plataforma = {};
+
+    s_plataforma.scale = {1.f, 1.f, 1.f};
+    s_plataforma.box_shape = {1.f, 0.25f, 1.f};
+    s_plataforma.body_type = Engine::BodyType::Static;
+    s_plataforma.onContactStart = ground_collition;
+    s_plataforma.user_index = m_user_index;
+    s_plataforma.rel_pos = {0.f, -0.25f, 0.f};
+
+
+    level1.init({
+        {"casita/base.fbx", "deco", {2.f, 1.8f, 0.f}, s_casita}, 
+        {"ground/base.fbx", "ground", {0.f, -0.5f, 0.f}, s_ground},
+        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 7.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 10.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 14.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 16.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 20.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 24.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 30.f}, s_plataforma},
+    });
+
 }
 
 void Game::render()
