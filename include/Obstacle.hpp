@@ -26,6 +26,7 @@ struct ObstacleSettings
     glm::vec3 scale = {1.f, 1.f, 1.f};
     glm::vec3 axis = {0.f, 1.f, 0.f};
     float angle = 0.f;
+    std::string script = "";
 };
 
 class Obstacle: public std::enable_shared_from_this<Obstacle>
@@ -37,6 +38,8 @@ class Obstacle: public std::enable_shared_from_this<Obstacle>
         unsigned m_index;
         std::shared_ptr<Engine::Scene> m_scene;
         std::shared_ptr<Engine::GameObject> m_object;
+
+        void initCollitions(const ObstacleSettings& settings, const std::shared_ptr<Engine::Scene>& scene);
 
     public:
 

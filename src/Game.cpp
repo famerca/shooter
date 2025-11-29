@@ -127,10 +127,14 @@ void Game::Level1()
 
     s_plataforma.scale = {1.f, 1.f, 1.f};
     s_plataforma.box_shape = {1.f, 0.25f, 1.f};
-    s_plataforma.body_type = Engine::BodyType::Static;
+    s_plataforma.body_type = Engine::BodyType::Kinematic;
     s_plataforma.onContactStart = ground_collition;
     s_plataforma.user_index = m_user_index;
     s_plataforma.rel_pos = {0.f, -0.25f, 0.f};
+
+    ObstacleSettings s_plataforma2 = s_plataforma;
+
+    s_plataforma2.script = "PlataformaMovil";
 
 
     level1.init({
@@ -139,7 +143,7 @@ void Game::Level1()
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 7.f}, s_plataforma},
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 10.f}, s_plataforma},
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 14.f}, s_plataforma},
-        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 16.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 16.f}, s_plataforma2},
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 20.f}, s_plataforma},
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 24.f}, s_plataforma},
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 30.f}, s_plataforma},

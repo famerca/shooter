@@ -2,6 +2,7 @@
 #include <GLS/Listener.hpp>
 
 #include "Obstacle.hpp"
+#include "Scripts.hpp"
 
 
 Obstacle::Obstacle(
@@ -58,15 +59,7 @@ Obstacle::Obstacle(
         m_object->setBody(Engine::Physics::Get().CreateBox(settings.box_shape, JPH::Vec3::sZero(), settings.body_type));
     }
 
-    if(settings.onContactStart)
-    {
-        Engine::Listener::Get().Add(m_scene, Engine::Listener::Event::ContactAdded, m_index, settings.user_index, settings.onContactStart);
-    }
-
-    if(settings.onContactEnd)
-    {
-        Engine::Listener::Get().Add(m_scene, Engine::Listener::Event::ContactRemoved, m_index, settings.user_index, settings.onContactEnd);
-    }
+    initCollitions(settings, m_scene);
 }
 
 Obstacle::Obstacle(
@@ -93,14 +86,29 @@ Obstacle::Obstacle(
         body->SetPosition({pos.x, pos.y, pos.z});
     }
 
+    initCollitions(settings, m_scene);
+
+}
+
+
+void Obstacle::initCollitions(const ObstacleSettings& settings, const std::shared_ptr<Engine::Scene>& scene)
+{
+    if( m_object->getBody() == nullptr)
+        return;
+
+
+    if(settings.script == "PlataformaMovil")
+    {
+        m_object->addScript(std::make_shared<PlataformaMovil>());
+    }
+
     if(settings.onContactStart)
     {
-        Engine::Listener::Get().Add(m_scene, Engine::Listener::Event::ContactAdded, m_index, settings.user_index, settings.onContactStart);
+        Engine::Listener::Get().Add(scene, Engine::Listener::Event::ContactAdded, m_index, settings.user_index, settings.onContactStart);
     }
 
     if(settings.onContactEnd)
     {
-        Engine::Listener::Get().Add(m_scene, Engine::Listener::Event::ContactRemoved, m_index, settings.user_index, settings.onContactEnd);
+        Engine::Listener::Get().Add(scene, Engine::Listener::Event::ContactRemoved, m_index, settings.user_index, settings.onContactEnd);
     }
-
 }
