@@ -6,6 +6,7 @@
 #include <GLS/Input.hpp> // Asumiendo que la clase base Input está aquí
 #include <GLS/GameObject.hpp>
 #include <GLS/Scene.hpp>
+#include <GLS/Listener.hpp>
 
 
 // --- FORWARD DECLARATIONS ---
@@ -21,6 +22,7 @@ private:
     std::shared_ptr<Engine::Scene> scene{nullptr};
     float sensitivity{0.5f};
     bool is_jumping {false};
+    Engine::Listener::Callback onGameOver;
   
 
     // Atributos de Obstáculos
@@ -45,5 +47,9 @@ public:
 
     void handle_camera (const float &dt) noexcept;
 
+    void gameOver() noexcept;
+
     void setJumping(bool) noexcept;
+
+    void setOnGameOver(Engine::Listener::Callback callback) noexcept;
 };

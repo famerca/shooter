@@ -27,6 +27,8 @@ void Game::init()
     //initGround();
     initInput();
     initCollitions();
+
+    handleGameOver();
 }
 
 void Game::initScene()
@@ -158,4 +160,16 @@ void Game::initCollitions()
         m_input->setJumping(false);
     };
 
+}
+
+
+void Game::handleGameOver() noexcept
+{
+    m_input->setOnGameOver([this]() {
+
+        std::cout << "=============GAME OVER=============" << std::endl;
+        m_renderer->stop();
+       // exit(0);
+
+    });
 }

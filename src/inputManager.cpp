@@ -60,6 +60,9 @@ void inputManager::update(const float &dt) noexcept
         if(is_key_pressed(GLFW_KEY_W)) body->ApplyImpulse({0.f, 0.f, 40.f});
         if(is_key_pressed(GLFW_KEY_S)) body->ApplyImpulse({0.f, 0.f, -40.f});
     }
+
+    gameOver();
+    
 }
 
 void inputManager::handle_camera(const float &dt) noexcept
@@ -76,4 +79,26 @@ void inputManager::handle_camera(const float &dt) noexcept
 void inputManager::setJumping(bool jumping) noexcept
 {
     is_jumping = jumping;
+}
+
+
+void inputManager::gameOver() noexcept
+{
+    if (auto body = user->getBody())
+    {
+       auto pos = body->GetPosition();
+    
+       if(pos.GetY() < -10)
+       {
+           if(onGameOver)
+           {
+               onGameOver();
+           }
+       }
+    }
+}
+
+void inputManager::setOnGameOver(Engine::Listener::Callback callback) noexcept
+{
+    onGameOver = callback;
 }

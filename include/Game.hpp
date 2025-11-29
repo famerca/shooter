@@ -34,6 +34,9 @@ private:
 
     unsigned m_user_index;
 
+
+    void handleGameOver() noexcept;
+
     void initScene();
     void initSkyBox();
     void initUser();
