@@ -105,6 +105,14 @@ void GameObject::update(const GLfloat &dt)
     }
 }
 
+void GameObject::start()
+{
+    for (std::shared_ptr<Component> component : components)
+    {
+        component->start();
+    }
+}
+
 void GameObject::addComponent(std::shared_ptr<Component> component)
 {
     components.push_back(component);
@@ -116,6 +124,12 @@ void GameObject::change()
     {
         component->change();
     }
+}
+
+void GameObject::addScript(std::shared_ptr<ScriptComponent> script)
+{
+    script->setGameObject(shared_from_this());
+    components.push_back(script);
 }
 
 } // namespace Engine

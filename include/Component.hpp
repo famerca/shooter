@@ -20,6 +20,7 @@ public:
         Camera,
         AudioListener,
         AudioSource,
+        Script,
         // ... más tipos
     };
 

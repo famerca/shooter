@@ -173,6 +173,24 @@ public:
     ~inputManager() {}
 };
 
+
+class myScript: public Engine::ScriptComponent
+{
+public:
+
+    void OnUpdate(const GLfloat &dt) override
+    {
+        auto pos = owner->getTransform()->getPosition();
+        std::cout << "OnUpdate" << "(" << pos.x << ", " << pos.y << ", " << pos.z << ")" << std::endl;
+    }
+
+    void OnPhysicsUpdate(float dt) override
+    {
+        std::cout  << "OnPhysicsUpdate" << body->GetPosition() << std::endl;
+    }
+
+};
+
 // Estructura para almacenar el estado inicial del juego
 struct GameInitialState {
     unsigned user_id;
@@ -346,6 +364,7 @@ int main()
         scene->at(cilindro)->getTransform()->scale(0.4f, 0.4f, 0.8f);
         scene->at(cilindro)->setBody(Engine::Physics::Get().CreateBox({0.4f, 0.4f, 0.8f}, {0.f, 0.f, 0.f}, Engine::BodyType::Dynamic));
 
+        scene->at(cilindro)->addScript(std::make_shared<myScript>());
         auto dado2 = scene->createGameObject();;
         scene->createModel(dado2)->loadModel("casita/base.fbx");
         scene->at(dado2)->getTransform()->translate(1.f, 0.5f, 3.f);

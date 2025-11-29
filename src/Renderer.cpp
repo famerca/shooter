@@ -59,6 +59,8 @@ void Renderer::init()
 
 void Renderer::render(std::shared_ptr<Scene> scene)
 {
+    scene->start();
+
     while (running && !scene->getWindow()->should_be_closed())
     {
         //clear the window

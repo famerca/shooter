@@ -132,6 +132,14 @@ void Scene::update(const GLfloat &dt)
     }
 }
 
+void Scene::start()
+{
+    for (std::shared_ptr<GameObject> object : Objects)
+    {
+        object->start();
+    }
+}
+
 std::shared_ptr<Engine::AudioListenerComponent> Scene::createAudioListener(unsigned index)
 {
     if(index >= Objects.size())
