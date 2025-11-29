@@ -51,13 +51,7 @@ void inputManager::update(const float &dt) noexcept
         }
     }
 
-    // --- Control de Cámara ---
-    if (auto cam = scene->getCamera()) {
-        if(is_key_pressed(GLFW_KEY_LEFT))  cam->rotate(-50.f, 0.f);
-        if(is_key_pressed(GLFW_KEY_RIGHT)) cam->rotate(50.f, 0.f);
-        if(is_key_pressed(GLFW_KEY_UP))    cam->rotate(0.f, 50.f);
-        if(is_key_pressed(GLFW_KEY_DOWN))  cam->rotate(0.f, -50.f);
-    }
+    handle_camera(dt);
 
     // 2. --- Lógica de Movimiento Horizontal del Jugador (X/Z) ---
     if (auto body = user->getBody()) {
@@ -65,6 +59,17 @@ void inputManager::update(const float &dt) noexcept
         if(is_key_pressed(GLFW_KEY_D)) body->ApplyImpulse({-30.f, 0.f, 0.f});
         if(is_key_pressed(GLFW_KEY_W)) body->ApplyImpulse({0.f, 0.f, 40.f});
         if(is_key_pressed(GLFW_KEY_S)) body->ApplyImpulse({0.f, 0.f, -40.f});
+    }
+}
+
+void inputManager::handle_camera(const float &dt) noexcept
+{
+    MousePair mouse = get_mouse_delta();
+    if (mouse.x != 0.f || mouse.y != 0.f)
+    {
+        if (auto cam = scene->getCamera()) {
+            cam->rotate(mouse.x * sensitivity * 1000 * dt, mouse.y * sensitivity * 1000 * dt);
+        }
     }
 }
 

@@ -19,7 +19,7 @@ private:
     // Atributos del Jugador
     std::shared_ptr<Engine::GameObject> user{nullptr};
     std::shared_ptr<Engine::Scene> scene{nullptr};
-    float sensitivity{1.f};
+    float sensitivity{0.5f};
     bool is_jumping {false};
   
 
@@ -42,6 +42,8 @@ public:
 
     // Loop principal
     void update(const float &dt) noexcept;
+
+    void handle_camera (const float &dt) noexcept;
 
     void setJumping(bool) noexcept;
 };

@@ -93,7 +93,6 @@ Obstacle::Obstacle(
         body->SetPosition({pos.x, pos.y, pos.z});
     }
 
-
     if(settings.onContactStart)
     {
         Engine::Listener::Get().Add(m_scene, Engine::Listener::Event::ContactAdded, m_index, settings.user_index, settings.onContactStart);
