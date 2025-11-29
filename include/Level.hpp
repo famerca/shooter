@@ -2,6 +2,7 @@
 #define LEVEL_HPP
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <glm/glm.hpp>
 
 #include <GLS/Listener.hpp>
@@ -23,6 +24,7 @@ class Level
     private:
         std::vector<std::shared_ptr<Obstacle>> obstacles;
         std::shared_ptr<Engine::Scene> scene;
+        std::unordered_map<std::string, unsigned> tags_map;
         unsigned user_index;
     
     public:

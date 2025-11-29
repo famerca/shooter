@@ -34,7 +34,7 @@ class Obstacle: public std::enable_shared_from_this<Obstacle>
         friend class Level;
         std::string filename;
         std::string tag;
-        unsigned index;
+        unsigned m_index;
         std::shared_ptr<Engine::Scene> m_scene;
         std::shared_ptr<Engine::GameObject> m_object;
 
@@ -53,8 +53,18 @@ class Obstacle: public std::enable_shared_from_this<Obstacle>
         const std::string& tag,
         const glm::vec3& pos,
         ObstacleSettings settings
-
     );
+
+
+    Obstacle(
+        const std::shared_ptr<Engine::Scene>& scene,
+        unsigned index_ref,
+        const std::string& tag,
+        const glm::vec3& pos,
+        ObstacleSettings settings
+    );
+
+    
 
 };
 

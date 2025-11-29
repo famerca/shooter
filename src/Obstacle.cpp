@@ -11,8 +11,8 @@ Obstacle::Obstacle(
     const glm::vec3& pos
 ): filename(filename), tag(tag)
 {
-    index = scene->createGameObject();
-    m_object = scene->at(index);
+    m_index = scene->createGameObject();
+    m_object = scene->at(m_index);
     m_scene = scene;
 
     m_object->getTransform()->translate(pos);
@@ -29,8 +29,8 @@ Obstacle::Obstacle(
     ObstacleSettings settings
 ): filename(filename), tag(tag)
 {
-    index = scene->createGameObject();
-    m_object = scene->at(index);
+    m_index = scene->createGameObject();
+    m_object = scene->at(m_index);
     m_scene = scene;
 
     m_object->getTransform()->translate(pos);
@@ -41,7 +41,7 @@ Obstacle::Obstacle(
 
     if(settings.rel_pos != glm::vec3(0.f, 0.f, 0.f))
     {
-        std::shared_ptr<Engine::ModelComponent>  m = scene->createModel(index);
+        std::shared_ptr<Engine::ModelComponent>  m = scene->createModel(m_index);
         m->loadModel(filename);
         m->setRelativeModel(
             settings.rel_pos,
@@ -50,7 +50,7 @@ Obstacle::Obstacle(
             settings.rel_scale
         );
     }else
-        scene->createModel(index)->loadModel(filename);
+        scene->createModel(m_index)->loadModel(filename);
         
 
     if(settings.box_shape != JPH::Vec3::sZero())
@@ -60,11 +60,48 @@ Obstacle::Obstacle(
 
     if(settings.onContactStart)
     {
-        Engine::Listener::Get().Add(m_scene, Engine::Listener::Event::ContactAdded, index, settings.user_index, settings.onContactStart);
+        Engine::Listener::Get().Add(m_scene, Engine::Listener::Event::ContactAdded, m_index, settings.user_index, settings.onContactStart);
     }
 
     if(settings.onContactEnd)
     {
-        Engine::Listener::Get().Add(m_scene, Engine::Listener::Event::ContactRemoved, index, settings.user_index, settings.onContactEnd);
+        Engine::Listener::Get().Add(m_scene, Engine::Listener::Event::ContactRemoved, m_index, settings.user_index, settings.onContactEnd);
     }
+}
+
+Obstacle::Obstacle(
+    const std::shared_ptr<Engine::Scene>& scene,
+    unsigned index_ref,
+    const std::string& tag,
+    const glm::vec3& pos,
+    ObstacleSettings settings
+): tag(tag)
+
+{
+    m_index = scene->cloneGameObject(index_ref);
+    m_object = scene->at(m_index);
+    m_scene = scene;
+
+    m_object->getTransform()->translate(pos);
+    m_object->getTransform()->scale(settings.scale);
+    m_object->getTransform()->rotate(settings.angle, settings.axis);
+
+    auto body = m_object->getBody();
+
+    if(body)
+    {
+        body->SetPosition({pos.x, pos.y, pos.z});
+    }
+
+
+    if(settings.onContactStart)
+    {
+        Engine::Listener::Get().Add(m_scene, Engine::Listener::Event::ContactAdded, m_index, settings.user_index, settings.onContactStart);
+    }
+
+    if(settings.onContactEnd)
+    {
+        Engine::Listener::Get().Add(m_scene, Engine::Listener::Event::ContactRemoved, m_index, settings.user_index, settings.onContactEnd);
+    }
+
 }
