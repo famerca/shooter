@@ -52,6 +52,12 @@ int main()
         
         game.render();
 
+        // IMPORTANTE: Hacer shutdown explícito de UI ANTES de que Game se destruya
+        // Esto asegura que el shutdown ocurra mientras el contexto OpenGL todavía existe
+        // La librería GLS ya tiene las correcciones en UIManager::Shutdown() que desregistran
+        // eventos antes de cerrar documentos, evitando segmentation faults
+        game.shutdownUI();
+        
         Engine::Physics::Get().Shutdown();
         Engine::AudioManager::Get().shutdown();
 

@@ -26,6 +26,9 @@ public:
     // Función para reiniciar el juego (llamada desde UI)
     void resetGame() noexcept;
 
+    // Función para hacer shutdown explícito de la UI (llamar antes de destruir Game)
+    void shutdownUI() noexcept;
+
 private:
     std::shared_ptr<Engine::Window> m_window;
     std::shared_ptr<Engine::Scene> m_scene;

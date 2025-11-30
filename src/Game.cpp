@@ -233,3 +233,36 @@ void Game::resetGame() noexcept
     // Aquí se llamará a la función que tu amigo está implementando
     // Por ahora solo imprimimos el mensaje
 }
+
+void Game::shutdownUI() noexcept
+{
+    // Hacer shutdown explícito de UIManager antes de que se destruya Game
+    // Esto asegura que el shutdown ocurra mientras el contexto OpenGL todavía existe
+    if (m_ui_manager && m_ui_manager->IsInitialized())
+    {
+        // Desconectar UIManager del renderer primero
+        if (m_renderer)
+        {
+            m_renderer->setUIManager(nullptr);
+        }
+        
+        try
+        {
+            std::cout << "Shutting down UIManager..." << std::endl;
+            
+            // La librería GLS ya tiene las correcciones en UIManager::Shutdown()
+            // que desregistran eventos antes de cerrar documentos, así que simplemente
+            // llamamos a Shutdown() y la librería se encarga del resto
+            m_ui_manager->Shutdown();
+            std::cout << "UIManager shutdown completado" << std::endl;
+        }
+        catch (const std::exception& e)
+        {
+            std::cerr << "Error durante UIManager shutdown: " << e.what() << std::endl;
+        }
+        catch (...)
+        {
+            std::cerr << "Error desconocido durante UIManager shutdown" << std::endl;
+        }
+    }
+}
