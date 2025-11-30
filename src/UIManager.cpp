@@ -99,7 +99,10 @@ bool UIManager::Initialize(std::shared_ptr<Engine::Window> window, const std::st
     }
 
     // Inicializar el debugger (opcional, presiona F8 para activarlo)
-    Rml::Debugger::Initialise(context);
+    // NOTA: Deshabilitado temporalmente debido a problemas de shutdown
+    // El Debugger intenta actualizar el contexto durante su shutdown, causando crashes
+    // cuando los documentos tienen eventos inválidos.
+    // Rml::Debugger::Initialise(context);
 
     // Cargar fuentes
     fs::path project_root = fs::path(__FILE__).parent_path().parent_path();
@@ -138,13 +141,46 @@ void UIManager::Shutdown()
     if (!initialized)
         return;
 
-    // Limpiar todas las plantillas
-    templates.clear();
+    // CRÍTICO: Desregistrar eventos ANTES de cerrar los documentos
+    // Esto asegura que los eventos se remuevan correctamente de los elementos
+    // antes de que RmlUi intente limpiarlos durante el cierre de documentos
+    for (auto& reg : event_registrations)
+    {
+        auto it = templates.find(reg.template_id);
+        if (it != templates.end() && it->second.document)
+        {
+            Rml::Element* element = it->second.document->GetElementById(reg.element_id);
+            if (element && reg.listener)
+            {
+                element->RemoveEventListener(reg.event_type, reg.listener.get());
+            }
+        }
+    }
+    
+    // Remover eventos asociados a todas las plantillas
     event_registrations.clear();
+    
+    // CRÍTICO: Cerrar todos los documentos DESPUÉS de desregistrar eventos
+    // Esto asegura que los eventos ya no estén registrados cuando RmlUi intente limpiarlos
+    for (auto& [template_id, info] : templates)
+    {
+        if (info.document)
+        {
+            info.document->Close();
+        }
+    }
+    
+    // Limpiar todas las plantillas (los documentos ya están cerrados)
+    templates.clear();
 
     if (context)
     {
-        Rml::Debugger::Shutdown();
+        // NOTA: No hacemos shutdown explícito del Debugger porque no lo inicializamos
+        // (comentado arriba para evitar problemas de shutdown)
+        // Si en el futuro se habilita el Debugger, necesitaremos hacer shutdown aquí
+        // Rml::Debugger::Shutdown();
+        
+        // Remover el contexto
         Rml::RemoveContext("main");
         context = nullptr;
     }

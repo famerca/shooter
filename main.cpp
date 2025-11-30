@@ -477,6 +477,38 @@ int main()
         std::cout << " Rendering " << std::endl;
         renderer->render(scene);
 
+        // IMPORTANTE: Hacer shutdown explícito de UI ANTES de que los objetos se destruyan
+        // Esto asegura que el shutdown ocurra mientras el contexto OpenGL todavía existe
+        // y que los documentos se cierren correctamente antes de que el contexto se destruya
+        // El orden correcto es: cerrar plantillas -> shutdown Debugger -> remover contexto -> shutdown RmlUi
+        if (ui_manager && ui_manager->IsInitialized())
+        {
+            // Desconectar UIManager del renderer primero
+            if (renderer)
+            {
+                renderer->setUIManager(nullptr);
+            }
+            
+            try
+            {
+                std::cout << "Shutting down UIManager..." << std::endl;
+                
+                // NOTA: No cerramos las plantillas explícitamente aquí
+                // UIManager::Shutdown() se encarga de cerrar todos los documentos
+                // en el orden correcto antes de hacer shutdown del Debugger
+                ui_manager->Shutdown();
+                std::cout << "UIManager shutdown completado" << std::endl;
+            }
+            catch (const std::exception& e)
+            {
+                std::cerr << "Error durante UIManager shutdown: " << e.what() << std::endl;
+            }
+            catch (...)
+            {
+                std::cerr << "Error desconocido durante UIManager shutdown" << std::endl;
+            }
+        }
+        
         Engine::Physics::Get().Shutdown();
         Engine::AudioManager::Get().shutdown();
 
