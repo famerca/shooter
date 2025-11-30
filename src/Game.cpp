@@ -169,11 +169,19 @@ void Game::initCollitions()
 void Game::handleGameOver() noexcept
 {
     m_input->setOnGameOver([this]() {
-
         std::cout << "=============GAME OVER=============" << std::endl;
-        m_renderer->stop();
-       // exit(0);
-
+        
+        // Ocultar el contador de vidas
+        if (m_ui_manager && m_ui_manager->IsTemplateLoaded("lives_counter"))
+        {
+            m_ui_manager->HideTemplate("lives_counter");
+        }
+        
+        // Mostrar el menú de Game Over
+        if (m_ui_manager && m_ui_manager->IsTemplateLoaded("gameover"))
+        {
+            m_ui_manager->ShowTemplate("gameover");
+        }
     });
 }
 
@@ -187,6 +195,7 @@ void Game::initUI()
         m_ui_manager->LoadTemplate("main_menu", "test.rml", true); // Mostrar automáticamente
         m_ui_manager->LoadTemplate("pause_menu", "pause_menu.rml", false); // Cargar pero no mostrar
         m_ui_manager->LoadTemplate("lives_counter", "lives_counter.rml", false); // Cargar pero no mostrar
+        m_ui_manager->LoadTemplate("gameover", "gameover.rml", false); // Cargar pero no mostrar
         
         // Registrar eventos con lambdas
         // Evento del botón START GAME
@@ -211,6 +220,31 @@ void Game::initUI()
                 std::cout << "Botón REINICIAR JUEGO presionado" << std::endl;
                 m_ui_manager->HideTemplate("pause_menu");
                 resetGame();
+            });
+        
+        // Eventos del menú Game Over
+        // Botón REINICIAR
+        m_ui_manager->RegisterEvent("gameover", "restart-button", Rml::EventId::Click,
+            [this](Rml::Element*, Rml::EventId) {
+                std::cout << "Botón REINICIAR presionado (Game Over)" << std::endl;
+                m_ui_manager->HideTemplate("gameover");
+                resetGame();
+            });
+        
+        // Botón IR A INICIO
+        m_ui_manager->RegisterEvent("gameover", "main-menu-button", Rml::EventId::Click,
+            [this](Rml::Element*, Rml::EventId) {
+                std::cout << "Botón IR A INICIO presionado (Game Over)" << std::endl;
+                m_ui_manager->HideTemplate("gameover");
+                resetGame(); // Ejecutar función de reset
+                m_ui_manager->ShowTemplate("main_menu"); // Mostrar menú principal
+            });
+        
+        // Botón SALIR
+        m_ui_manager->RegisterEvent("gameover", "exit-button", Rml::EventId::Click,
+            [this](Rml::Element*, Rml::EventId) {
+                std::cout << "Botón SALIR presionado (Game Over)" << std::endl;
+                m_renderer->stop();
             });
         
         // Inicializar contador de vidas

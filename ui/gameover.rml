@@ -1,0 +1,84 @@
+<rml>
+<head>
+    <title>Game Over</title>
+    <link type="text/rcss" href="/fonts/LatoLatin-Regular.ttf"/>
+    <style>
+        body {
+            font-family: LatoLatin;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #gameover-container {
+            width: 600px;
+            height: 500px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            padding: 40px;
+        }
+        
+        #gameover-title {
+            font-size: 64px;
+            font-weight: bold;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        #gameover-subtitle {
+            font-size: 24px;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        
+        .button {
+            width: 300px;
+            height: 60px;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 60px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div id="gameover-container">
+        <div id="gameover-title">GAME OVER</div>
+        <div id="gameover-subtitle">¿Qué deseas hacer?</div>
+        
+        <div id="restart-button" class="button">REINICIAR</div>
+        <div id="main-menu-button" class="button">IR A INICIO</div>
+        <div id="exit-button" class="button">SALIR</div>
+    </div>
+</body>
+</rml>
+
