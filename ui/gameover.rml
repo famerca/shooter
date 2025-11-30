@@ -76,7 +76,6 @@
         <div id="gameover-subtitle">¿Qué deseas hacer?</div>
         
         <div id="restart-button" class="button">REINICIAR</div>
-        <div id="main-menu-button" class="button">IR A INICIO</div>
         <div id="exit-button" class="button">SALIR</div>
     </div>
 </body>

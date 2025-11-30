@@ -231,15 +231,6 @@ void Game::initUI()
                 resetGame();
             });
         
-        // Botón IR A INICIO
-        m_ui_manager->RegisterEvent("gameover", "main-menu-button", Rml::EventId::Click,
-            [this](Rml::Element*, Rml::EventId) {
-                std::cout << "Botón IR A INICIO presionado (Game Over)" << std::endl;
-                m_ui_manager->HideTemplate("gameover");
-                resetGame(); // Ejecutar función de reset
-                m_ui_manager->ShowTemplate("main_menu"); // Mostrar menú principal
-            });
-        
         // Botón SALIR
         m_ui_manager->RegisterEvent("gameover", "exit-button", Rml::EventId::Click,
             [this](Rml::Element*, Rml::EventId) {
