@@ -6,6 +6,7 @@
 #include <GLS/Renderer.hpp>
 #include <GLS/GameObject.hpp>
 #include <GLS/Listener.hpp>
+#include <GLS/UIManager.hpp>
 
 
 class inputManager;
@@ -22,6 +23,9 @@ public:
 
     void render();
 
+    // Función para reiniciar el juego (llamada desde UI)
+    void resetGame() noexcept;
+
 private:
     std::shared_ptr<Engine::Window> m_window;
     std::shared_ptr<Engine::Scene> m_scene;
@@ -29,6 +33,7 @@ private:
     std::shared_ptr<inputManager> m_input;
     std::shared_ptr<Engine::GameObject> m_user;
     std::shared_ptr<Engine::CameraComponent> m_camera;
+    std::shared_ptr<UIManager> m_ui_manager;
 
     Engine:: Listener::Callback ground_collition;
 
@@ -44,6 +49,7 @@ private:
     void initRenderer();
     void initGround();
     void initCollitions();
+    void initUI();
 };
 
 

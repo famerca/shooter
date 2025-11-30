@@ -5,6 +5,8 @@
 #include <GLS/Physics.hpp>
 #include <GLS/SkyBox.hpp>
 #include <GLS/Path.hpp>
+#include <GLS/UIManager.hpp>
+#include <iostream>
 
 Game::Game(std::shared_ptr<Engine::Window> window)
     : m_window(window)
@@ -27,6 +29,7 @@ void Game::init()
     //initGround();
     initInput();
     initCollitions();
+    initUI();
 
     handleGameOver();
 }
@@ -172,4 +175,61 @@ void Game::handleGameOver() noexcept
        // exit(0);
 
     });
+}
+
+void Game::initUI()
+{
+    // Inicializar UIManager
+    m_ui_manager = std::make_shared<UIManager>();
+    if (m_ui_manager->Initialize(m_window, "ui"))
+    {
+        // Cargar plantillas
+        m_ui_manager->LoadTemplate("main_menu", "test.rml", true); // Mostrar automáticamente
+        m_ui_manager->LoadTemplate("pause_menu", "pause_menu.rml", false); // Cargar pero no mostrar
+        m_ui_manager->LoadTemplate("lives_counter", "lives_counter.rml", false); // Cargar pero no mostrar
+        
+        // Registrar eventos con lambdas
+        // Evento del botón START GAME
+        m_ui_manager->RegisterEvent("main_menu", "start-button", Rml::EventId::Click, 
+            [this](Rml::Element*, Rml::EventId) {
+                std::cout << "Botón START GAME presionado" << std::endl;
+                m_ui_manager->HideTemplate("main_menu");
+                m_ui_manager->ShowTemplate("lives_counter");
+                std::cout << "Juego iniciado desde el menú" << std::endl;
+            });
+        
+        // Evento del botón CONTINUAR
+        m_ui_manager->RegisterEvent("pause_menu", "continue-button", Rml::EventId::Click,
+            [this](Rml::Element*, Rml::EventId) {
+                std::cout << "Botón CONTINUAR presionado" << std::endl;
+                m_ui_manager->HideTemplate("pause_menu");
+            });
+        
+        // Evento del botón REINICIAR JUEGO
+        m_ui_manager->RegisterEvent("pause_menu", "restart-button", Rml::EventId::Click,
+            [this](Rml::Element*, Rml::EventId) {
+                std::cout << "Botón REINICIAR JUEGO presionado" << std::endl;
+                m_ui_manager->HideTemplate("pause_menu");
+                resetGame();
+            });
+        
+        // Inicializar contador de vidas
+        m_ui_manager->UpdateElementText("lives_counter", "lives-count", "3");
+        
+        // Conectar UIManager al renderer
+        m_renderer->setUIManager(m_ui_manager);
+        std::cout << "UIManager integrado correctamente. El juego está pausado hasta presionar START GAME." << std::endl;
+    }
+    else
+    {
+        std::cerr << "Error al inicializar UIManager, continuando sin interfaz" << std::endl;
+    }
+}
+
+void Game::resetGame() noexcept
+{
+    std::cout << "=============REINICIAR JUEGO=============" << std::endl;
+    std::cout << "Llamando a función de reset del Engine..." << std::endl;
+    // Aquí se llamará a la función que tu amigo está implementando
+    // Por ahora solo imprimimos el mensaje
 }
