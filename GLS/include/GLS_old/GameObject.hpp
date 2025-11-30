@@ -2,9 +2,7 @@
 #include "TransformComponent.hpp"
 #include "Body.hpp"
 #include "KMovement.hpp"
-#include "ScriptComponent.hpp"
 #include <vector>
-
 
 #ifndef GAMEOBJECT_HPP
 #define GAMEOBJECT_HPP
@@ -27,7 +25,6 @@ private:
 
     std::vector<std::shared_ptr<Component>> components;
     bool visible;
-    
 
 public:
 
@@ -45,9 +42,6 @@ public:
     std::shared_ptr<Engine::Body> getBody();
     std::shared_ptr<Engine::KMovement> getMovement();
 
-
-    void addScript(std::shared_ptr<ScriptComponent> script);
-
     void addComponent(std::shared_ptr<Component>);
 
     //temp
@@ -57,8 +51,6 @@ public:
     }
 
     std::shared_ptr<TransformComponent> getTransform();
-    void start();
-
     void update(const GLfloat &);
 
     void change();

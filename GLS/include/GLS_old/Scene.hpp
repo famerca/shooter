@@ -61,8 +61,6 @@ public:
 
     void update(const GLfloat &dt);
 
-    void start();
-
     std::shared_ptr<Window> getWindow();
 
     void setSkyBox(std::shared_ptr<SkyBox> sky_box);
