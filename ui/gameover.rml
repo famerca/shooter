@@ -16,8 +16,8 @@
         
         .gameover-container {
             width: 600px;
-            background: #000000BF;
-            background-color: #000000BF;
+            background: #000000;
+            background-color: #000000;
             opacity: 0.9;
             border-width: 2px;
             border-color: #4a9eff;
@@ -85,8 +85,8 @@
     <div class="gameover-container">
         <div class="gameover-title">GAME OVER</div>
         
-        <button id="restart-button" class="gameover-button restart" type="button">REINICIAR</button>
-        <button id="exit-button" class="gameover-button exit" type="button">SALIR</button>
+        <button id="restart-button" class="gameover-button restart" type="button">RESTART</button>
+        <button id="exit-button" class="gameover-button exit" type="button">EXIT</button>
     </div>
 </body>
 </rml>

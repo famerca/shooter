@@ -16,8 +16,8 @@
         
         .pause-container {
             width: 600px;
-            background: #000000BF;
-            background-color: #000000BF;
+            background: #000000;
+            background-color: #000000;
             opacity: 0.9;
             border-width: 2px;
             border-color: #4a9eff;
@@ -75,10 +75,10 @@
 </head>
 <body>
     <div class="pause-container">
-        <div class="pause-title">PAUSA</div>
+        <div class="pause-title">PAUSE</div>
         
-        <button id="continue-button" class="pause-button" type="button">CONTINUAR</button>
-        <button id="restart-button" class="pause-button restart" type="button">REINICIAR JUEGO</button>
+        <button id="continue-button" class="pause-button" type="button">CONTINUE</button>
+        <button id="restart-button" class="pause-button restart" type="button">RESTART GAME</button>
     </div>
 </body>
 </rml>

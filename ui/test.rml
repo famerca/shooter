@@ -21,9 +21,9 @@
             /*
             margin-left: -200px;
             margin-top: -150px; */
-            background: #000000BF;
-            background-color: #000000BF;
-            opacity: 0.85;
+            background: #000000;
+            background-color: #000000;
+            opacity: 0.75;
             border-width: 2px;
             border-color: #4a9eff;
             padding: 20px;
@@ -127,26 +127,9 @@
 </head>
 <body>
    <div class="container">
-        <div class="geometry-header">
-            <div class="geometry-title">CIGO+TEDTHI</div>
-            <div class="geometry-subtitle">THEM</div>
-        </div>
-        
-        <div class="geometry-text">LIFE</div>
-        
-        <div class="geometry-dash">
-            <div class="dash-element"></div>
-            <div class="dash-element middle"></div>
-            <div class="dash-element last"></div>
-        </div>
-        
         <button id="start-button" class="geometry-button" type="button">START GAME</button>
         <button class="geometry-button" type="button">LEVEL SELECT</button>
         <button class="geometry-button" type="button">OPTIONS</button>
-        
-        <div class="geometry-footer">
-            Geometry Dash Style Interface
-        </div>
     </div>
 </body>
 </rml>
