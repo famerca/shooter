@@ -1,10 +1,12 @@
-#include "Game.hpp"
-#include "inputManager.hpp"
-#include "Level.hpp"
 #include <GLS/DirectionalLight.hpp>
 #include <GLS/Physics.hpp>
 #include <GLS/SkyBox.hpp>
 #include <GLS/Path.hpp>
+
+#include "Scripts.hpp"
+#include "Game.hpp"
+#include "inputManager.hpp"
+#include "Level.hpp"
 
 Game::Game(std::shared_ptr<Engine::Window> window)
     : m_window(window)
@@ -60,13 +62,12 @@ void Game::initUser()
     m_user->getTransform()->scale(0.8f, 0.8f, 0.8f);
     m_scene->createAudioListener(m_user_index);
 
-
-
     auto pj_model = m_scene->createModel(m_user_index);
     pj_model->loadModel("girl.fbx");
     pj_model->setRelativeModel(glm::vec3(0.f, -0.72f, 0.f));
 
     m_user->setBody(Engine::Physics::Get().CreateBox({0.25f, 0.6f, 0.25f}, {0.f, 0.0f, 0.f}, Engine::BodyType::Dynamic));
+    
 }
 
 void Game::initGround()
@@ -167,13 +168,20 @@ void Game::initCollitions()
 
 }
 
+void Game::restart()
+{
+    m_input->setJumping(false);
+    m_user->getBody()->SetPosition({-2.f, 0.f, 0.f});
+    m_user->getBody()->SetVelocity({0.f, 0.f, 0.f});
+}
+
 
 void Game::handleGameOver() noexcept
 {
     m_input->setOnGameOver([this]() {
 
         std::cout << "=============GAME OVER=============" << std::endl;
-        m_renderer->stop();
+        restart();
        // exit(0);
 
     });

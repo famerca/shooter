@@ -34,6 +34,8 @@ private:
 
     unsigned m_user_index;
 
+    
+    void restart();
 
     void handleGameOver() noexcept;
 

@@ -3,6 +3,7 @@
 #include <GLS/CameraComponent.hpp> // Necesario para getCamera()
 
 #include <GLFW/glfw3.h>   // Para los códigos de teclas (GLFW_KEY_...)
+#include <glm/glm.hpp>
 #include <iostream>       // Si usas cout
 
 #include "inputManager.hpp"
@@ -39,27 +40,14 @@ void inputManager::update(const float &dt) noexcept
     if (is_key_pressed(GLFW_KEY_SPACE) && !is_jumping)
     {
         if (auto body = user->getBody()) {
-            body->ApplyImpulse({0.f, 1500.f, 0.f});
+            body->ApplyImpulse({0.f, 1800.f, 0.f});
             is_jumping = true;
-        }
-    }
-
-    if(is_key_pressed(GLFW_KEY_LEFT_SHIFT))
-    {
-        if (auto body = user->getBody()) {
-            body->ApplyImpulse({0.f, -10.f, 0.f});
         }
     }
 
     handle_camera(dt);
 
-    // 2. --- Lógica de Movimiento Horizontal del Jugador (X/Z) ---
-    if (auto body = user->getBody()) {
-        if(is_key_pressed(GLFW_KEY_A)) body->ApplyImpulse({30.f, 0.f, 0.f});
-        if(is_key_pressed(GLFW_KEY_D)) body->ApplyImpulse({-30.f, 0.f, 0.f});
-        if(is_key_pressed(GLFW_KEY_W)) body->ApplyImpulse({0.f, 0.f, 40.f});
-        if(is_key_pressed(GLFW_KEY_S)) body->ApplyImpulse({0.f, 0.f, -40.f});
-    }
+    handle_move();
 
     gameOver();
     
@@ -101,4 +89,73 @@ void inputManager::gameOver() noexcept
 void inputManager::setOnGameOver(Engine::Listener::Callback callback) noexcept
 {
     onGameOver = callback;
+}
+
+void inputManager::handle_move() noexcept
+{
+    if (auto body = user->getBody()) {
+        
+        auto camera = scene->getCamera();
+        if (camera) {
+            // A. OBTENER VECTORES DE LA CÁMARA
+            // Asumo que tu motor devuelve un vector {x, y, z}. 
+            // Si devuelve GLM o similar, la lógica es la misma.
+            glm::vec3 camForward = camera->getForward(); // Necesitas este vector
+            glm::vec3 camRight   = camera->getRight();   // Y este vector
+            
+            // B. APLANAR EN Y (Proyectar al suelo)
+            // Importante para que el personaje no intente volar al mirar arriba
+            camForward.y = 0.0f;
+            camRight.y   = 0.0f;
+
+            // C. NORMALIZAR
+            // (Necesitas una función normalize, asumo que usas alguna librería math o GLM)
+            // Si usas Jolt, JPH::Vec3 tiene .Normalized()
+            // Aquí uso pseudocódigo matemático para que lo adaptes a tu librería de vec3
+            camForward = glm::normalize(camForward);
+            camRight   = glm::normalize(camRight);
+
+            // D. SUMAR INPUTS
+            // Creamos un vector de dirección final
+            float moveX = 0.0f;
+            float moveZ = 0.0f;
+            float impulseMagnitude = 40.0f; // Tu fuerza original
+
+            // Vector acumulado
+            // Nota: Uso Jolt Vec3 como referencia de estructura
+            float dirX = 0.0f;
+            float dirZ = 0.0f;
+
+            if(is_key_pressed(GLFW_KEY_W)) {
+                dirX += camForward.x;
+                dirZ += camForward.z;
+            }
+            if(is_key_pressed(GLFW_KEY_S)) {
+                dirX -= camForward.x;
+                dirZ -= camForward.z;
+            }
+            // Verifica si en tu motor Right es + o - según tu sistema de coordenadas
+            if(is_key_pressed(GLFW_KEY_D)) { 
+                dirX += camRight.x;
+                dirZ += camRight.z;
+            }
+            if(is_key_pressed(GLFW_KEY_A)) {
+                dirX -= camRight.x;
+                dirZ -= camRight.z;
+            }
+
+            // E. APLICAR IMPULSO
+            // Solo aplicamos si hay movimiento para evitar dividir por cero al normalizar
+            if (dirX != 0.0f || dirZ != 0.0f) {
+                // Normalizamos el vector resultante para evitar que moverse en diagonal sea más rápido
+                float length = std::sqrt(dirX * dirX + dirZ * dirZ);
+                dirX /= length;
+                dirZ /= length;
+
+                // Aplicamos la fuerza
+                body->ApplyImpulse({dirX * impulseMagnitude, 0.f, dirZ * impulseMagnitude});
+            }
+        }
+    }
+
 }

@@ -8,8 +8,8 @@
 PlataformaMovil::PlataformaMovil(scriptParams params)
 {
     try {
-        this->max = std::get<float>(params[0]);
-        this->min = std::get<float>(params[1]);
+        this->min = std::get<float>(params[0]);
+        this->max = std::get<float>(params[1]);
         this->vertical = (std::get<std::string>(params[2]) == "vertical");
     }catch(const std::exception& e)
     {
@@ -29,11 +29,16 @@ void PlataformaMovil::OnPhysicsUpdate(float dt)
     else
         val = pos.GetX();
 
+    std::cout << "[PlataformaMovil] valor: " << val << std::endl;
+
     if(val <= min)
     {
+        std::cout << "[PlataformaMovil] subiendo" << std::endl;
         body->SetVelocity({0.f, 1.f, 0.f});
     }else if(val >= max)
     {
+        std::cout << "[PlataformaMovil] bajando" << std::endl;
         body->SetVelocity({0.f, -1.f, 0.f});
     }
 }
+

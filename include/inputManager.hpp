@@ -46,6 +46,7 @@ public:
     void update(const float &dt) noexcept;
 
     void handle_camera (const float &dt) noexcept;
+    void handle_move() noexcept;
 
     void gameOver() noexcept;
 
