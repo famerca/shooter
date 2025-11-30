@@ -2,7 +2,10 @@
 #define UTILS_HPP
 #include <iostream>
 #include <iomanip>
+
 #include <glm/glm.hpp>
+#include <Jolt/Jolt.h>
+
 namespace Engine
 {
 class Utils
@@ -32,6 +35,17 @@ public:
         }
 
         std::cout << "------------------------------------------\n";
+    }
+
+
+    static JPH::Vec3 toJoltVec3(const glm::vec3& vec3)
+    {
+        return JPH::Vec3(vec3.x, vec3.y, vec3.z);
+    }
+
+    static glm::vec3 toGLMVec3(const JPH::Vec3& vec3)
+    {
+        return glm::vec3(vec3.GetX(), vec3.GetY(), vec3.GetZ());
     }
 };
 
