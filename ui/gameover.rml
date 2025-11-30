@@ -76,6 +76,14 @@
             background-color: #ff6666;
         }
         
+        .gameover-button.main-menu {
+            background: #4a9eff; /* Blue for main menu button */
+        }
+        
+        .gameover-button.main-menu:hover {
+            background-color: #5cabff;
+        }
+        
         button {
             display: block;
         }
@@ -86,6 +94,7 @@
         <div class="gameover-title">GAME OVER</div>
         
         <button id="restart-button" class="gameover-button restart" type="button">RESTART</button>
+        <button id="main-menu-button" class="gameover-button main-menu" type="button">MAIN MENU</button>
         <button id="exit-button" class="gameover-button exit" type="button">EXIT</button>
     </div>
 </body>

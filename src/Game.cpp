@@ -172,16 +172,13 @@ void Game::handleGameOver() noexcept
         std::cout << "=============GAME OVER=============" << std::endl;
         
         // Ocultar el contador de vidas
-        if (m_ui_manager && m_ui_manager->IsTemplateLoaded("lives_counter"))
-        {
-            m_ui_manager->HideTemplate("lives_counter");
-        }
+        m_ui_manager->HideTemplate("lives_counter");
+        
         
         // Mostrar el menú de Game Over
-        if (m_ui_manager && m_ui_manager->IsTemplateLoaded("gameover"))
-        {
-            m_ui_manager->ShowTemplate("gameover");
-        }
+        m_ui_manager->ShowTemplate("gameover");
+        
+        m_input->setOnGameOver(nullptr);
     });
 }
 
@@ -231,6 +228,16 @@ void Game::initUI()
                 resetGame();
             });
         
+        // Botón MENÚ PRINCIPAL
+        m_ui_manager->RegisterEvent("gameover", "main-menu-button", Rml::EventId::Click,
+            [this](Rml::Element*, Rml::EventId) {
+                std::cout << "Botón MAIN MENU presionado (Game Over)" << std::endl;
+                m_ui_manager->HideTemplate("gameover");
+                m_ui_manager->HideTemplate("lives_counter");
+                resetGame();
+                m_ui_manager->ShowTemplate("main_menu");
+            });
+        
         // Botón SALIR
         m_ui_manager->RegisterEvent("gameover", "exit-button", Rml::EventId::Click,
             [this](Rml::Element*, Rml::EventId) {
@@ -249,11 +256,14 @@ void Game::initUI()
         m_renderer->setPauseCallback([this]() -> bool {
             if (!m_ui_manager || !m_ui_manager->IsInitialized())
                 return false;
+            bool is_paused = m_ui_manager->IsTemplateVisible("main_menu") || 
+                             m_ui_manager->IsTemplateVisible("pause_menu") ||
+                             m_ui_manager->IsTemplateVisible("gameover");
+
+           
             
             // El juego está pausado si algún menú está visible
-            return m_ui_manager->IsTemplateVisible("main_menu") || 
-                   m_ui_manager->IsTemplateVisible("pause_menu") ||
-                   m_ui_manager->IsTemplateVisible("gameover");
+            return is_paused;
         });
         
         // Pasar ui_manager al inputManager para que pueda manejar la pausa con ESC
