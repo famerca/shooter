@@ -2,6 +2,7 @@
 #define OBSTACLE_H
 #include <memory>
 #include <string>
+#include <variant>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -11,6 +12,8 @@
 #include <GLS/Listener.hpp>
 
 class Level;
+
+using scriptParams = std::vector<std::variant< std::string, float, int>>;
 
 struct ObstacleSettings
 {
@@ -27,6 +30,7 @@ struct ObstacleSettings
     glm::vec3 axis = {0.f, 1.f, 0.f};
     float angle = 0.f;
     std::string script = "";
+    scriptParams script_params;
 };
 
 class Obstacle: public std::enable_shared_from_this<Obstacle>

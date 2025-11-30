@@ -135,6 +135,7 @@ void Game::Level1()
     ObstacleSettings s_plataforma2 = s_plataforma;
 
     s_plataforma2.script = "PlataformaMovil";
+    s_plataforma2.script_params = {0.f, 3.f, "vertical"};
 
 
     level1.init({

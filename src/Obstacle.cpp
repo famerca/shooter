@@ -99,7 +99,10 @@ void Obstacle::initCollitions(const ObstacleSettings& settings, const std::share
 
     if(settings.script == "PlataformaMovil")
     {
-        m_object->addScript(std::make_shared<PlataformaMovil>());
+        if(settings.script_params.size() != 3)
+            m_object->addScript(std::make_shared<PlataformaMovil>());
+        else
+            m_object->addScript(std::make_shared<PlataformaMovil>(settings.script_params));
     }
 
     if(settings.onContactStart)
