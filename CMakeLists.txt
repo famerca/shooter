@@ -12,6 +12,7 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(Freetype REQUIRED)
+find_package(assimp QUIET)
 
 
 # --- 1. PREPARACIÓN DE DEPENDENCIAS (Motor y Jolt) ---
@@ -66,14 +67,16 @@ target_include_directories(GameLib PUBLIC
 
 target_include_directories(GameLib SYSTEM PUBLIC
     ${PROJECT_SOURCE_DIR}/GLS/include 
+    ${GLEW_INCLUDE_DIRS}               # Include directories de GLEW
 )
 
-# D. Definiciones de Preprocesador (Jolt)
+# D. Definiciones de Preprocesador (Jolt y GLM)
 # Las movemos aquí como PUBLIC para que apliquen tanto a la librería como al main
 target_compile_definitions(GameLib PUBLIC
     JPH_PROFILE_ENABLED=1
     JPH_DEBUG_RENDERER=1
     JPH_OBJECT_STREAM=1
+    GLM_ENABLE_EXPERIMENTAL
 )
 
 # --- 3. CREACIÓN DEL EJECUTABLE (Main) ---
@@ -90,13 +93,29 @@ target_link_libraries(Game PRIVATE
     ${RMLUI_DEBUGGER_LIBRARY}    # RmlUi
     ${RMLUI_LIBRARY}    # RmlUi
     Freetype::Freetype
-    GL 
-    GLEW 
+    OpenGL::GL          # OpenGL (usando el target moderno de CMake)
+    GLEW::GLEW          # GLEW (usando el target moderno de CMake)
     glfw 
-    assimp 
-    m 
-    pthread
+    ${CMAKE_DL_LIBS}    # Para dlopen/dlsym si es necesario
 )
+
+# Linkear assimp si está disponible
+if(TARGET assimp::assimp)
+    target_link_libraries(Game PRIVATE assimp::assimp)
+else()
+    # Fallback: buscar la librería manualmente
+    find_library(ASSIMP_LIBRARY
+        NAMES assimp
+        PATHS /opt/homebrew/lib /usr/local/lib
+        NO_DEFAULT_PATH
+    )
+    if(ASSIMP_LIBRARY)
+        target_link_libraries(Game PRIVATE ${ASSIMP_LIBRARY})
+    else()
+        # Último recurso: linkear directamente
+        target_link_libraries(Game PRIVATE assimp)
+    endif()
+endif()
 
 
 message(STATUS "Configuración completada. GameLib sources: ${GAMELIB_SOURCES}")
