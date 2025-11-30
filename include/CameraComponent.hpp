@@ -17,6 +17,7 @@ class CameraComponent : public Component, public std::enable_shared_from_this<Ca
 private:
     glm::vec3 position;
     glm::vec3 front;
+    glm::vec3 right;
     glm::vec3 up;
     float aspectRation;
     float fov;
@@ -79,6 +80,9 @@ public:
 
     glm::mat4 getViewMatrix();
     glm::mat4 getProjectionMatrix();
+
+    const glm::vec3& getForward() const;
+    const glm::vec3& getRight() const;
 
     void activate();
 };

@@ -78,6 +78,7 @@ void CameraComponent::calcFront()
     front.y = glm::sin(glm::radians(pitch));
     front.z = glm::cos(glm::radians(pitch)) * glm::sin(glm::radians(yaw));
     front = glm::normalize(front);
+    right = glm::normalize(glm::cross(front, up));
 }
 
 void CameraComponent::update(const GLfloat &dt)
@@ -141,6 +142,17 @@ void CameraComponent::update(const GLfloat &dt)
 
     
 }
+
+const glm::vec3& CameraComponent::getForward() const
+{
+    return front; 
+}
+
+const glm::vec3& CameraComponent::getRight() const
+{
+    return right; 
+}
+
 
 void CameraComponent::rotate(GLfloat x, GLfloat y)
 {
@@ -215,6 +227,7 @@ void CameraComponent::setOrthographic(bool orthographic)
 void CameraComponent::setFront(glm::vec3 front)
 {
     this->front = front;
+    right = glm::normalize(glm::cross(front, up));
     changed = true;
 }
 
