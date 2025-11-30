@@ -12,6 +12,7 @@
 // --- FORWARD DECLARATIONS ---
 // Esto es CRUCIAL: Le decimos al compilador "Existen estas clases", 
 // pero no incluimos sus archivos .h pesados aquí.
+class UIManager;
 
 
 class inputManager : public Engine::Input
@@ -23,7 +24,12 @@ private:
     float sensitivity{0.5f};
     bool is_jumping {false};
     Engine::Listener::Callback onGameOver;
-  
+    
+    // UI Manager para manejar pausa (lógica del juego, no del motor)
+    std::shared_ptr<UIManager> ui_manager{nullptr};
+    
+    // Estado para detectar transición de ESC (evitar múltiples toggles)
+    bool last_esc_state{false};
 
     // Atributos de Obstáculos
     
@@ -40,7 +46,8 @@ public:
 
     // Inicialización
     void init(std::shared_ptr<Engine::Scene> scene, 
-              std::shared_ptr<Engine::GameObject> object);
+              std::shared_ptr<Engine::GameObject> object,
+              std::shared_ptr<UIManager> ui_manager = nullptr);
 
     // Loop principal
     void update(const float &dt) noexcept;
@@ -52,4 +59,7 @@ public:
     void setJumping(bool) noexcept;
 
     void setOnGameOver(Engine::Listener::Callback callback) noexcept;
+    
+    // Manejar pausa con ESC (lógica del juego, no del motor)
+    void handlePauseInput() noexcept;
 };

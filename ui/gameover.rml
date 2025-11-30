@@ -1,82 +1,92 @@
 <rml>
 <head>
     <title>Game Over</title>
-    <link type="text/rcss" href="/fonts/LatoLatin-Regular.ttf"/>
     <style>
         body {
             font-family: LatoLatin;
+            font-size: 18px;
+            background: transparent;
+            background-color: transparent;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
             display: flex;
             justify-content: center;
             align-items: center;
         }
         
-        #gameover-container {
+        .gameover-container {
             width: 600px;
-            height: 500px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            padding: 40px;
-        }
-        
-        #gameover-title {
-            font-size: 64px;
-            font-weight: bold;
-            color: #ffffff;
-            text-align: center;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        #gameover-subtitle {
-            font-size: 24px;
-            color: #ffffff;
-            text-align: center;
-            margin-bottom: 40px;
+            background: #000000BF;
+            background-color: #000000BF;
             opacity: 0.9;
+            border-width: 2px;
+            border-color: #4a9eff;
+            padding: 30px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
         }
         
-        .button {
-            width: 300px;
-            height: 60px;
-            margin: 15px 0;
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            color: #ffffff;
-            font-size: 20px;
+        .gameover-title {
+            color: #ff2d95; /* Pink para Game Over title */
+            font-size: 2.5em;
             font-weight: bold;
             text-align: center;
-            line-height: 60px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            margin-bottom: 30px;
         }
         
-        .button:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: scale(1.05);
+        .gameover-button {
+            display: block;
+            width: 80%;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            background: #4a9eff;
+            border-width: 0px;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
         }
         
-        .button:active {
-            transform: scale(0.95);
+        .gameover-button:hover {
+            background-color: #5cabff;
+        }
+        
+        .gameover-button.restart {
+            background: #ff2d95; /* Pink for restart button */
+        }
+        
+        .gameover-button.restart:hover {
+            background-color: #ff4da6;
+        }
+        
+        .gameover-button.exit {
+            background: #ff4444; /* Red for exit button */
+        }
+        
+        .gameover-button.exit:hover {
+            background-color: #ff6666;
+        }
+        
+        button {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div id="gameover-container">
-        <div id="gameover-title">GAME OVER</div>
-        <div id="gameover-subtitle">¿Qué deseas hacer?</div>
+    <div class="gameover-container">
+        <div class="gameover-title">GAME OVER</div>
         
-        <div id="restart-button" class="button">REINICIAR</div>
-        <div id="exit-button" class="button">SALIR</div>
+        <button id="restart-button" class="gameover-button restart" type="button">REINICIAR</button>
+        <button id="exit-button" class="gameover-button exit" type="button">SALIR</button>
     </div>
 </body>
 </rml>
