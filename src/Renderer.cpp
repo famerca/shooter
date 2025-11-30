@@ -69,44 +69,21 @@ void Renderer::render(std::shared_ptr<Scene> scene)
 
         calcDeltaTime();
 
-        // Procesar input antes de verificar pausa (para detectar ESC)
+        // Procesar input del juego
         if(scene->window->getInput() != nullptr)
         {
             scene->window->getInput()->poll(delta_time);
-            
-            // Detectar tecla ESC para pausar/reanudar
-            if (ui_manager && ui_manager->IsInitialized())
-            {
-                auto input = scene->window->getInput();
-                static bool last_esc_state = false;
-                bool current_esc_state = input->is_key_pressed(GLFW_KEY_ESCAPE);
-                
-                // Detectar transición de false a true (tecla presionada)
-                if (current_esc_state && !last_esc_state)
-                {
-                    // Si el menú principal está visible, no hacer nada (ya está pausado)
-                    if (!ui_manager->IsTemplateVisible("main_menu"))
-                    {
-                        // Si el menú de pausa está visible, ocultarlo (reanudar)
-                        if (ui_manager->IsTemplateVisible("pause_menu"))
-                        {
-                            ui_manager->HideTemplate("pause_menu");
-                        }
-                        // Si no está visible, mostrarlo (pausar)
-                        else
-                        {
-                            ui_manager->ShowTemplate("pause_menu");
-                        }
-                    }
-                }
-                
-                last_esc_state = current_esc_state;
-            }
+            // El inputManager::update() se llama automáticamente desde poll()
+            // y maneja todas las teclas, incluyendo ESC para pausa
         }
 
-        // Pausar física y actualización de escena si algún menú está visible
-        bool game_paused = (ui_manager && ui_manager->IsInitialized() && 
-                           (ui_manager->IsTemplateVisible("main_menu") || ui_manager->IsTemplateVisible("pause_menu")));
+        // Verificar si el juego está pausado usando el callback (modular)
+        // El motor no sabe por qué está pausado, solo pregunta al juego
+        bool game_paused = false;
+        if (pause_callback)
+        {
+            game_paused = pause_callback();
+        }
         
         if (!game_paused)
         {
@@ -311,6 +288,12 @@ void Renderer::setUIManager(std::shared_ptr<::UIManager> ui_manager) noexcept
 {
     this->ui_manager = ui_manager;
 }
+
+void Renderer::setPauseCallback(PauseCallback callback) noexcept
+{
+    this->pause_callback = callback;
+}
+
 
 void Renderer::calcDeltaTime()
 {

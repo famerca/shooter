@@ -57,6 +57,12 @@ class inputManager: public Input
     // Generador de números aleatorios para la posición X del obstáculo
     std::mt19937 gen;
     std::uniform_real_distribution<> distrib_x;
+    
+    // UI Manager para manejar pausa (lógica del juego, no del motor)
+    std::shared_ptr<UIManager> ui_manager{nullptr};
+    
+    // Estado para detectar transición de ESC (evitar múltiples toggles)
+    bool last_esc_state{false};
 
 public:
     bool is_jumping {false};
@@ -72,15 +78,27 @@ public:
 
     void init(std::shared_ptr<Scene> scene, 
               std::shared_ptr<GameObject> object, 
-              std::shared_ptr<std::vector<unsigned>> obstacles)
+              std::shared_ptr<std::vector<unsigned>> obstacles,
+              std::shared_ptr<UIManager> ui_manager = nullptr)
     {
         this->object = object;
         this->scene = scene;
         this->obstacles_list = obstacles; // Guarda la lista de IDs de obstáculos
+        this->ui_manager = ui_manager; // Guarda el UIManager para manejar pausa
     }
 
     void update(const float &dt) noexcept {
         glm::vec3 pos = object->getTransform()->getPosition();
+
+        // Manejar pausa con ESC (lógica del juego, no del motor)
+        if(is_key_pressed(GLFW_KEY_ESCAPE))
+        {
+            handlePauseInput();
+        }
+        else
+        {
+            last_esc_state = false;
+        }
 
         // 1. --- Lógica del Salto del Jugador (Y) ---
         if (is_key_pressed(GLFW_KEY_SPACE) && !is_jumping)
@@ -169,8 +187,36 @@ public:
         //std::cout << "delta: " << dt <<  ", FPS: " << 1.f / dt << std::endl;
 
     }
+    
+    // Manejar pausa con ESC (lógica del juego, no del motor)
+    void handlePauseInput() noexcept
+    {
+        if (!ui_manager || !ui_manager->IsInitialized())
+            return;
+        
+        // Detectar transición de false a true (tecla presionada)
+        if (!last_esc_state)
+        {
+            // Si el menú principal está visible, no hacer nada (ya está pausado)
+            if (!ui_manager->IsTemplateVisible("main_menu"))
+            {
+                // Si el menú de pausa está visible, ocultarlo (reanudar)
+                if(ui_manager->IsTemplateVisible("pause_menu"))
+                {
+                    ui_manager->HideTemplate("pause_menu");
+                }
+                // Si no está visible, mostrarlo (pausar)
+                else
+                {
+                    ui_manager->ShowTemplate("pause_menu");
+                }
+            }
+        }
+        
+        last_esc_state = true;
+    }
 
-    ~inputManager() {}
+    ~inputManager() {} 
 };
 
 
@@ -253,6 +299,7 @@ void ResetGameState(std::shared_ptr<Scene> scene,
     
     std::cout << "Juego reiniciado" << std::endl;
 }
+
 
 int main()
 {
@@ -391,7 +438,7 @@ int main()
         obstacles->push_back(cilindro);
         obstacles->push_back(dado2);
 
-        input->init(scene, scene->at(user), obstacles);
+        // inputManager se inicializará con ui_manager después de que se cree (ver más abajo)
 
 
         // --- 1. Registrar la Lógica de INICIO DE COLISIÓN (OnContactAdded) ---
@@ -460,8 +507,28 @@ int main()
             // Inicializar contador de vidas
             ui_manager->UpdateElementText("lives_counter", "lives-count", "3");
             
-            // Conectar UIManager al renderer
+            // Conectar UIManager al renderer (solo para procesamiento de input de mouse/clicks)
             renderer->setUIManager(ui_manager);
+            
+            // Registrar callback de pausa (modular - el motor no sabe por qué está pausado)
+            // El juego decide si está pausado basándose en sus propios menús
+            renderer->setPauseCallback([ui_manager]() -> bool {
+                if (!ui_manager || !ui_manager->IsInitialized())
+                    return false;
+                
+                // El juego está pausado si algún menú está visible
+                return ui_manager->IsTemplateVisible("main_menu") || 
+                       ui_manager->IsTemplateVisible("pause_menu") ||
+                       ui_manager->IsTemplateVisible("gameover");
+            });
+            
+            // Registrar callback de input (modular - el motor no sabe qué hacer con el input)
+            // El juego maneja su propia lógica de input (ESC para pausa, etc.)
+            // No necesitamos callback de input aquí porque la lógica de ESC está en inputManager
+            // El inputManager maneja todas las teclas, incluyendo ESC para pausa
+            // Pasar ui_manager al inputManager para que pueda manejar la pausa con ESC
+            input->init(scene, scene->at(user), obstacles, ui_manager);
+            
             std::cout << "UIManager integrado correctamente. El juego está pausado hasta presionar START GAME." << std::endl;
         }
         else

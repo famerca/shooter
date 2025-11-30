@@ -2,6 +2,7 @@
 #include "Scene.hpp"
 #include "HitboxRenderer.hpp"
 #include <Jolt/Physics/Body/BodyManager.h>
+#include <functional>
 
 #ifndef RENDER_HPP
 #define RENDER_HPP
@@ -41,8 +42,13 @@ public:
 
     GLfloat getDeltaTime() const noexcept;
 
-    // UI Manager integration (opcional)
+    // UI Manager integration (opcional) - Solo para procesamiento de input de mouse/clicks
     void setUIManager(std::shared_ptr<::UIManager> ui_manager) noexcept;
+
+    // Callback para determinar si el juego está pausado (modular - el motor no sabe por qué está pausado)
+    // El juego puede registrar su propia lógica de pausa basada en menús, estados, etc.
+    using PauseCallback = std::function<bool()>;
+    void setPauseCallback(PauseCallback callback) noexcept;
 
 private:
     std::vector<std::shared_ptr<Shader>> shaders;
@@ -67,8 +73,11 @@ private:
     GLdouble last_frame_time{0.0}; // Tiempo al final del frame anterior (usamos GLdouble por la precisión de glfwGetTime)
     GLfloat delta_time{0.f};       // Almacenamos el delta time en float para su uso en OpenGL/física
 
-    // UI Manager (opcional)
+    // UI Manager (opcional) - Solo para procesamiento de input de mouse/clicks
     std::shared_ptr<::UIManager> ui_manager{nullptr};
+    
+    // Callback para determinar si el juego está pausado (modular)
+    PauseCallback pause_callback{nullptr};
 };
   
 }
