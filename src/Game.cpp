@@ -146,9 +146,9 @@ void Game::Level1()
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 10.f}, s_plataforma},
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 14.f}, s_plataforma},
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 16.f}, s_plataforma2},
-        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 20.f}, s_plataforma},
-        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 24.f}, s_plataforma},
-        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 30.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {-2.f, 3.f, 20.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {-2.f, 3.f, 24.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {0.f, 3.f, 30.f}, s_plataforma},
     });
 
 }

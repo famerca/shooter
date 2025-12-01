@@ -124,9 +124,9 @@ void inputManager::handle_move() noexcept
                 impulse += camRight * impulseMagnitude;
             }
             if(is_key_pressed(GLFW_KEY_A)) {
-                 impulse += camRight * impulseMagnitude;
+                 impulse -= camRight * impulseMagnitude;
             }
-
+                                               
             body->ApplyImpulse({impulse.x, 0.f, impulse.z});
             
         }
