@@ -251,21 +251,6 @@ void Game::initUI()
         // Conectar UIManager al renderer
         m_renderer->setUIManager(m_ui_manager);
         
-        // Registrar callback de pausa (modular - el motor no sabe por qué está pausado)
-        // El juego decide si está pausado basándose en sus propios menús
-        m_renderer->setPauseCallback([this]() -> bool {
-            if (!m_ui_manager || !m_ui_manager->IsInitialized())
-                return false;
-            bool is_paused = m_ui_manager->IsTemplateVisible("main_menu") || 
-                             m_ui_manager->IsTemplateVisible("pause_menu") ||
-                             m_ui_manager->IsTemplateVisible("gameover");
-
-           
-            
-            // El juego está pausado si algún menú está visible
-            return is_paused;
-        });
-        
         // Pasar ui_manager al inputManager para que pueda manejar la pausa con ESC
         m_input->init(m_scene, m_user, m_ui_manager);
         
