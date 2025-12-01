@@ -3,6 +3,7 @@
 #include <GLS/SkyBox.hpp>
 #include <GLS/Path.hpp>
 #include <GLS/UIManager.hpp>
+#include <GLS/AudioManager.hpp>
 #include <iostream>
 
 #include "Scripts.hpp"
@@ -14,7 +15,7 @@ Game::Game(std::shared_ptr<Engine::Window> window)
     : m_window(window)
 {
     m_renderer = std::make_shared<Engine::Renderer>();
-    m_input = std::make_shared<inputManager>();
+    m_input = std::make_shared<inputManager>(m_renderer->isPaused());
 }
 
 Game::~Game()
@@ -28,7 +29,7 @@ void Game::init()
     initSkyBox();
     initUser();
     initRenderer();
-    //initGround();
+    initAudio();
     initInput();
     initCollitions();
     initUI();
@@ -62,6 +63,9 @@ void Game::initUser()
     
     m_camera->activate();
     m_user->getTransform()->translate(-2.f, 0.f, 0.f);
+    m_user->getTransform()->rotate(90.f, {0.f, 1.f, 0.f});
+
+    //m_user->getTransform()->translate({-3.f, 5.f, 50.f});
     m_user->getTransform()->scale(0.8f, 0.8f, 0.8f);
     m_scene->createAudioListener(m_user_index);
 
@@ -86,8 +90,14 @@ void Game::initRenderer()
 {
     m_renderer->debug();
     m_renderer->init();
+    m_renderer->pause(true);
 }
 
+
+void Game::initAudio()
+{
+    m_audio_player = Engine::AudioManager::Get().make_audioPlayer("Greenpath.mp3", 1.0f, true);
+}
 
 void Game::initSkyBox()
 {
@@ -126,6 +136,8 @@ void Game::Level1()
     s_casita.box_shape = {2.f, 1.5f, 2.f};
     s_casita.rel_pos = {0.f, -0.75f, 0.f};
     s_casita.body_type = Engine::BodyType::Static;
+    s_casita.axis = {0.f, 1.f, 0.f};
+    s_casita.angle = 90.f;
 
     ObstacleSettings s_plataforma = {};
 
@@ -141,9 +153,26 @@ void Game::Level1()
     s_plataforma2.script = "PlataformaMovil";
     s_plataforma2.script_params = {0.f, 3.f, "vertical"};
 
+    ObstacleSettings s_plataforma3 = s_plataforma;
+    s_plataforma3.script = "PlataformaMovil";
+    s_plataforma3.script_params = {-3.f, 3.f, "horizontal"};
+
+    ObstacleSettings s_bird = s_plataforma3;
+    s_bird.box_shape = {0.5f, 0.5f, 0.5f};
+    s_bird.scale = {0.5f, 0.5f, 0.5f};
+    s_bird.axis = {0.f, 1.f, 0.f};
+    s_bird.angle = -90.f;
+
+
+    ObstacleSettings s_parachute = {};
+    s_parachute.box_shape = {2.5f, 2.5f, 2.5f};
+    s_parachute.body_type = Engine::BodyType::Kinematic;
+    s_parachute.scale = {2.5f, 2.5f, 2.5f};
+
 
     level1.init({
         {"casita/base.fbx", "deco", {2.f, 1.8f, 0.f}, s_casita}, 
+        {"bird/base.fbx", "enemey", {-3.f, 5.f, 53.f}, s_bird},
         {"ground/base.fbx", "ground", {0.f, -0.5f, 0.f}, s_ground},
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 7.f}, s_plataforma},
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 10.f}, s_plataforma},
@@ -152,6 +181,12 @@ void Game::Level1()
         {"ground/base.fbx", "plataforma", {-2.f, 3.f, 20.f}, s_plataforma},
         {"ground/base.fbx", "plataforma", {-2.f, 3.f, 24.f}, s_plataforma},
         {"ground/base.fbx", "plataforma", {0.f, 3.f, 30.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {-3.f, 3.f, 34.f}, s_plataforma3},
+        {"ground/base.fbx", "plataforma", {3.f, 3.f, 38.f}, s_plataforma3},
+        {"ground/base.fbx", "plataforma", {-3.f, 3.f, 42.f}, s_plataforma3},
+        {"ground/base.fbx", "plataforma", {3.f, 3.f, 46.f}, s_plataforma3},
+        {"", "plataforma", {-3.f, 3.f, 50.f}, s_plataforma},
+        {"parachute/base.fbx", "parachute", {0.f, 5.f, 57.f}, s_parachute},
     });
 
 }
@@ -176,6 +211,7 @@ void Game::restart()
     m_input->setJumping(false);
     m_user->getBody()->SetPosition({-2.f, 0.f, 0.f});
     m_user->getBody()->SetVelocity({0.f, 0.f, 0.f});
+    m_audio_player->play();
 }
 
 
@@ -217,6 +253,8 @@ void Game::initUI()
                 std::cout << "Botón START GAME presionado" << std::endl;
                 m_ui_manager->HideTemplate("main_menu");
                 m_ui_manager->ShowTemplate("lives_counter");
+                m_renderer->pause(false);
+                m_audio_player->play();
                 std::cout << "Juego iniciado desde el menú" << std::endl;
             });
         
@@ -225,6 +263,8 @@ void Game::initUI()
             [this](Rml::Element*, Rml::EventId) {
                 std::cout << "Botón CONTINUAR presionado" << std::endl;
                 m_ui_manager->HideTemplate("pause_menu");
+                m_ui_manager->ShowTemplate("lives_counter");
+                m_renderer->pause(false);
             });
         
         // Evento del botón REINICIAR JUEGO
@@ -232,7 +272,9 @@ void Game::initUI()
             [this](Rml::Element*, Rml::EventId) {
                 std::cout << "Botón REINICIAR JUEGO presionado" << std::endl;
                 m_ui_manager->HideTemplate("pause_menu");
-                resetGame();
+                m_ui_manager->ShowTemplate("lives_counter");
+                restart();
+                m_renderer->pause(false);
             });
         
         // Eventos del menú Game Over
@@ -241,7 +283,9 @@ void Game::initUI()
             [this](Rml::Element*, Rml::EventId) {
                 std::cout << "Botón REINICIAR presionado (Game Over)" << std::endl;
                 m_ui_manager->HideTemplate("gameover");
-                resetGame();
+                m_ui_manager->ShowTemplate("lives_counter");
+                restart();
+                m_renderer->pause(false);
             });
         
         // Botón MENÚ PRINCIPAL
@@ -250,7 +294,7 @@ void Game::initUI()
                 std::cout << "Botón MAIN MENU presionado (Game Over)" << std::endl;
                 m_ui_manager->HideTemplate("gameover");
                 m_ui_manager->HideTemplate("lives_counter");
-                resetGame();
+                restart();
                 m_ui_manager->ShowTemplate("main_menu");
             });
         
@@ -266,9 +310,27 @@ void Game::initUI()
         
         // Conectar UIManager al renderer
         m_renderer->setUIManager(m_ui_manager);
+
+        m_input->setOnPause([this]() {
+            std::cout << "Botón PAUSE presionado (Game Over)" << std::endl;
+                if (!m_ui_manager->IsTemplateVisible("main_menu"))
+                {
+                    // Si el menú de pausa está visible, ocultarlo (reanudar)
+                    if(m_ui_manager->IsTemplateVisible("pause_menu"))
+                    {
+                        m_ui_manager->HideTemplate("pause_menu");
+                        m_renderer->pause(false);
+                    }
+                    // Si no está visible, mostrarlo (pausar)
+                    else
+                    {
+                        m_ui_manager->ShowTemplate("pause_menu");
+                        m_renderer->pause(true);
+                    }
+                }
+        });
         
         // Pasar ui_manager al inputManager para que pueda manejar la pausa con ESC
-        m_input->init(m_scene, m_user, m_ui_manager);
         
         std::cout << "UIManager integrado correctamente. El juego está pausado hasta presionar START GAME." << std::endl;
     }

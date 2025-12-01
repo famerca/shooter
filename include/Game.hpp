@@ -7,6 +7,7 @@
 #include <GLS/GameObject.hpp>
 #include <GLS/Listener.hpp>
 #include <GLS/UIManager.hpp>
+#include <GLS/AudioPlayer.hpp>
 
 
 class inputManager;
@@ -36,6 +37,7 @@ private:
     std::shared_ptr<inputManager> m_input;
     std::shared_ptr<Engine::GameObject> m_user;
     std::shared_ptr<Engine::CameraComponent> m_camera;
+    std::shared_ptr<Engine::AudioPlayer> m_audio_player;
     std::shared_ptr<UIManager> m_ui_manager;
 
     Engine:: Listener::Callback ground_collition;
@@ -55,6 +57,7 @@ private:
     void initGround();
     void initCollitions();
     void initUI();
+    void initAudio();
 };
 
 

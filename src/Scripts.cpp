@@ -34,11 +34,18 @@ void PlataformaMovil::OnPhysicsUpdate(float dt)
     if(val <= min)
     {
         std::cout << "[PlataformaMovil] subiendo" << std::endl;
-        body->SetVelocity({0.f, 1.f, 0.f});
+        if(vertical)
+            body->SetVelocity({0.f, 1.f, 0.f});
+        else
+            body->SetVelocity({1.f, 0.f, 0.f});
     }else if(val >= max)
     {
         std::cout << "[PlataformaMovil] bajando" << std::endl;
-        body->SetVelocity({0.f, -1.f, 0.f});
+        if(vertical)
+            body->SetVelocity({0.f, -1.f, 0.f});
+        else
+            body->SetVelocity({-1.f, 0.f, 0.f});
+  
     }
 }
 

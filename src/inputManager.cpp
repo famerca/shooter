@@ -14,7 +14,7 @@
 
 using namespace Engine;
 
-inputManager::inputManager() : Input() 
+inputManager::inputManager(const bool& paused) : Input(), paused(paused)
 {
     // Inicialización del generador aleatorio
     std::random_device rd;
@@ -28,12 +28,10 @@ inputManager::~inputManager()
 }
 
 void inputManager::init(std::shared_ptr<Scene> scene_ptr, 
-                        std::shared_ptr<GameObject> usr,
-                        std::shared_ptr<UIManager> ui_mgr)
+                        std::shared_ptr<GameObject> usr)
 {
     this->user = usr;
     this->scene = scene_ptr;
-    this->ui_manager = ui_mgr; // Guarda el UIManager para manejar pausa
 }
 
 void inputManager::update(const float &dt) noexcept 
@@ -41,15 +39,11 @@ void inputManager::update(const float &dt) noexcept
     // Protección básica: si no hay objeto o escena, no hacemos nada
     if (!user || !scene) return;
 
-        // Manejar pausa con ESC (lógica del juego, no del motor)
-    if(is_key_pressed(GLFW_KEY_ESCAPE))
-    {
-        handlePauseInput();
-    }
-    else
-    {
-        last_esc_state = false;
-    }
+    // Manejar pausa con ESC (lógica del juego, no del motor)
+    handlePauseInput();
+
+    if(paused)
+        return;
 
     // 1. --- Lógica del Salto del Jugador (Y) ---
     if (is_key_pressed(GLFW_KEY_SPACE) && !is_jumping)
@@ -108,29 +102,19 @@ void inputManager::setOnGameOver(Engine::Listener::Callback callback) noexcept
 
 void inputManager::handlePauseInput() noexcept
 {
-    if (!ui_manager || !ui_manager->IsInitialized())
-        return;
-    
     // Detectar transición de false a true (tecla presionada)
-    if (!last_esc_state)
+    if (is_key_pressed(GLFW_KEY_ESCAPE) && !last_esc_state)
     {
         // Si el menú principal está visible, no hacer nada (ya está pausado)
-        if (!ui_manager->IsTemplateVisible("main_menu"))
-        {
-            // Si el menú de pausa está visible, ocultarlo (reanudar)
-            if(ui_manager->IsTemplateVisible("pause_menu"))
-            {
-                ui_manager->HideTemplate("pause_menu");
-            }
-            // Si no está visible, mostrarlo (pausar)
-            else
-            {
-                ui_manager->ShowTemplate("pause_menu");
-            }
-        }
+        if(onPause)
+            onPause();
+
+        last_esc_state = true;
+    }else if(!is_key_pressed(GLFW_KEY_ESCAPE)) 
+    {
+        last_esc_state = false;
     }
     
-    last_esc_state = true;
 }
 
 void inputManager::handle_move() noexcept
@@ -175,4 +159,9 @@ void inputManager::handle_move() noexcept
         }
     }
 
+}
+
+void inputManager::setOnPause(Engine::Listener::Callback callback) noexcept
+{
+    onPause = callback;
 }

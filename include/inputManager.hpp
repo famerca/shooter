@@ -24,14 +24,13 @@ private:
     float sensitivity{0.5f};
     bool is_jumping {false};
     Engine::Listener::Callback onGameOver;
+    Engine::Listener::Callback onPause;
     
-    // UI Manager para manejar pausa (lógica del juego, no del motor)
-    std::shared_ptr<UIManager> ui_manager{nullptr};
+    const bool &paused {false};
     
     // Estado para detectar transición de ESC (evitar múltiples toggles)
     bool last_esc_state{false};
     float impulseMagnitude{40.f};
-  
 
     // Atributos de Obstáculos
     
@@ -43,13 +42,13 @@ public:
     
 
     // Constructor y Destructor
-    inputManager();
+    inputManager(const bool& paused);
+
     ~inputManager();
 
     // Inicialización
     void init(std::shared_ptr<Engine::Scene> scene, 
-              std::shared_ptr<Engine::GameObject> object,
-              std::shared_ptr<UIManager> ui_manager = nullptr);
+              std::shared_ptr<Engine::GameObject> object);
 
     // Loop principal
     void update(const float &dt) noexcept;
@@ -62,6 +61,8 @@ public:
     void setJumping(bool) noexcept;
 
     void setOnGameOver(Engine::Listener::Callback callback) noexcept;
+
+    void setOnPause(Engine::Listener::Callback callback) noexcept;
     
     // Manejar pausa con ESC (lógica del juego, no del motor)
     void handlePauseInput() noexcept;
