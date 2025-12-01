@@ -23,6 +23,7 @@ private:
     float sensitivity{0.5f};
     bool is_jumping {false};
     Engine::Listener::Callback onGameOver;
+    float impulseMagnitude{40.f};
   
 
     // Atributos de Obstáculos
