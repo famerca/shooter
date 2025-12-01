@@ -67,6 +67,8 @@ class inputManager: public Input
 public:
     bool is_jumping {false};
 
+    std::shared_ptr<Engine::Renderer> renderer{nullptr};
+
     inputManager() : Input() 
     {
         // Inicialización del generador aleatorio en el constructor
@@ -98,6 +100,11 @@ public:
         else
         {
             last_esc_state = false;
+        }
+
+        if(this->renderer->isPaused())
+        {
+            return;
         }
 
         // 1. --- Lógica del Salto del Jugador (Y) ---
@@ -210,11 +217,13 @@ public:
                 if(ui_manager->IsTemplateVisible("pause_menu"))
                 {
                     ui_manager->HideTemplate("pause_menu");
+                    renderer->pause(false);
                 }
                 // Si no está visible, mostrarlo (pausar)
                 else
                 {
                     ui_manager->ShowTemplate("pause_menu");
+                    renderer->pause(true);
                 }
             }
         }
@@ -468,6 +477,8 @@ int main()
         renderer->debug();
         renderer->init();
 
+        input->renderer = renderer;
+
         // Inicializar UIManager (sistema genérico de UI)
         auto ui_manager = std::make_shared<UIManager>();
         if (ui_manager->Initialize(main_window, "ui"))
@@ -497,8 +508,9 @@ int main()
             
             // Evento del botón CONTINUAR
             ui_manager->RegisterEvent("pause_menu", "continue-button", Rml::EventId::Click,
-                [ui_manager](Rml::Element*, Rml::EventId) {
+                [ui_manager, renderer](Rml::Element*, Rml::EventId) {
                     std::cout << "Botón CONTINUAR presionado" << std::endl;
+                    renderer->pause(false);
                     ui_manager->HideTemplate("pause_menu");
                 });
             
@@ -516,17 +528,6 @@ int main()
             // Conectar UIManager al renderer (solo para procesamiento de input de mouse/clicks)
             renderer->setUIManager(ui_manager);
             
-            // Registrar callback de pausa (modular - el motor no sabe por qué está pausado)
-            // El juego decide si está pausado basándose en sus propios menús
-            renderer->setPauseCallback([ui_manager]() -> bool {
-                if (!ui_manager || !ui_manager->IsInitialized())
-                    return false;
-                
-                // El juego está pausado si algún menú está visible
-                return ui_manager->IsTemplateVisible("main_menu") || 
-                       ui_manager->IsTemplateVisible("pause_menu") ||
-                       ui_manager->IsTemplateVisible("gameover");
-            });
             
             // Registrar callback de input (modular - el motor no sabe qué hacer con el input)
             // El juego maneja su propia lógica de input (ESC para pausa, etc.)

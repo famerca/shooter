@@ -47,8 +47,9 @@ public:
 
     // Callback para determinar si el juego está pausado (modular - el motor no sabe por qué está pausado)
     // El juego puede registrar su propia lógica de pausa basada en menús, estados, etc.
-    using PauseCallback = std::function<bool()>;
-    void setPauseCallback(PauseCallback callback) noexcept;
+    void pause(bool paused) noexcept;
+
+    const bool& isPaused() const noexcept;
 
 private:
     std::vector<std::shared_ptr<Shader>> shaders;
@@ -65,10 +66,13 @@ private:
     void renderObject(std::shared_ptr<GameObject> object);
     void renderModel(std::shared_ptr<ModelComponent> model, glm::mat4 m);
     void renderSkyBox(std::shared_ptr<SkyBox> sky_box,std::shared_ptr<CameraComponent> camera);
+    void updateUI(const std::shared_ptr<Scene>& scene);
 
     void useShader(Shader::LIST shader);
 
     void calcDeltaTime();
+
+    bool paused{false};
 
     GLdouble last_frame_time{0.0}; // Tiempo al final del frame anterior (usamos GLdouble por la precisión de glfwGetTime)
     GLfloat delta_time{0.f};       // Almacenamos el delta time en float para su uso en OpenGL/física
@@ -76,8 +80,7 @@ private:
     // UI Manager (opcional) - Solo para procesamiento de input de mouse/clicks
     std::shared_ptr<::UIManager> ui_manager{nullptr};
     
-    // Callback para determinar si el juego está pausado (modular)
-    PauseCallback pause_callback{nullptr};
+
 };
   
 }

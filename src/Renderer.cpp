@@ -19,6 +19,7 @@ Renderer::Renderer()
 
     currentShader = nullptr;
     activeShade = Shader::LIST::BASE;
+    paused = false;
 }
 
 Renderer::~Renderer()
@@ -64,10 +65,10 @@ void Renderer::render(std::shared_ptr<Scene> scene)
     while (running && !scene->getWindow()->should_be_closed())
     {
         //clear the window
-        scene->window->clear();
-        this->renderSkyBox(scene->getSkyBox(),scene->activeCamera);
+        
+        this->updateUI(scene);
 
-        calcDeltaTime();
+        scene->window->clear();
 
         // Procesar input del juego
         if(scene->window->getInput() != nullptr)
@@ -77,86 +78,24 @@ void Renderer::render(std::shared_ptr<Scene> scene)
             // y maneja todas las teclas, incluyendo ESC para pausa
         }
 
-        // Verificar si el juego está pausado usando el callback (modular)
-        // El motor no sabe por qué está pausado, solo pregunta al juego
-        bool game_paused = false;
-        if (pause_callback)
-        {
-            game_paused = pause_callback();
-        }
-        
-        if (!game_paused)
+
+        this->renderSkyBox(scene->getSkyBox(),scene->activeCamera);
+
+        calcDeltaTime();
+
+        if(!paused)
         {
             if(Engine::Physics::Get().IsInitialized())
-                Engine::Physics::Get().Step(delta_time);
-            
+                 Engine::Physics::Get().Step(delta_time);
+                 
             scene->update(delta_time);
         }
+
 
         this->useShader(Shader::LIST::BASE);
         
         // Procesar input de UI (debe hacerse antes de Update())
-        if (ui_manager && ui_manager->IsInitialized())
-        {
-            auto input = scene->window->getInput();
-            GLFWwindow* glfw_window = scene->window->getGLFWWindow();
-            
-            if (input && glfw_window)
-            {
-                // Obtener posición del mouse directamente de GLFW (coordenadas de ventana)
-                double mouse_x_window, mouse_y_window;
-                glfwGetCursorPos(glfw_window, &mouse_x_window, &mouse_y_window);
-                
-                // Obtener tamaño del framebuffer (puede ser diferente en pantallas de alta resolución)
-                int framebuffer_width, framebuffer_height;
-                glfwGetFramebufferSize(glfw_window, &framebuffer_width, &framebuffer_height);
-                
-                // Obtener tamaño de la ventana
-                int window_width, window_height;
-                glfwGetWindowSize(glfw_window, &window_width, &window_height);
-                
-                // Convertir coordenadas de ventana a coordenadas de framebuffer
-                // Esto es necesario para pantallas de alta resolución (Retina, etc.)
-                double scale_x = static_cast<double>(framebuffer_width) / static_cast<double>(window_width);
-                double scale_y = static_cast<double>(framebuffer_height) / static_cast<double>(window_height);
-                
-                int mouse_x = static_cast<int>(mouse_x_window * scale_x);
-                int mouse_y = static_cast<int>(mouse_y_window * scale_y);
-                
-                // Procesar movimiento del mouse en UI (usar coordenadas de framebuffer)
-                ui_manager->GetContext()->ProcessMouseMove(
-                    mouse_x, 
-                    mouse_y, 
-                    0  // key_modifier_state (0 = sin modificadores)
-                );
-                
-                // Procesar clicks del mouse en UI
-                // Usar estado estático para detectar transiciones (press/release)
-                static bool last_mouse_state = false;
-                bool current_mouse_state = input->is_mouse_button_pressed(0); // 0 = GLFW_MOUSE_BUTTON_LEFT
-                
-                if (current_mouse_state && !last_mouse_state)
-                {
-                    // Botón presionado - pasar coordenadas de framebuffer
-                    std::cout << "Renderer: Mouse button DOWN en ventana(" << mouse_x_window << ", " << mouse_y_window 
-                              << ") framebuffer(" << mouse_x << ", " << mouse_y << ")" << std::endl;
-                    ui_manager->GetContext()->ProcessMouseButtonDown(0, 0);
-                }
-                else if (!current_mouse_state && last_mouse_state)
-                {
-                    // Botón liberado - pasar coordenadas de framebuffer
-                    std::cout << "Renderer: Mouse button UP en ventana(" << mouse_x_window << ", " << mouse_y_window 
-                              << ") framebuffer(" << mouse_x << ", " << mouse_y << ")" << std::endl;
-                    ui_manager->GetContext()->ProcessMouseButtonUp(0, 0);
-                }
-                
-                last_mouse_state = current_mouse_state;
-            }
-            
-            // Actualizar UI después de procesar input (según documentación)
-            // Esto procesa los eventos y actualiza el estado interno
-            ui_manager->Update();
-        }
+        
         
         //render Direction Light
         this->renderDirLight(scene->DirLight);
@@ -204,6 +143,71 @@ void Renderer::renderDirLight(std::shared_ptr<DirectionalLight> dirLight)
 
     }
 
+}
+
+void Renderer::updateUI(const std::shared_ptr<Scene>& scene)
+{
+    if (ui_manager && ui_manager->IsInitialized())
+    {
+        auto input = scene->window->getInput();
+        GLFWwindow* glfw_window = scene->window->getGLFWWindow();
+        
+        if (input && glfw_window)
+        {
+            // Obtener posición del mouse directamente de GLFW (coordenadas de ventana)
+            double mouse_x_window, mouse_y_window;
+            glfwGetCursorPos(glfw_window, &mouse_x_window, &mouse_y_window);
+            
+            // Obtener tamaño del framebuffer (puede ser diferente en pantallas de alta resolución)
+            int framebuffer_width, framebuffer_height;
+            glfwGetFramebufferSize(glfw_window, &framebuffer_width, &framebuffer_height);
+            
+            // Obtener tamaño de la ventana
+            int window_width, window_height;
+            glfwGetWindowSize(glfw_window, &window_width, &window_height);
+            
+            // Convertir coordenadas de ventana a coordenadas de framebuffer
+            // Esto es necesario para pantallas de alta resolución (Retina, etc.)
+            double scale_x = static_cast<double>(framebuffer_width) / static_cast<double>(window_width);
+            double scale_y = static_cast<double>(framebuffer_height) / static_cast<double>(window_height);
+            
+            int mouse_x = static_cast<int>(mouse_x_window * scale_x);
+            int mouse_y = static_cast<int>(mouse_y_window * scale_y);
+            
+            // Procesar movimiento del mouse en UI (usar coordenadas de framebuffer)
+            ui_manager->GetContext()->ProcessMouseMove(
+                mouse_x, 
+                mouse_y, 
+                0  // key_modifier_state (0 = sin modificadores)
+            );
+            
+            // Procesar clicks del mouse en UI
+            // Usar estado estático para detectar transiciones (press/release)
+            static bool last_mouse_state = false;
+            bool current_mouse_state = input->is_mouse_button_pressed(0); // 0 = GLFW_MOUSE_BUTTON_LEFT
+            
+            if (current_mouse_state && !last_mouse_state)
+            {
+                // Botón presionado - pasar coordenadas de framebuffer
+                std::cout << "Renderer: Mouse button DOWN en ventana(" << mouse_x_window << ", " << mouse_y_window 
+                            << ") framebuffer(" << mouse_x << ", " << mouse_y << ")" << std::endl;
+                ui_manager->GetContext()->ProcessMouseButtonDown(0, 0);
+            }
+            else if (!current_mouse_state && last_mouse_state)
+            {
+                // Botón liberado - pasar coordenadas de framebuffer
+                std::cout << "Renderer: Mouse button UP en ventana(" << mouse_x_window << ", " << mouse_y_window 
+                            << ") framebuffer(" << mouse_x << ", " << mouse_y << ")" << std::endl;
+                ui_manager->GetContext()->ProcessMouseButtonUp(0, 0);
+            }
+            
+            last_mouse_state = current_mouse_state;
+        }
+        
+        // Actualizar UI después de procesar input (según documentación)
+        // Esto procesa los eventos y actualiza el estado interno
+        ui_manager->Update();
+    }
 }
 
 void Renderer::renderCamera(std::shared_ptr<CameraComponent> camera)
@@ -289,12 +293,6 @@ void Renderer::setUIManager(std::shared_ptr<::UIManager> ui_manager) noexcept
     this->ui_manager = ui_manager;
 }
 
-void Renderer::setPauseCallback(PauseCallback callback) noexcept
-{
-    this->pause_callback = callback;
-}
-
-
 void Renderer::calcDeltaTime()
 {
     GLdouble current_time = glfwGetTime();
@@ -347,4 +345,14 @@ void Renderer::renderSkyBox(std::shared_ptr<SkyBox>  sky_box, std::shared_ptr<Ca
 
 }
 
+void Renderer::pause(bool paused) noexcept
+{
+    this->paused = paused;
 }
+
+const bool& Renderer::isPaused() const noexcept
+{
+    return paused;
+}
+
+}   // namespace Engine
