@@ -41,6 +41,12 @@ private:
     std::shared_ptr<UIManager> m_ui_manager;
 
     Engine:: Listener::Callback ground_collition;
+    Engine:: Listener::Callback enemy_collition;
+    Engine:: Listener::Callback parachute_collision_on;
+    Engine:: Listener::Callback parachute_collision_off;
+    Engine:: Listener::Callback goal_collition;
+
+    bool parachute_collisioning;
 
     unsigned m_user_index;
 

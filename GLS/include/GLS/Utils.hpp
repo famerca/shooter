@@ -47,6 +47,22 @@ public:
     {
         return glm::vec3(vec3.GetX(), vec3.GetY(), vec3.GetZ());
     }
+
+    /**
+    * @brief Crea un cuaternión de rotación a partir de un eje y un ángulo.
+    * @param axis El vector de dirección del eje de rotación (debe estar normalizado).
+    * @param angleDegrees El ángulo de rotación en GRADOS.
+    * @return glm::quat El cuaternión que representa la rotación.
+    */
+    static glm::quat toQuant(const glm::vec3& axis, float angleDegrees)
+    {
+        // Es crucial que el eje esté normalizado para una rotación correcta.
+        glm::vec3 normalizedAxis = glm::normalize(axis);
+
+        // GLM espera que el ángulo se proporcione en radianes, 
+        // por lo que usamos glm::radians() para la conversión.
+        return glm::angleAxis(glm::radians(angleDegrees), normalizedAxis);
+    }
 };
 
 }

@@ -30,6 +30,7 @@ private:
     
     // Estado para detectar transición de ESC (evitar múltiples toggles)
     bool last_esc_state{false};
+    bool holing{false};
     float impulseMagnitude{40.f};
 
     // Atributos de Obstáculos
@@ -56,6 +57,8 @@ public:
     void handle_camera (const float &dt) noexcept;
     void handle_move() noexcept;
 
+    const bool & is_holding() const noexcept;
+
     void gameOver() noexcept;
 
     void setJumping(bool) noexcept;
@@ -63,6 +66,8 @@ public:
     void setOnGameOver(Engine::Listener::Callback callback) noexcept;
 
     void setOnPause(Engine::Listener::Callback callback) noexcept;
+
+    JPH::Vec3 getForward() const noexcept;
     
     // Manejar pausa con ESC (lógica del juego, no del motor)
     void handlePauseInput() noexcept;

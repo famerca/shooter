@@ -11,9 +11,13 @@
 #include <GLS/GameObject.hpp>
 #include <GLS/Listener.hpp>
 
+#include "inputManager.hpp"
+
 class Level;
 
-using scriptParams = std::vector<std::variant< std::string, float, int>>;
+using scriptParams = std::vector<
+std::variant< std::string, float, int, bool*, inputManager*, Engine::GameObject*>
+>;
 
 struct ObstacleSettings
 {

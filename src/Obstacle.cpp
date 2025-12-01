@@ -105,6 +105,23 @@ void Obstacle::initCollitions(const ObstacleSettings& settings, const std::share
             m_object->addScript(std::make_shared<PlataformaMovil>(settings.script_params));
     }
 
+    if(settings.script == "Enemy")
+    {
+        if(settings.script_params.size() != 3)
+            m_object->addScript(std::make_shared<Enemy>());
+        else
+            m_object->addScript(std::make_shared<Enemy>(settings.script_params));
+    }
+
+    if(settings.script == "Parachute")
+    {
+        if(settings.script_params.size() != 3)
+            exit(1);
+        else
+            m_object->addScript(std::make_shared<Parachute>(settings.script_params));
+    }
+
+
     if(settings.onContactStart)
     {
         Engine::Listener::Get().Add(scene, Engine::Listener::Event::ContactAdded, m_index, settings.user_index, settings.onContactStart);

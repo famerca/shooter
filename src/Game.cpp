@@ -16,6 +16,7 @@ Game::Game(std::shared_ptr<Engine::Window> window)
 {
     m_renderer = std::make_shared<Engine::Renderer>();
     m_input = std::make_shared<inputManager>(m_renderer->isPaused());
+    parachute_collisioning = false;
 }
 
 Game::~Game()
@@ -63,9 +64,8 @@ void Game::initUser()
     
     m_camera->activate();
     m_user->getTransform()->translate(-2.f, 0.f, 0.f);
-    m_user->getTransform()->rotate(90.f, {0.f, 1.f, 0.f});
 
-    //m_user->getTransform()->translate({-3.f, 5.f, 50.f});
+    m_user->getTransform()->translate({-3.f, 5.f, 50.f});
     m_user->getTransform()->scale(0.8f, 0.8f, 0.8f);
     m_scene->createAudioListener(m_user_index);
 
@@ -136,8 +136,6 @@ void Game::Level1()
     s_casita.box_shape = {2.f, 1.5f, 2.f};
     s_casita.rel_pos = {0.f, -0.75f, 0.f};
     s_casita.body_type = Engine::BodyType::Static;
-    s_casita.axis = {0.f, 1.f, 0.f};
-    s_casita.angle = 90.f;
 
     ObstacleSettings s_plataforma = {};
 
@@ -162,17 +160,33 @@ void Game::Level1()
     s_bird.scale = {0.5f, 0.5f, 0.5f};
     s_bird.axis = {0.f, 1.f, 0.f};
     s_bird.angle = -90.f;
+    s_bird.script = "Enemy";
+    s_bird.script_params = {-3.f, 3.f, 2.f};
+    s_bird.onContactStart = enemy_collition;
 
 
     ObstacleSettings s_parachute = {};
-    s_parachute.box_shape = {2.5f, 2.5f, 2.5f};
+    s_parachute.box_shape = {1.5f, 1.5f, 1.5f};
+    s_parachute.rel_pos = {0.f, -1.f, 0.f};
     s_parachute.body_type = Engine::BodyType::Kinematic;
     s_parachute.scale = {2.5f, 2.5f, 2.5f};
+
+    s_parachute.script = "Parachute";
+    s_parachute.script_params = {&parachute_collisioning, m_input.get(), m_user.get()};
+    s_parachute.user_index = m_user_index;
+
+    s_parachute.onContactStart = parachute_collision_on;
+    s_parachute.onContactEnd = parachute_collision_off;
+
+    ObstacleSettings s_goal = s_ground;
+
+    s_goal.box_shape = {2.f, 0.5f, 2.f};
+    s_goal.scale = {2.f, 0.5f, 2.f};
+    s_goal.onContactStart = goal_collition;
 
 
     level1.init({
         {"casita/base.fbx", "deco", {2.f, 1.8f, 0.f}, s_casita}, 
-        {"bird/base.fbx", "enemey", {-3.f, 5.f, 53.f}, s_bird},
         {"ground/base.fbx", "ground", {0.f, -0.5f, 0.f}, s_ground},
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 7.f}, s_plataforma},
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 10.f}, s_plataforma},
@@ -186,7 +200,10 @@ void Game::Level1()
         {"ground/base.fbx", "plataforma", {-3.f, 3.f, 42.f}, s_plataforma3},
         {"ground/base.fbx", "plataforma", {3.f, 3.f, 46.f}, s_plataforma3},
         {"", "plataforma", {-3.f, 3.f, 50.f}, s_plataforma},
+        {"bird/base.fbx", "enemey", {-3.f, 5.f, 53.f}, s_bird},
         {"parachute/base.fbx", "parachute", {0.f, 5.f, 57.f}, s_parachute},
+        {"bird/base.fbx", "enemey", {-3.f, 5.f, 70.f}, s_bird},
+         {"ground/base.fbx", "goal", {10.f, -5.5f, 100.f}, s_goal},
     });
 
 }
@@ -199,9 +216,39 @@ void Game::render()
 void Game::initCollitions()
 {
     ground_collition = [this]() {
-        std::cout << "Inicio de colisión"  << std::endl;
         // Aquí puedes ejecutar lógica como aplicar daño o activar efectos
         m_input->setJumping(false);
+    };
+
+    enemy_collition = [this]() {
+        std::cout << "=============GAME OVER=============" << std::endl;
+        
+        // Ocultar el contador de vidas
+        m_ui_manager->HideTemplate("lives_counter");
+        // Mostrar el menú de Game Over
+        m_ui_manager->ShowTemplate("gameover");
+        
+        //m_input->setOnGameOver(nullptr);
+
+        m_renderer->pause(true);
+    };
+
+    parachute_collision_on = [this]()
+    {
+        parachute_collisioning = true;
+    };
+
+    parachute_collision_off = [this]()
+    {
+        parachute_collisioning = false;
+    };
+
+    goal_collition = [this]()
+    {
+        std::cout << "=============YOU WIN=============" << std::endl;
+        m_ui_manager->ShowTemplate("pause_menu");
+        m_renderer->pause(true);
+
     };
 
 }

@@ -34,6 +34,11 @@ void inputManager::init(std::shared_ptr<Scene> scene_ptr,
     this->scene = scene_ptr;
 }
 
+JPH::Vec3 inputManager::getForward() const noexcept
+{
+    return Engine::Utils::toJoltVec3(scene->getCamera()->getForward());
+}
+
 void inputManager::update(const float &dt) noexcept 
 {
     // Protección básica: si no hay objeto o escena, no hacemos nada
@@ -53,6 +58,15 @@ void inputManager::update(const float &dt) noexcept
             is_jumping = true;
         }
     }
+
+    if(is_mouse_button_pressed(GLFW_MOUSE_BUTTON_LEFT))
+    {
+        holing = true;
+    }else if(holing)
+    {
+        holing = false;
+    }
+
 
     handle_camera(dt);
 
@@ -76,6 +90,11 @@ void inputManager::handle_camera(const float &dt) noexcept
 void inputManager::setJumping(bool jumping) noexcept
 {
     is_jumping = jumping;
+}
+
+const bool & inputManager::is_holding() const noexcept
+{
+    return holing;
 }
 
 
