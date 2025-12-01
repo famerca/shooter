@@ -96,7 +96,6 @@ Este proyecto es un juego de plataformas 3D que utiliza un motor de juego person
 - **Ubicación**: `GLS/lib/librmlui.a` y `GLS/lib/librmlui_debugger.a`
 - **Uso**: 
   - Menús del juego (principal, pausa, game over)
-  - Contador de vidas
   - Sistema de UI modular con plantillas RML
 - **Características**:
   - Sintaxis similar a HTML/CSS

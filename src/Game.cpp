@@ -223,8 +223,6 @@ void Game::initCollitions()
     enemy_collition = [this]() {
         std::cout << "=============GAME OVER=============" << std::endl;
         
-        // Ocultar el contador de vidas
-        m_ui_manager->HideTemplate("lives_counter");
         // Mostrar el menú de Game Over
         m_ui_manager->ShowTemplate("gameover");
         
@@ -267,8 +265,6 @@ void Game::handleGameOver() noexcept
     m_input->setOnGameOver([this]() {
         std::cout << "=============GAME OVER=============" << std::endl;
         
-        // Ocultar el contador de vidas
-        m_ui_manager->HideTemplate("lives_counter");
         // Mostrar el menú de Game Over
         m_ui_manager->ShowTemplate("gameover");
         
@@ -290,7 +286,6 @@ void Game::initUI()
         // Cargar plantillas
         m_ui_manager->LoadTemplate("main_menu", "test.rml", true); // Mostrar automáticamente
         m_ui_manager->LoadTemplate("pause_menu", "pause_menu.rml", false); // Cargar pero no mostrar
-        m_ui_manager->LoadTemplate("lives_counter", "lives_counter.rml", false); // Cargar pero no mostrar
         m_ui_manager->LoadTemplate("gameover", "gameover.rml", false); // Cargar pero no mostrar
         
         // Registrar eventos con lambdas
@@ -299,7 +294,6 @@ void Game::initUI()
             [this](Rml::Element*, Rml::EventId) {
                 std::cout << "Botón START GAME presionado" << std::endl;
                 m_ui_manager->HideTemplate("main_menu");
-                m_ui_manager->ShowTemplate("lives_counter");
                 m_renderer->pause(false);
                 m_audio_player->play();
                 std::cout << "Juego iniciado desde el menú" << std::endl;
@@ -310,7 +304,6 @@ void Game::initUI()
             [this](Rml::Element*, Rml::EventId) {
                 std::cout << "Botón CONTINUAR presionado" << std::endl;
                 m_ui_manager->HideTemplate("pause_menu");
-                m_ui_manager->ShowTemplate("lives_counter");
                 m_renderer->pause(false);
             });
         
@@ -319,7 +312,6 @@ void Game::initUI()
             [this](Rml::Element*, Rml::EventId) {
                 std::cout << "Botón REINICIAR JUEGO presionado" << std::endl;
                 m_ui_manager->HideTemplate("pause_menu");
-                m_ui_manager->ShowTemplate("lives_counter");
                 restart();
                 m_renderer->pause(false);
             });
@@ -330,7 +322,6 @@ void Game::initUI()
             [this](Rml::Element*, Rml::EventId) {
                 std::cout << "Botón REINICIAR presionado (Game Over)" << std::endl;
                 m_ui_manager->HideTemplate("gameover");
-                m_ui_manager->ShowTemplate("lives_counter");
                 restart();
                 m_renderer->pause(false);
             });
@@ -340,7 +331,6 @@ void Game::initUI()
             [this](Rml::Element*, Rml::EventId) {
                 std::cout << "Botón MAIN MENU presionado (Game Over)" << std::endl;
                 m_ui_manager->HideTemplate("gameover");
-                m_ui_manager->HideTemplate("lives_counter");
                 restart();
                 m_ui_manager->ShowTemplate("main_menu");
             });
@@ -351,9 +341,6 @@ void Game::initUI()
                 std::cout << "Botón SALIR presionado (Game Over)" << std::endl;
                 m_renderer->stop();
             });
-        
-        // Inicializar contador de vidas
-        m_ui_manager->UpdateElementText("lives_counter", "lives-count", "3");
         
         // Conectar UIManager al renderer
         m_renderer->setUIManager(m_ui_manager);
