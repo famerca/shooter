@@ -45,7 +45,7 @@ public:
     void SetPosition(const glm::vec3& inPosition, JPH::EActivation inActivation = JPH::EActivation::Activate);
     void SetVelocity(const JPH::Vec3& velocity);
     void SetOwner(std::shared_ptr<GameObject> gameObject);
-    void setRotation(const glm::quat& rotation);
+    void SetRotation(const glm::quat& rotation);
 
     void SetShape(const JPH::Vec3& halfExtent);
 

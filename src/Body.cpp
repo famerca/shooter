@@ -82,7 +82,7 @@ void Body::SetVelocity(const Vec3& velocity)
 }
 
 
-void Body::setRotation(const glm::quat& rotation)
+void Body::SetRotation(const glm::quat& rotation)
 {
     if (IsValid())
     {

@@ -43,6 +43,7 @@
 #build directory
 build/
 vendor/
+assets/
 
 .DS_Store
  models/.DS_Store

@@ -70,6 +70,7 @@ void GameObject::setBody(std::shared_ptr<Engine::Body> body)
     this->body = body;
     body->SetOwner(shared_from_this());
     body->SetPosition(transform->getPosition());
+    body->SetRotation(transform->getRotation());
 
     if(body->getType() == Engine::BodyType::Kinematic)
     {
