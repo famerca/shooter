@@ -107,7 +107,7 @@ void Parachute::OnPhysicsUpdate(float dt)
         hooked = false;
 
     
-    if(is_coll && input->is_holding())
+    if(*is_coll && input->is_holding())
     {
         hooked = true;
     }

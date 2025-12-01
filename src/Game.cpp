@@ -65,7 +65,7 @@ void Game::initUser()
     m_camera->activate();
     m_user->getTransform()->translate(-2.f, 0.f, 0.f);
 
-    m_user->getTransform()->translate({-3.f, 5.f, 50.f});
+    //m_user->getTransform()->translate({-3.f, 5.f, 50.f});
     m_user->getTransform()->scale(0.8f, 0.8f, 0.8f);
     m_scene->createAudioListener(m_user_index);
 
