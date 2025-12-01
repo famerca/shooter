@@ -44,6 +44,7 @@ int main()
 
         std::cout << "ROOT: " << ROOT_PATH << std::endl;
         std::cout << "Carpeta de recursos: " << ASSETS_PATH << std::endl;
+        std::cout << "Carpeta de shaders: " << SHADERS_PATH << std::endl;
 
         Game game(main_window);
         game.init();

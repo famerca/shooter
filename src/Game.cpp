@@ -1,12 +1,14 @@
-#include "Game.hpp"
-#include "inputManager.hpp"
-#include "Level.hpp"
 #include <GLS/DirectionalLight.hpp>
 #include <GLS/Physics.hpp>
 #include <GLS/SkyBox.hpp>
 #include <GLS/Path.hpp>
 #include <GLS/UIManager.hpp>
 #include <iostream>
+
+#include "Scripts.hpp"
+#include "Game.hpp"
+#include "inputManager.hpp"
+#include "Level.hpp"
 
 Game::Game(std::shared_ptr<Engine::Window> window)
     : m_window(window)
@@ -63,13 +65,12 @@ void Game::initUser()
     m_user->getTransform()->scale(0.8f, 0.8f, 0.8f);
     m_scene->createAudioListener(m_user_index);
 
-
-
     auto pj_model = m_scene->createModel(m_user_index);
     pj_model->loadModel("girl.fbx");
     pj_model->setRelativeModel(glm::vec3(0.f, -0.72f, 0.f));
 
     m_user->setBody(Engine::Physics::Get().CreateBox({0.25f, 0.6f, 0.25f}, {0.f, 0.0f, 0.f}, Engine::BodyType::Dynamic));
+    
 }
 
 void Game::initGround()
@@ -130,10 +131,15 @@ void Game::Level1()
 
     s_plataforma.scale = {1.f, 1.f, 1.f};
     s_plataforma.box_shape = {1.f, 0.25f, 1.f};
-    s_plataforma.body_type = Engine::BodyType::Static;
+    s_plataforma.body_type = Engine::BodyType::Kinematic;
     s_plataforma.onContactStart = ground_collition;
     s_plataforma.user_index = m_user_index;
     s_plataforma.rel_pos = {0.f, -0.25f, 0.f};
+
+    ObstacleSettings s_plataforma2 = s_plataforma;
+
+    s_plataforma2.script = "PlataformaMovil";
+    s_plataforma2.script_params = {0.f, 3.f, "vertical"};
 
 
     level1.init({
@@ -142,10 +148,10 @@ void Game::Level1()
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 7.f}, s_plataforma},
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 10.f}, s_plataforma},
         {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 14.f}, s_plataforma},
-        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 16.f}, s_plataforma},
-        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 20.f}, s_plataforma},
-        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 24.f}, s_plataforma},
-        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 30.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {-2.f, -0.5f, 16.f}, s_plataforma2},
+        {"ground/base.fbx", "plataforma", {-2.f, 3.f, 20.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {-2.f, 3.f, 24.f}, s_plataforma},
+        {"ground/base.fbx", "plataforma", {0.f, 3.f, 30.f}, s_plataforma},
     });
 
 }
@@ -165,6 +171,13 @@ void Game::initCollitions()
 
 }
 
+void Game::restart()
+{
+    m_input->setJumping(false);
+    m_user->getBody()->SetPosition({-2.f, 0.f, 0.f});
+    m_user->getBody()->SetVelocity({0.f, 0.f, 0.f});
+}
+
 
 void Game::handleGameOver() noexcept
 {
@@ -173,12 +186,15 @@ void Game::handleGameOver() noexcept
         
         // Ocultar el contador de vidas
         m_ui_manager->HideTemplate("lives_counter");
-        
-        
         // Mostrar el menú de Game Over
         m_ui_manager->ShowTemplate("gameover");
         
-        m_input->setOnGameOver(nullptr);
+        //m_input->setOnGameOver(nullptr);
+
+        m_renderer->pause(true);
+  
+       // exit(0);
+
     });
 }
 

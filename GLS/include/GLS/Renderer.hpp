@@ -80,7 +80,6 @@ private:
     // UI Manager (opcional) - Solo para procesamiento de input de mouse/clicks
     std::shared_ptr<::UIManager> ui_manager{nullptr};
     
-
 };
   
 }

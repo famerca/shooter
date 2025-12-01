@@ -30,6 +30,8 @@ private:
     
     // Estado para detectar transición de ESC (evitar múltiples toggles)
     bool last_esc_state{false};
+    float impulseMagnitude{40.f};
+  
 
     // Atributos de Obstáculos
     
@@ -53,6 +55,7 @@ public:
     void update(const float &dt) noexcept;
 
     void handle_camera (const float &dt) noexcept;
+    void handle_move() noexcept;
 
     void gameOver() noexcept;
 
