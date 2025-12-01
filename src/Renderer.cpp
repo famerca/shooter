@@ -240,9 +240,9 @@ void Renderer::renderObject(std::shared_ptr<GameObject> object)
     {
         auto model = object->getTransform()->getModelMatrix();
         #ifdef ENGINE_DEBUG_MODE
-        if(object->getBody() != nullptr)
-            std::cout << "Body Postion: " << object->getBody()->GetPosition() << std::endl;
-        Utils::printMat4(model);
+        //if(object->getBody() != nullptr)
+            //std::cout << "Body Postion: " << object->getBody()->GetPosition() << std::endl;
+            //Utils::printMat4(model);
         #endif
 
         for (std::shared_ptr<Component> component : object->getComponents())

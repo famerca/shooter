@@ -136,27 +136,33 @@ public:
         
         // 2. --- Lógica de Movimiento Horizontal del Jugador (X/Z) ---
         // Nota: Solo se usa translate para el movimiento horizontal.
+        glm::vec3 right = scene->getCamera()->getRight();
+        glm::vec3 front = scene->getCamera()->getForward();
         
         if(is_key_pressed(GLFW_KEY_A))
         {
             // Mover en X positivo (asumiendo que 'A' es para ir a la derecha en el plano XZ)
-            object->getBody()->ApplyImpulse({30.f, 0.f, 0.f});
+            right = right * -30.f;
+            object->getBody()->ApplyImpulse({right.x, 0.f, right.z});
         }
 
         if(is_key_pressed(GLFW_KEY_D))
         {
             // Mover en X negativo (asumiendo que 'D' es para ir a la izquierda)
-            object->getBody()->ApplyImpulse({-30.f, 0.f, 0.f});
+            right = right * 30.f;
+            object->getBody()->ApplyImpulse({right.x, 0.f, right.z});
         }
         
         if(is_key_pressed(GLFW_KEY_W))
         {
-            object->getBody()->ApplyImpulse({0.f, 0.f, 40.f});
+            front = front * 40.f;
+            object->getBody()->ApplyImpulse({front.x, 0.f, front.z});
         }
 
         if(is_key_pressed(GLFW_KEY_S))
         {
-            object->getBody()->ApplyImpulse({0.f, 0.f, -40.f});
+            front = front * -40.f;
+            object->getBody()->ApplyImpulse({front.x, 0.f, front.z});
         }
         
         // 3. --- Lógica de Movimiento y Reaparición de Obstáculos ---
@@ -330,7 +336,7 @@ int main()
         auto camera = scene->createCamera(user);
 
         camera->setClamp(0.0f, 0.0f);
-        camera->setOrbiting(false);
+        camera->setOrbiting(true);
 
         scene->at(user)->getTransform()->translate(glm::vec3(0.f, 0.f, 0.f));
         

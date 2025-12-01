@@ -1,6 +1,7 @@
 #include "CameraComponent.hpp"
 #include "Scene.hpp"
 #include "AudioManager.hpp"
+#include "Utils.hpp"
 
 namespace Engine
 {
@@ -74,11 +75,15 @@ void CameraComponent::setDistance(float dist)
 
 void CameraComponent::calcFront()
 {
+
     front.x = glm::cos(glm::radians(pitch)) * glm::cos(glm::radians(yaw));
     front.y = glm::sin(glm::radians(pitch));
     front.z = glm::cos(glm::radians(pitch)) * glm::sin(glm::radians(yaw));
     front = glm::normalize(front);
     right = glm::normalize(glm::cross(front, up));
+    std::cout << "[CameraComponent] front: " << Utils::toJoltVec3(front) << std::endl;
+    std::cout << "[CameraComponent] right: " << Utils::toJoltVec3(right) << std::endl;
+
 }
 
 void CameraComponent::update(const GLfloat &dt)
@@ -116,13 +121,17 @@ void CameraComponent::update(const GLfloat &dt)
             // Posición final = Centro del Jugador + Vector Rotado
             // NOTA: Si quieres que la cámara esté "detrás", a menudo se resta el vector dirección.
             // Aquí calculamos la posición en la esfera.
+            front = glm::normalize(orbitOffset);
+            right = glm::normalize(glm::cross(front, up));
+
+            std::cout << "[CameraComponent] front: " << Utils::toJoltVec3(front) << std::endl;
+            std::cout << "[CameraComponent] right: " << Utils::toJoltVec3(right) << std::endl;
+            
             glm::vec3 finalCamPos = targetPos - orbitOffset; // El '-' la pone "detrás" de la dirección de vista
 
             // C. Configurar la vista
             // La cámara está en finalCamPos y mira a targetPos
             view = glm::lookAt(finalCamPos, targetPos, up);
-
-            calcFront(); // Calcula hacia dónde miro
             
         }
         else 
