@@ -121,10 +121,9 @@ void CameraComponent::update(const GLfloat &dt)
             // C. Configurar la vista
             // La cámara está en finalCamPos y mira a targetPos
             view = glm::lookAt(finalCamPos, targetPos, up);
+
+            calcFront(); // Calcula hacia dónde miro
             
-            // Actualizamos la variable interna 'position' por si alguien la consulta,
-            // aunque ahora es relativa dinámica.
-            //this->position = finalCamPos - owner->getTransform()->getPosition();
         }
         else 
         {
