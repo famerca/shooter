@@ -1,0 +1,93 @@
+<rml>
+<head>
+    <title>You Win</title>
+    <style>
+        body {
+            font-family: LatoLatin;
+            font-size: 18px;
+            background: transparent;
+            background-color: transparent;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .youwin-container {
+            width: 600px;
+            background: #000000;
+            background-color: #000000;
+            opacity: 0.9;
+            border-width: 2px;
+            border-color: #4a9eff;
+            padding: 30px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+        
+        .youwin-title {
+            color: #ffcc00;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .youwin-button {
+            display: block;
+            width: 80%;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            background: #4a9eff;
+            border-width: 0px;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .youwin-button:hover {
+            background-color: #5cabff;
+        }
+        
+        .youwin-button.restart {
+            background: #ff2d95;
+        }
+        
+        .youwin-button.restart:hover {
+            background-color: #ff4da6;
+        }
+        
+        .youwin-button.main-menu {
+            background: #4a9eff;
+        }
+        
+        .youwin-button.main-menu:hover {
+            background-color: #5cabff;
+        }
+        
+        button {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="youwin-container">
+        <div class="youwin-title">YOU WIN</div>
+        
+        <button id="restart-button" class="youwin-button restart" type="button">RESTART</button>
+        <button id="main-menu-button" class="youwin-button main-menu" type="button">MAIN MENU</button>
+    </div>
+</body>
+</rml>
+

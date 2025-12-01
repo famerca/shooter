@@ -65,7 +65,7 @@ void Game::initUser()
     m_camera->activate();
     m_user->getTransform()->translate(-2.f, 0.f, 0.f);
 
-    //m_user->getTransform()->translate({-3.f, 5.f, 50.f});
+    m_user->getTransform()->translate({-3.f, 5.f, 50.f});
     m_user->getTransform()->scale(0.8f, 0.8f, 0.8f);
     m_scene->createAudioListener(m_user_index);
 
@@ -244,9 +244,8 @@ void Game::initCollitions()
     goal_collition = [this]()
     {
         std::cout << "=============YOU WIN=============" << std::endl;
-        m_ui_manager->ShowTemplate("pause_menu");
+        m_ui_manager->ShowTemplate("you_win");
         m_renderer->pause(true);
-
     };
 
 }
@@ -287,6 +286,7 @@ void Game::initUI()
         m_ui_manager->LoadTemplate("main_menu", "test.rml", true); // Mostrar automáticamente
         m_ui_manager->LoadTemplate("pause_menu", "pause_menu.rml", false); // Cargar pero no mostrar
         m_ui_manager->LoadTemplate("gameover", "gameover.rml", false); // Cargar pero no mostrar
+        m_ui_manager->LoadTemplate("you_win", "you_win.rml", false); // Cargar pero no mostrar
         
         // Registrar eventos con lambdas
         // Evento del botón START GAME
@@ -340,6 +340,25 @@ void Game::initUI()
             [this](Rml::Element*, Rml::EventId) {
                 std::cout << "Botón SALIR presionado (Game Over)" << std::endl;
                 m_renderer->stop();
+            });
+        
+        // Eventos del menú You Win
+        // Botón REINICIAR
+        m_ui_manager->RegisterEvent("you_win", "restart-button", Rml::EventId::Click,
+            [this](Rml::Element*, Rml::EventId) {
+                std::cout << "Botón REINICIAR presionado (You Win)" << std::endl;
+                m_ui_manager->HideTemplate("you_win");
+                restart();
+                m_renderer->pause(false);
+            });
+        
+        // Botón MENÚ PRINCIPAL
+        m_ui_manager->RegisterEvent("you_win", "main-menu-button", Rml::EventId::Click,
+            [this](Rml::Element*, Rml::EventId) {
+                std::cout << "Botón MAIN MENU presionado (You Win)" << std::endl;
+                m_ui_manager->HideTemplate("you_win");
+                restart();
+                m_ui_manager->ShowTemplate("main_menu");
             });
         
         // Conectar UIManager al renderer
